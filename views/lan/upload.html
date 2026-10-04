@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Upload • Xender-lite</title>
+  <link rel="stylesheet" id="accent">
+  <link rel="icon" type="image/x-icon">
+  <script src="script/resumable.js"></script>
+  <script src="script/socket/socket.io.min.js"></script>
+  <style>
+
+    *{
+      scroll-behavior: smooth;
+      scrollbar-width: thin;
+      scrollbar-color: var(--accent) var(--bg-tertiary);
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+    }
+
+    .app {
+      margin: 0 auto;
+      padding: 20px 16px 40px;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+    }
+
+    header h1 {
+      font-size: 1.4rem;
+      font-weight: 700;
+    }
+    header div{
+      display: flex;
+      flex-direction: row;
+      gap: 20px;
+      justify-content: space-between;
+      align-items: center;
+    }
+    header div a{
+      text-decoration: none;
+      font-size: 1.1rem;
+      font-weight: 500;
+    }
+    .status-pill {
+      font-size: 0.8rem;
+      padding: 5px 12px;
+      border-radius: 0.7rem;
+      gap: 20px;
+      color: var(--accent);
+    }
+
+    /* Drop Zone */
+    .drop-zone {
+      border: 2px dashed var(--border);
+      border-radius: var(--radius);
+      padding: 40px 20px;
+      text-align: center;
+      margin-bottom: 24px;
+      transition: all var(--transition);
+      cursor: pointer;
+      background: var(--card);
+    }
+
+    .drop-zone.dragover {
+      border-color: var(--accent);
+      background: rgba(34, 211, 238, 0.06);
+      box-shadow: 0 0 30px rgba(34, 211, 238, 0.25);
+    }
+
+    .drop-zone .icon {
+      font-size: 2.4rem;
+      margin-bottom: 12px;
+    }
+
+    .drop-zone h3 {
+      font-size: 1.05rem;
+      margin-bottom: 6px;
+    }
+
+    .drop-zone p {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    /* File List */
+    .file-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .file-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px 16px;
+      transition: border-color var(--transition);
+    }
+
+    .file-card.uploading { border-color: var(--blue); }
+    .file-card.paused    { border-color: var(--warning); }
+    .file-card.success   { border-color: var(--success); }
+    .file-card.error     { border-color: var(--danger); }
+
+    .file-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .file-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      background: rgba(34, 211, 238, 0.12);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      flex-shrink: 0;
+    }
+
+    .file-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .file-info h4 {
+      font-size: 0.92rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .file-info p {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    .file-actions {
+      display: flex;
+      gap: 6px;
+    }
+
+    .file-actions button {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: all var(--transition);
+    }
+
+    .file-actions button:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* Progress */
+    .progress-wrap {
+      margin-top: 4px;
+    }
+
+    .progress-bar {
+      height: 6px;
+      background: var(--bg-tertiary);
+      border-radius: 999px;
+      overflow: hidden;
+      margin-bottom: 6px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      border-radius: 999px;
+      transition: width 0.25s ease, background 0.3s ease;
+      background: var(--accent);
+    }
+
+    .progress-fill.paused  { background: var(--warning); }
+    .progress-fill.success { background: var(--success); }
+    .progress-fill.error   { background: var(--error); }
+
+    .progress-meta {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .empty {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <h1>Upload Files</h1> 
+      <div>
+      <a href="/">Files </a>
+      <p class="status-pill" id="connectionStatus">Connecting...</p></div>
+    </header>
+
+    <!-- Drop Zone -->
+    <div class="drop-zone" id="dropZone">
+      <div class="icon">📂</div>
+      <h3>Drop files here</h3>
+      <p>or click to browse • Resumable upload supported</p>
+    </div>
+
+    <!-- File List -->
+    <div class="file-list" id="fileList">
+      <div class="empty" id="emptyState">No files selected yet</div>
+    </div>
+  </div>
+  <script src="script/setting.js"></script>
+
+  <script>
+    const socket = io();
+    const dropZone = document.getElementById('dropZone');
+    const fileList = document.getElementById('fileList');
+    const emptyState = document.getElementById('emptyState');
+    const html = document.body;
+    const accentTag = document.getElementById('accent')
+    const connectionStatus = document.getElementById('connectionStatus');
+
+    // ========== Socket.IO ==========
+    socket.on('connect', () => {
+      connectionStatus.textContent = 'Connected';
+      connectionStatus.style.color = '#22C55E';
+      socket.emit('start-live');
+      wireThemeSocket(socket);
+      socket.on('file-changed', (data) => {
+        location.reload();
+      });
+
+    });
+     
+
+    socket.on('disconnect', () => {
+      connectionStatus.textContent = 'Disconnected';
+      connectionStatus.style.color = '#EF4444';
+    });
+
+    // ========== Resumable.js ==========
+    const r = new Resumable({
+      target: '/upload-file',           // change to your upload endpoint
+      chunkSize: 8 * 1024 * 1024,  // 5 MB chunks
+      simultaneousUploads: 3,
+      testChunks: true,
+      //throttleProgressCallbacks: 1,
+      query: { socketId: socket.id }
+    });
+
+    r.assignBrowse(dropZone);
+    r.assignDrop(dropZone);
+
+    // Drag visual
+    dropZone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropZone.classList.add('dragover');
+    });
+    dropZone.addEventListener('dragleave', () => {
+      dropZone.classList.remove('dragover');
+    });
+    dropZone.addEventListener('drop', () => {
+      dropZone.classList.remove('dragover');
+    });
+
+    // ========== Helpers ==========
+    function formatSize(bytes) {
+      if (bytes === 0) return '0 B';
+      const k = 1024;
+      const sizes = ['B', 'KB', 'MB', 'GB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+    }
+
+    function getFileIcon(filename) {
+      const ext = filename.split('.').pop().toLowerCase();
+      if (['jpg','jpeg','png','gif','webp','svg'].includes(ext)) return '🖼️';
+      if (['mp4','mkv','avi','mov'].includes(ext)) return '🎬';
+      if (['mp3','wav','flac','aac'].includes(ext)) return '🎵';
+      if (['pdf'].includes(ext)) return '📄';
+      if (['zip','rar','7z'].includes(ext)) return '📦';
+      return '📁';
+    }
+
+    // Store UI elements per file
+    const fileUI = new Map();
+
+    function createFileCard(file) {
+      emptyState.style.display = 'none';
+
+      const card = document.createElement('div');
+      card.className = 'file-card uploading';
+      card.dataset.fileId = file.uniqueIdentifier;
+
+      card.innerHTML = `
+        <div class="file-header">
+          <div class="file-icon">${getFileIcon(file.fileName)}</div>
+          <div class="file-info">
+            <h4 title="${file.fileName}""> ${file.fileName}</h4>
+            <p>${formatSize(file.size)}</p>
+          </div>
+          <div class="file-actions">
+            <button class="btn-pause" title="Pause">⏸</button>
+            <button class="btn-cancel" title="Cancel">✕</button>
+          </div>
+        </div>
+        <div class="progress-wrap">
+          <div class="progress-bar">
+            <div class="progress-fill" style="width:0%"></div>
+          </div>
+          <div class="progress-meta">
+            <span class="percent">0%</span>
+            <span class="speed">—</span>
+          </div>
+        </div>
+      `;
+
+      fileList.prepend(card);
+
+      const fill = card.querySelector('.progress-fill');
+      const percentEl = card.querySelector('.percent');
+      const speedEl = card.querySelector('.speed');
+      const pauseBtn = card.querySelector('.btn-pause');
+      const cancelBtn = card.querySelector('.btn-cancel');
+
+      // Pause / Resume
+      pauseBtn.addEventListener('click', () => {
+        if (file.isUploading()) {
+          file.abort();
+          card.classList.remove('uploading');
+          card.classList.add('paused');
+          fill.classList.add('paused');
+          pauseBtn.textContent = '▶';
+          pauseBtn.title = 'Resume';
+          socket.emit('upload:paused', { id: file.uniqueIdentifier, name: file.fileName });
+        } else {
+          file.retry();
+          card.classList.remove('paused');
+          card.classList.add('uploading');
+          fill.classList.remove('paused');
+          pauseBtn.textContent = '⏸';
+          pauseBtn.title = 'Pause';
+          socket.emit('upload:resumed', { id: file.uniqueIdentifier, name: file.fileName });
+        }
+      });
+
+      // Cancel
+      cancelBtn.addEventListener('click', () => {
+        file.cancel();
+        card.remove();
+        fileUI.delete(file.uniqueIdentifier);
+        socket.emit('upload:cancelled', { id: file.uniqueIdentifier, name: file.fileName });
+        if (fileUI.size === 0) emptyState.style.display = 'block';
+      });
+
+      fileUI.set(file.uniqueIdentifier, { card, fill, percentEl, speedEl, pauseBtn });
+    }
+
+    // ========== Resumable Events ==========
+    r.on('fileAdded', (file) => {
+      createFileCard(file);
+      r.upload(); // start automatically
+      socket.emit('upload:started', {
+        id: file.uniqueIdentifier,
+        name: file.fileName,
+        size: file.size
+      });
+    });
+
+    r.on('fileProgress', (file) => {
+      const ui = fileUI.get(file.uniqueIdentifier);
+      if (!ui) return;
+
+      const progress = Math.floor(file.progress() * 100);
+      ui.fill.style.width = progress + '%';
+      ui.percentEl.textContent = progress + '%';
+
+      // simple speed estimate
+      const speed = file.averageSpeed || 0;
+      ui.speedEl.textContent = speed > 0 ? formatSize(speed) + '/s' : '—';
+
+      socket.emit('upload:progress', {
+        id: file.uniqueIdentifier,
+        name: file.fileName,
+        progress,
+        speed
+      });
+    });
+
+    r.on('fileSuccess', (file, message) => {
+      const ui = fileUI.get(file.uniqueIdentifier);
+      if (!ui) return;
+
+      ui.card.classList.remove('uploading', 'paused');
+      ui.card.classList.add('success');
+      ui.fill.classList.remove('paused');
+      ui.fill.classList.add('success');
+      ui.fill.style.width = '100%';
+      ui.percentEl.textContent = '100%';
+      ui.speedEl.textContent = 'Done';
+      ui.pauseBtn.style.display = 'none';
+
+      socket.emit('upload:success', {
+        id: file.uniqueIdentifier,
+        name: file.fileName
+      });
+      setTimeout(() =>{
+        document.querySelector('.btn-cancel').click()
+      }, 2570)
+    });
+
+    r.on('fileError', (file, message) => {
+      const ui = fileUI.get(file.uniqueIdentifier);
+      if (!ui) return;
+
+      ui.card.classList.remove('uploading', 'paused');
+      ui.card.classList.add('error');
+      ui.fill.classList.remove('paused');
+      ui.fill.classList.add('error');
+      ui.speedEl.textContent = 'Failed';
+      ui.pauseBtn.textContent = '↺';
+      ui.pauseBtn.title = 'Retry';
+
+      socket.emit('upload:error', {
+        id: file.uniqueIdentifier,
+        name: file.fileName,
+        error: message
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,53 @@
+{
+  "name": "Xender Lite",
+  "version": "2.0.0",
+  "description": "Lightweight local and LAN file-sharing application for Windows",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "node --watch app.js",
+    "test": "nose --watch app.js"
+  },
+  "keywords": [
+    "xender",
+    "file-sharing",
+    "file-transfer",
+    "lan",
+    "nodejs",
+    "windows"
+  ],
+  "author": "Xender Lite Community",
+  "license": "MIT",
+  "os": [
+    "win32",
+    "win64"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/amk2406/xender-lite.git"
+  },
+  "bugs": {
+    "url": "https://github.com/amk2406/xender-lite/issues"
+  },
+  "homepage": "https://github.com/amk2406/xender-lite",
+  "engines": {
+    "node": ">=22"
+  },
+  "overrides": {
+    "braces": "^3.0.3"
+  },
+  "dependencies": {
+    "cache": "github:amk2406/cache",
+    "chokidar": "^5.0.0",
+    "express": "^5.2.1",
+    "file-json-db": "^1.0.2",
+    "genthumb": "^1.0.4",
+    "low-json-db": "^1.0.2",
+    "multer": "^2.2.0",
+    "node-file-scanner": "^1.0.1",
+    "qrcode": "^1.5.4",
+    "serve-index": "^1.9.2",
+    "socket.io": "^4.8.3",
+    "webview-node": "^0.1.0"
+  }
+}

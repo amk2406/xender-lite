@@ -1,0 +1,97 @@
+:root {
+  /* ========== Light Theme ========== */
+  --bg: #f8fafc;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #f1f5f9;
+
+  --text: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #94a3b8;
+
+  /* Brand colors from logo */
+  --accent: #F59E0B;               /* Main orange */
+  --accent-hover: #D97706;
+  --accent-secondary: #22C55E;     /* Green arrow */
+  --accent-secondary-hover: #16A34A;
+
+  /* Gradient (orange → green) */
+  --gradient: linear-gradient(135deg, #F59E0B 0%, #22C55E 100%);
+  --gradient-hover: linear-gradient(135deg, #D97706 0%, #16A34A 100%);
+
+  /* Borders */
+  --border: #e2e8f0;
+  --border-hover: #cbd5e1;
+  --border-focus: #F59E0B;
+
+  --status: #faa5124d;
+
+  /* Cards */
+  --card: #ffffff;
+  --card-hover: #f8fafc;
+  --div-hover: rgba(245, 159, 11, 0.199);
+
+  /* Shadows */
+  --shadow-sm: 0 1px 3px rgba(245, 158, 11, 0.08);
+  --shadow: 0 4px 20px rgba(245, 158, 11, 0.12);
+  --shadow-md: 0 8px 30px rgba(245, 158, 11, 0.15);
+  --shadow-lg: 0 15px 40px rgba(245, 158, 11, 0.18);
+  --shadow-glow: 0 0 25px rgba(245, 158, 11, 0.3);
+
+  /* Radius */
+  --radius-sm: 6px;
+  --radius: 10px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-full: 9999px;
+
+  /* Spacing */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+
+  --success: #22C55E;
+  --warning: #F59E0B;
+  --danger: #ef4444;
+  --transition: 0.2s ease;
+}
+
+[data-theme="dark"] {
+  /* ========== Dark Theme (matches logo) ========== */
+  --bg: #000000;
+  --bg-secondary: #0a0a0a;
+  --bg-tertiary: #111111;
+
+  --text: #f8fafc;
+  --text-secondary: #e2e8f0;
+  --text-muted: #94a3b8;
+
+  --accent: #F59E0B;
+  --accent-hover: #FBBF24;
+  --accent-secondary: #22C55E;
+  --accent-secondary-hover: #4ADE80;
+
+  --gradient: linear-gradient(135deg, #F59E0B 0%, #22C55E 100%);
+  --gradient-hover: linear-gradient(135deg, #FBBF24 0%, #4ADE80 100%);
+
+  --border: #1e293b;
+  --border-hover: #334155;
+  --border-focus: #F59E0B;
+
+  --card: #0a0a0a;
+  --card-hover: #111111;
+  --div-hover: rgba(15, 15, 15, 0.199);
+
+  /* Stronger orange-tinted shadows */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.5);
+  --shadow: 0 4px 24px rgba(245, 158, 11, 0.15);
+  --shadow-md: 0 8px 32px rgba(245, 158, 11, 0.2);
+  --shadow-lg: 0 16px 48px rgba(245, 158, 11, 0.25);
+  --shadow-glow: 0 0 30px rgba(245, 158, 11, 0.4);
+
+  --success: #22C55E;
+  --warning: #F59E0B;
+  --danger: #ef4444;
+}

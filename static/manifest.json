@@ -1,0 +1,8 @@
+{
+    "name": "Xender Lit",
+    "short_name": "X-lite",
+    "start_url": "/",
+    "scope": "/",
+    "display": "standalone",
+    "orientation": "portrait"
+}

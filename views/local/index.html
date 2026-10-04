@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="font-icon/css/all.min.css">
+  <link rel="icon" href="icon/logo.png">
+  <link rel="stylesheet" id="accent" href="style/theme.css">
+  <link rel="manifest" href="manifest.json">
+  <link rel="preload" href="script/socket/socket.io.min.js" as="script">
+  <link rel="preload" href="script/splash-screen.js" as="script">
+  <script src="script/splash-screen.js" ></script>
+  <title>Xender-lite</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.5;
+    }
+    .app {
+      margin: 0 auto;
+      padding: 20px 16px 100px;
+    }
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 28px;
+      padding-top: 8px;
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      font-size: 1.35rem;
+    }
+    .logo span {
+      background: var(--gradient);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    .header-actions { display: flex; gap: 10px; }
+    .icon-btn {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      border: 1px solid var(--border);
+      background: var(--bg-secondary);
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all var(--transition, 0.2s);
+    }
+    .icon-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      box-shadow: var(--shadow-glow);
+    }
+    .hero {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius, 16px);
+      padding: 28px 20px;
+      text-align: center;
+      margin-bottom: 20px;
+      box-shadow: var(--shadow);
+    }
+    .hero h2 { font-size: 1.4rem; margin-bottom: 6px; }
+    .hero p { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 22px; }
+    .qr-box {
+      width: 250px;
+      height: 250px;
+      margin: 0 auto 18px;
+      background: var(--bg);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text);
+      font-size: 0.85rem;
+      overflow: hidden;
+    }
+    .qr-box img {
+      height: 100%;
+      width: 100%;
+      object-fit: contain;
+    }
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.85rem;
+      color: var(--accent);
+      background: var(--status, rgba(34,211,238,0.12));
+      padding: 6px 14px;
+      border-radius: 999px;
+    }
+    .status::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      background: var(--accent);
+      border-radius: 50%;
+      animation: pulse 1.5s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+    .actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    .action-btn {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius, 16px);
+      padding: 20px 12px;
+      text-align: center;
+      cursor: pointer;
+      transition: all var(--transition, 0.2s);
+      color: var(--text);
+    }
+    .action-btn:hover {
+      border-color: var(--accent);
+      box-shadow: var(--shadow-glow);
+      transform: translateY(-2px);
+    }
+    .action-btn .icon { font-size: 1.5rem; margin-bottom: 8px; }
+    .action-btn strong { display: block; font-size: 0.95rem; }
+    .action-btn span { font-size: 0.78rem; color: var(--text-muted); }
+    .section-title {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+      padding-left: 4px;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius, 16px);
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+    .list-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border);
+      transition: background var(--transition, 0.2s);
+    }
+    .list-item:last-child { border-bottom: none; }
+    .list-item:hover { background: var(--bg-tertiary); }
+    .file-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      background: rgba(34, 211, 238, 0.12);
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      flex-shrink: 0;
+    }
+    .file-info { flex: 1; min-width: 0; }
+    .file-info h4 {
+      font-size: 0.92rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .file-info p { font-size: 0.78rem; color: var(--text-muted); }
+    .progress-wrap {
+      margin-top: 6px;
+      height: 6px;
+      background: var(--bg-tertiary, #1e293b);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background: var(--gradient, linear-gradient(90deg, #22d3ee, #a78bfa));
+      border-radius: 999px;
+      transition: width 0.25s ease;
+    }
+    .transfer-pct {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--accent);
+      min-width: 40px;
+      text-align: right;
+    }
+    .empty-transfers {
+      padding: 28px 16px;
+      text-align: center;
+      color: var(--text-muted);
+    }
+    .empty-transfers button {
+      margin-top: 12px;
+      height: 44px;
+      padding: 0 18px;
+      border-radius: var(--radius, 16px);
+      border: none;
+      background: var(--bg);
+      color: var(--text);
+      cursor: pointer;
+      box-shadow: var(--shadow-glow);
+      font-weight: 600;
+    }
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      backdrop-filter: blur(10px);
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-around;
+      padding: 10px 14px;
+      margin: 0 auto;
+      background: color-mix(in srgb, var(--bg) 85%, transparent);
+    }
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      color: var(--text);
+      text-decoration: none;
+      font-size: 0.72rem;
+      transition: color var(--transition, 0.2s);
+    }
+    .nav-item.active, .nav-item:hover {
+      color: var(--accent);
+    }
+    .nav-item svg {
+      width: 22px;
+      height: 22px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: color-mix(in srgb, var(--accent) 60%, transparent);
+      border-radius: 10px;
+    }
+    ::-webkit-scrollbar { width: 6px; background: transparent; }
+    ::-webkit-scrollbar-track { background: transparent; }
+
+    .mode-toggle {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 24px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius, 16px);
+      padding: 6px;
+    }
+    .mode-btn {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 16px;
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: calc(var(--radius, 16px) - 4px);
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 0.95rem;
+      font-weight: 500;
+      transition: all var(--transition, 0.2s);
+    }
+    .mode-btn:hover { color: var(--text); }
+    .mode-btn.active {
+      background: var(--bg-tertiary);
+      border-color: var(--accent);
+      color: var(--accent);
+      box-shadow: var(--shadow);
+    }
+    .mode-btn i { font-size: 1.2rem; }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="logo"><span>Xender-lite</span></div>
+      <div class="header-actions">
+        <button class="icon-btn" title="Settings" onclick="location.href='settings'">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <div class="mode-toggle" id="modeToggleButtons">
+      <button class="mode-btn active" id="webModeBtn" onclick="switchMode('web')">
+        <i class="fas fa-globe"></i>
+        Connect to Web
+      </button>
+      <button class="mode-btn" id="pcModeBtn" onclick="switchMode('pc')">
+        <i class="fas fa-desktop"></i>
+        Connect to PC
+      </button>
+    </div>
+
+    <div class="hero" id="heroWeb">
+      <h2>Ready to share</h2>
+      <p>Scan the QR code or connect on the same Wi-Fi</p>
+      <div class="qr-box" id="qrcodeWeb">
+        <img src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20100%20100%22%20width%3D%22100%22%20height%3D%22100%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22xg%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%232379e9c0%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23842de9d7%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Ctext%20x%3D%2250%22%20y%3D%2235%22%20text-anchor%3D%22middle%22%20font-family%3D%22Arial%2Csans-serif%22%20font-size%3D%2210%22%20fill%3D%22%23000000%22%3EConnect%20to%20a%20WiFi%3C%2Ftext%3E%3Ctext%20x%3D%2250%22%20y%3D%2246%22%20text-anchor%3D%22middle%22%20font-family%3D%22Arial%2Csans-serif%22%20font-size%3D%224%22%20fill%3D%22%231d1d1d%22%3EShare%20files%20wirelessly%3C%2Ftext%3E%3Ctext%20x%3D%2250%22%20y%3D%2264%22%20text-anchor%3D%22middle%22%20font-family%3D%22Arial%20Rounded%20MT%20Bold%2CArial%2Csans-serif%22%20font-size%3D%229%22%20font-weight%3D%22800%22%20letter-spacing%3D%22-0.4%22%20fill%3D%22url(%23xg)%22%3EXender-lite%3C%2Ftext%3E%3C%2Fsvg%3E" style="background-color: transparent;" alt="You are not connected">
+      </div>
+      <div class="status" id="connStatus">Not Connected</div>
+    </div>
+
+    <div class="hero" id="heroPc" style="display: none;">
+      <h2>Connect via USB</h2>
+      <p>Connect your PC to transfer files directly</p>
+      <div class="qr-box" id="qrcodePc">
+        <i class="fas fa-desktop" style="font-size: 3rem; color: var(--accent);"></i>
+      </div>
+      <div class="status">Waiting for Connection</div>
+    </div>
+
+    <div class="actions">
+      <button class="action-btn" onclick="location.href='files'">
+        <div class="icon">
+          <i class="fa far fa-folder-open"></i>
+        </div>
+        <strong>Send Files</strong>
+        <span>Browse & share</span>
+      </button>
+      <button class="action-btn" onclick="location.href='devices'">
+        <div class="icon">
+          <i class="fa fa-file-arrow-down"></i>
+        </div>
+        <strong>Receive</strong>
+        <span id="receiveHint">Waiting…</span>
+      </button>
+    </div>
+
+    <div class="section-title">Incoming transfers</div>
+    <div class="card" id="transfersCard">
+      <div class="empty-transfers" id="emptyTransfers">
+        <p>No incoming transfers</p>
+        <button type="button" onclick="location.href='devices'">Find a device</button>
+      </div>
+    </div>
+  </div>
+
+  <nav class="bottom-nav">
+    <a href="/" class="nav-item active">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      Home
+    </a>
+    <a href="files" class="nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+      Files
+    </a>
+    <a href="devices" class="nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      Devices
+    </a>
+    <a href="settings" class="nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      Settings
+    </a>
+  </nav>
+
+  <script src="script/toast.js"></script>
+  <script src="script/socket/socket.io.min.js"></script>
+  <script src="script/setting.js"></script>
+  <script src="script/xender-native.js"></script>
+  <script>
+    const socket = io();
+    let a =true
+    function switchMode(mode) {
+      if (a) {
+        console.log(a)
+        socket.on('connect', () =>{
+          socket.emit('start-server')
+        })
+        a = false
+      }
+      const heroWeb = document.getElementById('heroWeb');
+      const heroPc = document.getElementById('heroPc');
+      const webModeBtn = document.getElementById('webModeBtn');
+      const pcModeBtn = document.getElementById('pcModeBtn');
+      if (mode === 'web') {
+        heroWeb.style.display = 'block';
+        heroPc.style.display = 'none';
+        webModeBtn.classList.add('active');
+        pcModeBtn.classList.remove('active');
+      } else if (mode === 'pc') {
+        heroWeb.style.display = 'none';
+        heroPc.style.display = 'block';
+        webModeBtn.classList.remove('active');
+        pcModeBtn.classList.add('active');
+      }
+      if (typeof socket !== 'undefined' && socket.connected) {
+        socket.emit('set-mode', { mode });
+      }
+    }
+
+    // ===== Incoming transfers =====
+    /** @type {Map<string, object>} */
+    const transfers = new Map();
+    const transfersCard = document.getElementById('transfersCard');
+    const emptyTransfers = document.getElementById('emptyTransfers');
+    const receiveHint = document.getElementById('receiveHint');
+    const connStatus = document.getElementById('connStatus');
+
+    function transferId(t) {
+      return String(t.id || t.transferId || t.name + '-' + (t.from || ''));
+    }
+
+    function formatSize(bytes) {
+      if (bytes == null) return '';
+      const n = Number(bytes);
+      if (Number.isNaN(n)) return String(bytes);
+      if (n < 1024) return n + ' B';
+      if (n < 1024 * 1024) return (n / 1024).toFixed(1) + ' KB';
+      return (n / (1024 * 1024)).toFixed(1) + ' MB';
+    }
+
+    function clampPct(p) {
+      const n = Number(p);
+      if (Number.isNaN(n)) return 0;
+      return Math.max(0, Math.min(100, Math.round(n)));
+    }
+
+    function createTransferEl(t) {
+      const id = transferId(t);
+      const pct = clampPct(t.progress != null ? t.progress : t.percent);
+      const div = document.createElement('div');
+      div.className = 'list-item';
+      div.dataset.id = id;
+      div.innerHTML = `
+        <div class="file-icon">📥</div>
+        <div class="file-info">
+          <h4></h4>
+          <p class="meta"></p>
+          <div class="progress-wrap"><div class="progress-bar"></div></div>
+        </div>
+        <div class="transfer-pct"></div>
+      `;
+      div.querySelector('h4').textContent = t.name || t.filename || 'Incoming file';
+      const from = t.from || t.device || t.source || '';
+      const size = formatSize(t.size || t.total);
+      const status = t.status || (pct >= 100 ? 'Done' : 'Receiving');
+      div.querySelector('.meta').textContent = [from, size, status].filter(Boolean).join(' • ');
+      div.querySelector('.progress-bar').style.width = pct + '%';
+      div.querySelector('.transfer-pct').textContent = pct + '%';
+      return div;
+    }
+
+    function upsertTransfer(t) {
+      if (!t) return;
+      const id = transferId(t);
+      const prev = transfers.get(id) || {};
+      const merged = { ...prev, ...t, id };
+      transfers.set(id, merged);
+
+      emptyTransfers.style.display = 'none';
+      let el = transfersCard.querySelector(`.list-item[data-id="${CSS.escape(id)}"]`);
+      if (el) {
+        const pct = clampPct(merged.progress != null ? merged.progress : merged.percent);
+        el.querySelector('h4').textContent = merged.name || merged.filename || 'Incoming file';
+        const from = merged.from || merged.device || merged.source || '';
+        const size = formatSize(merged.size || merged.total);
+        const status = merged.status || (pct >= 100 ? 'Done' : 'Receiving');
+        el.querySelector('.meta').textContent = [from, size, status].filter(Boolean).join(' • ');
+        el.querySelector('.progress-bar').style.width = pct + '%';
+        el.querySelector('.transfer-pct').textContent = pct + '%';
+      } else {
+        transfersCard.appendChild(createTransferEl(merged));
+      }
+
+      const active = Array.from(transfers.values()).filter((x) => clampPct(x.progress != null ? x.progress : x.percent) < 100).length;
+      receiveHint.textContent = active ? `${active} receiving…` : 'Waiting…';
+    }
+
+    function removeTransfer(tOrId) {
+      const id = typeof tOrId === 'object' ? transferId(tOrId) : String(tOrId);
+      transfers.delete(id);
+      const el = transfersCard.querySelector(`.list-item[data-id="${CSS.escape(id)}"]`);
+      if (el) el.remove();
+      if (transfers.size === 0) emptyTransfers.style.display = 'block';
+      const active = Array.from(transfers.values()).filter((x) => clampPct(x.progress != null ? x.progress : x.percent) < 100).length;
+      receiveHint.textContent = active ? `${active} receiving…` : 'Waiting…';
+    }
+
+    function renderTransfers(list) {
+      transfers.clear();
+      transfersCard.querySelectorAll('.list-item').forEach((n) => n.remove());
+      (list || []).forEach((t) => {
+        transfers.set(transferId(t), t);
+        transfersCard.appendChild(createTransferEl(t));
+      });
+      emptyTransfers.style.display = transfers.size === 0 ? 'block' : 'none';
+    }
+
+    // ===== Socket =====
+    
+    wireThemeSocket(socket);
+
+    socket.on('connect', () => {
+      console.log('Connected to server');
+      socket.emit('user-setting');
+      socket.emit('start-server')
+      socket.on('lan-link', link =>{
+        connStatus.innerText = ` http://${link}`
+      })
+      socket.emit('get-incoming-transfers');
+      socket.on('qr-code', (data) => {
+        const img = document.querySelector('#qrcodeWeb img');
+        if (!img) return;
+        if (typeof data === 'string') img.src = data;
+        else if (data && data.dataUrl) img.src = data.dataUrl;
+        else if (data && data.url) img.src = data.url;
+      });
+      if (Toast) Toast.success('Connected', 1800);
+    });
+
+    socket.on('disconnect', () => {
+      if (Toast) Toast.warning('Disconnected from main System');
+    });
+
+    socket.on('file-changed', (data) => {
+      if (data && data.path && /\.(html|css|js)$/i.test(data.path)) {
+        location.reload();
+      }
+    }); 
+
+    // Incoming transfer lifecycle from LAN / peer
+    socket.on('incoming-transfer', (data) => {
+      upsertTransfer(data);
+      if (data && !data.silent && Toast) {
+        const name = data.name || data.filename || 'File';
+        Toast.info('Incoming: ' + name, 2500);
+      }
+    });
+
+    socket.on('transfer-progress', (data) => {
+      // data: { id, progress|percent, received?, total?, name? }
+      upsertTransfer(data);
+    });
+
+    socket.on('transfer-complete', (data) => {
+      const t = { ...data, progress: 100, status: 'Done' };
+      upsertTransfer(t);
+      if (Toast) {
+        Toast.success((data && (data.name || data.filename)) || 'Transfer' + ' complete');
+      }
+      // Optional: remove after a short delay
+      setTimeout(() => {
+        if (data && (data.removeAfter !== false)) {
+          // keep visible unless server sends transfer-remove
+        }
+      }, 0);
+    });
+
+    socket.on('transfer-error', (data) => {
+      if (data) {
+        upsertTransfer({ ...data, status: 'Failed' });
+      }
+      const msg = (data && (data.error || data.message)) || 'Transfer failed';
+      if (Toast) Toast.error(msg);
+    });
+
+    socket.on('transfer-remove', (data) => removeTransfer(data));
+    socket.on('transfer-cancelled', (data) => {
+      removeTransfer(data);
+      if (Toast)Ttoast.info('Transfer cancelled');
+    });
+
+    socket.on('incoming-transfers', (data) => {
+      const list = Array.isArray(data) ? data : (data && data.transfers) || [];
+      renderTransfers(list);
+    });
+
+    // QR / connection helpers if server sends them
+    socket.on('qr-code', (data) => {
+      const img = document.querySelector('#qrcodeWeb img');
+      if (!img) return;
+      if (typeof data === 'string') img.src = data;
+      else if (data && data.dataUrl) img.src = data.dataUrl;
+      else if (data && data.url) img.src = data.url;
+    });
+    socket.on('lan-link', link =>{
+        connStatus.textContent = link
+    })
+
+    socket.on('connection-status', (data) => {
+      if (!data) return;
+      connStatus.textContent = data.text || data.status || (data.connected ? 'Connected' : 'Not Connected');
+    });
+    socket.on('close-app', () =>{
+      console.log('close app emite')
+      xenderNative.close()
+    })
+    socket.on('flash', () =>{
+      console.log('close app emite')
+      xenderNative.flash()
+    })
+  </script>
+</body>
+</html>

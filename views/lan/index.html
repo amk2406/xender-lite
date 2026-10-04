@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" id="accent" href="style/theme.css">
+  <link rel="icon" type="image/x-icon">
+  <title id="title">Xender-lite Web UI</title>
+  <style>
+    *{
+      scroll-behavior: smooth;
+      scrollbar-width: thin;
+      scrollbar-color: var(--accent) var(--bg-tertiary);
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 24px;
+      text-align: center;
+    }
+    .logo { font-size: 1.8rem; font-weight: 700; margin-bottom: 8px; margin-top: 12px; }
+    .logo span {
+      background: var(--gradient);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    .subtitle { color: var(--text-muted); margin-bottom: 28px; font-size: 0.95rem; }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius, 16px);
+      padding: 32px 28px;
+      width: 100%;
+      max-width: 400px;
+      box-shadow: var(--shadow-glow);
+    }
+    .device-name { font-size: 1.15rem; font-weight: 600; margin-bottom: 6px; }
+    .device-ip { color: var(--accent); font-size: 0.9rem; margin-bottom: 24px; }
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      margin-bottom: 28px;
+    }
+    .connect::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      background: var(--accent);
+      border-radius: 50%;
+      animation: pulse 1.5s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.35; }
+    }
+    .btn {
+      display: block;
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all var(--transition, 0.2s);
+      margin-bottom: 12px;
+      color: var(--text);
+    }
+    .btn-primary {
+      background: var(--gradient);
+      color: #000;
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-glow);
+    }
+    .btn-secondary {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+    .btn-secondary:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+    .files-section {
+      width: 100%;
+      max-width: 400px;
+      margin-top: 24px;
+      text-align: left;
+      display: none;
+    }
+    .files-section.visible { display: block; }
+    .files-section h3 {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+      padding-left: 4px;
+    }
+    .files-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius, 16px);
+      overflow: hidden;
+    }
+    .list-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--border);
+      transition: background 0.15s;
+    }
+    .list-item:last-child { border-bottom: none; }
+    .list-item:hover { background: var(--bg-tertiary); }
+    .file-icon {
+      width: 36px; height: 36px; border-radius: 8px;
+      background: rgba(34, 211, 238, 0.12);
+      color: var(--accent);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem; flex-shrink: 0;
+    }
+    .file-info { flex: 1; min-width: 0; }
+    .file-info h4 {
+      font-size: 0.88rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .file-info p { font-size: 0.75rem; color: var(--text-muted); }
+    .file-actions button {
+      background: transparent;
+      border: none;
+      color: var(--accent);
+      cursor: pointer;
+      padding: 6px 10px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+    .file-actions button:hover { background: rgba(34, 211, 238, 0.12); }
+    .empty-files {
+      padding: 20px;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+    .footer {
+      margin-top: 40px;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+<body>
+  <div class="logo"><span>Xender-lite</span></div>
+  <p class="subtitle">Connected via local network</p>
+
+  <div class="card">
+    <div class="device-name" id="deviceName">My Computer</div>
+    <div class="device-ip" id="deviceIp">192.168.X.X</div>
+    <div class="status connect" id="status">Ready to receive files</div>
+    <button class="btn btn-primary" onclick="location.href='./upload'">Send Files</button>
+    <button class="btn btn-secondary" onclick="location.reload()">Refresh Connection</button>
+  </div>
+
+  <div class="files-section" id="filesSection">
+    <h3>Shared files</h3>
+    <div class="files-card" id="filesList">
+      <div class="empty-files" id="emptyFiles">No shared files yet. Allow it in settings (Allow viw no web)</div>
+    </div>
+  </div>
+
+  <div class="footer">Xender-lite • Secure local transfer</div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="script/toast.js"></script>
+  <script src="script/setting.js"></script>
+  <script>
+    const socket = io();
+    const deviceNameEl = document.getElementById('deviceName');
+    const htmlTitle = document.getElementById('title');
+    const deviceIpEl = document.getElementById('deviceIp');
+    const accentTag = document.getElementById('accent');
+    const statusEl = document.getElementById('status');
+    const filesSection = document.getElementById('filesSection');
+    const filesList = document.getElementById('filesList');
+    const emptyFiles = document.getElementById('emptyFiles');
+
+    let allowFilesView = false;
+    /** @type {Map<string, object>} */
+    const filesMap = new Map();
+
+    deviceIpEl.innerText = location.hostname;
+
+    function fileId(file) {
+      return String(file.id || file.path || file.name);
+    }
+
+    function formatSize(bytes) {
+      if (bytes == null || bytes === '') return '--';
+      const n = Number(bytes);
+      if (Number.isNaN(n)) return String(bytes);
+      if (n < 1024) return n + ' B';
+      if (n < 1024 * 1024) return (n / 1024).toFixed(1) + ' KB';
+      return (n / (1024 * 1024)).toFixed(1) + ' MB';
+    }
+
+    function iconFor(name) {
+      const ext = (name || '').split('.').pop().toLowerCase();
+      if (['png','jpg','jpeg','gif','webp','svg'].includes(ext)) return '🖼️';
+      if (['mp4','mkv','mov','webm','avi'].includes(ext)) return '🎬';
+      if (['mp3','wav','flac','aac','ogg'].includes(ext)) return '🎵';
+      if (ext === 'pdf') return '📕';
+      if (['zip','rar','7z','tar','gz'].includes(ext)) return '📦';
+      return '📄';
+    }
+
+    function createFileElement(file) {
+      const id = fileId(file);
+      const div = document.createElement('div');
+      div.className = 'list-item';
+      div.dataset.id = id;
+      div.innerHTML = `
+        <div class="file-icon"></div>
+        <div class="file-info">
+          <h4></h4>
+          <p></p>
+        </div>
+        <div class="file-actions">
+          <button type="button" data-action="save">Save</button>
+        </div>
+      `;
+      div.querySelector('.file-icon').textContent = iconFor(file.name);
+      div.querySelector('h4').textContent = file.name || 'Untitled';
+      div.querySelector('p').textContent = formatSize(file.size);
+      div.querySelector('[data-action="save"]').addEventListener('click', () => {
+        saveFile(file.id || id);
+      });
+      return div;
+    }
+
+    function toggleEmpty() {
+      const has = filesList.querySelectorAll('.list-item').length > 0;
+      if (emptyFiles) emptyFiles.style.display = has ? 'none' : 'block';
+    }
+
+    function renderFiles(files) {
+      if (!allowFilesView) return;
+      filesSection.classList.add('visible');
+      filesMap.clear();
+      filesList.querySelectorAll('.list-item').forEach((n) => n.remove());
+      (files || []).forEach((f) => {
+        const id = fileId(f);
+        filesMap.set(id, f);
+        filesList.appendChild(createFileElement(f));
+      });
+      toggleEmpty();
+    }
+
+    function updateFile(file) {
+      if (!allowFilesView || !file) return;
+      filesSection.classList.add('visible');
+      const id = fileId(file);
+      filesMap.set(id, file);
+      const existing = filesList.querySelector(`.list-item[data-id="${CSS.escape(id)}"]`);
+      const el = createFileElement(file);
+      if (existing) existing.replaceWith(el);
+      else filesList.appendChild(el);
+      toggleEmpty();
+    }
+
+    function removeFile(fileOrId) {
+      if (!allowFilesView) return;
+      const id = typeof fileOrId === 'object' ? fileId(fileOrId) : String(fileOrId);
+      filesMap.delete(id);
+      const el = filesList.querySelector(`.list-item[data-id="${CSS.escape(id)}"]`);
+      if (el) el.remove();
+      toggleEmpty();
+    }
+
+    function saveFile(id) {
+      if (!socket.connected) {
+        if (Toast) toast('Not connected', 'error');
+        return;
+      }
+      socket.emit('save-file', { id });
+      if (Toast) toast('Saving file…', 'info', 2000);
+    }
+
+    function setTheme(newTheme) {
+      document.body.setAttribute('data-theme', newTheme);
+    }
+    function setAccent(accent) {
+      const accents = {
+        primary: { src: 'style/theme.css', icon: 'icon/logo.png' },
+        colored: { src: 'style/theme-color.css', icon: 'icon/logo-color.png' },
+        neon: { src: 'style/theme-dark.css', icon: 'icon/logo-dark.png' },
+      };
+      const found = accents[accent] || accents.primary;
+      const iconTag = document.querySelector('link[rel="icon"]');
+      if (iconTag) iconTag.href = found.icon;
+      if (accentTag && accentTag.href.indexOf(found.src) === -1) {
+        accentTag.href = found.src;
+      }
+    }
+
+    socket.on('connect', () => {
+      statusEl.innerText = 'Connected, Ready to send.';
+      statusEl.classList.add('connect');
+      htmlTitle.innerText = 'Xender-lite Web UI • Connected';
+      socket.emit('start-live');
+    });
+
+    socket.on('disconnect', () => {
+      statusEl.innerText = 'You are disconnected';
+      statusEl.classList.remove('connect');
+      htmlTitle.innerText = 'Xender-lite Web UI • Disconnected';
+      if (Toast) toast('Disconnected', 'warning');
+    });
+
+    socket.on('file-changed', (data) => {
+      if (data && data.path && /\.(html|css|js)$/i.test(data.path)) {
+        location.reload();
+        return;
+      }
+      // treat as file-change for shared list
+      handleLanFileChange(data);
+    });
+
+    socket.on('allow-files', (rules) => {
+      if (rules && rules.allow) {
+        allowFilesView = true;
+        filesSection.classList.add('visible');
+        renderFiles(rules.files || []);
+        if (Toast) toast('File sharing enabled on this page', 'success', 2500);
+      } else {
+        allowFilesView = false;
+        filesSection.classList.remove('visible');
+        filesMap.clear();
+        filesList.querySelectorAll('.list-item').forEach((n) => n.remove());
+        toggleEmpty();
+      }
+    });
+
+    socket.on('save-file', (file) => {
+      saveFile(file && (file.id || file));
+    });
+
+    socket.on('device-name', (name) => {
+      deviceNameEl.textContent = (name && (name.name || name)) || 'Host Device';
+    });
+
+    socket.on('device-ip', (ip) => {
+      deviceIpEl.innerText = (ip && (ip.ip || ip)) || location.hostname;
+    });
+
+    socket.on('theme', setTheme);
+    socket.on('accent', setAccent);
+
+    socket.on('update-file', (file) => {
+      if (allowFilesView) updateFile(file);
+    });
+
+    socket.on('file-added', (file) => {
+      if (allowFilesView) updateFile(file);
+    });
+
+    socket.on('file-removed', (file) => {
+      if (allowFilesView) removeFile(file);
+    });
+
+    socket.on('file-deleted', (file) => {
+      if (allowFilesView) removeFile(file);
+    });
+
+    socket.on('file-change', handleLanFileChange);
+
+    function handleLanFileChange(payload) {
+      if (!allowFilesView || !payload) return;
+      const action = (payload.action || payload.type || '').toLowerCase();
+      const file = payload.file || payload.data || payload;
+
+      if (action === 'delete' || action === 'remove' || action === 'deleted') {
+        removeFile(file.id != null ? file.id : file);
+        return;
+      }
+      if (action === 'add' || action === 'added' || action === 'create' || action === 'update' || action === 'updated') {
+        updateFile(typeof file === 'object' ? file : { id: file, name: String(file) });
+        return;
+      }
+      if (file && (file.name || file.id)) updateFile(file);
+    }
+
+    socket.on('save-result', (res) => {
+      if (!res) return;
+      if (res.ok || res.success) {
+        if (Toast) toast(res.message || 'File saved', 'success');
+      } else {
+        if (Toast) toast(res.error || res.message || 'Save failed', 'error');
+      }
+    });
+  </script>
+</body>
+</html>

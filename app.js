@@ -7,7 +7,7 @@ const child_process = require('child_process');
 const express = require('express');
 const { Server } = require('socket.io');
 const multer = require('multer');
-const nodewifi = require('node-wifi');
+const nodewifi = require('node-wifi-plus');
 const qrcode = require('qrcode');
 const logger = require('node-logger');
 
@@ -18,6 +18,11 @@ const { setupXenderBrowser } = require('./modules/xender-browser');
 const {generateMaxWait, getFileCategory, getFreeDiskSpaceMb, getUniqueFilePath} = require('./modules/utility.js')
 
 
+const datapath = path.resolve(process.env.LOCALAPPDATA, 'xender-lite');
+const configFile = path.resolve(datapath, 'config.json');
+const settingFile = path.resolve(datapath, 'setting.json');
+const webviewdata = path.resolve(datapath)
+const CHUNK_DIR = path.join(os.tmpdir(), 'xender-lite', 'chunk');
 const loger = logger({
     path: path.resolve(process.env.LOCALAPPDATA, 'xender-lite', 'logs'),
     colors: true
@@ -32,17 +37,10 @@ let apphttp = http.createServer(app);
 let appLanhttp = http.createServer(appLan);
 
 // ===== APP METADATA =====
-const version = '1.0.0';
+const version = '2.0.0';
 let config;
 let setting;
 
-// ===== PATHS =====
-const appDataFile = path.resolve(process.env.LOCALAPPDATA, 'xender-lite');
-const configFile = path.resolve(appDataFile, 'config.json');
-const settingFile = path.resolve(appDataFile, 'setting.json');
-const CHUNK_DIR = path.join(os.tmpdir(), 'xender-lite', 'chunk');
-
-// ===== HELPERS =====
 function ensureDir(dir) {
     const resolved = path.resolve(dir);
     if (!fs.existsSync(resolved)) {fs.mkdirSync(resolved, { recursive: true });}

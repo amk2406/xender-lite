@@ -45,9 +45,7 @@ const CHUNK_DIR = path.join(os.tmpdir(), 'xender-lite', 'chunk');
 // ===== HELPERS =====
 function ensureDir(dir) {
     const resolved = path.resolve(dir);
-    if (!fs.existsSync(resolved)) {
-        fs.mkdirSync(resolved, { recursive: true });
-    }
+    if (!fs.existsSync(resolved)) {fs.mkdirSync(resolved, { recursive: true });}
 }
 
 function saveSetting(data = setting) {

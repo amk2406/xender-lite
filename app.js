@@ -17,11 +17,11 @@ const msg = require('./modules/windows-dialog');
 const { setupXenderBrowser } = require('./modules/xender-browser');
 const {generateMaxWait, getFileCategory, getFreeDiskSpaceMb, getUniqueFilePath} = require('./modules/utility.js')
 
-
+// Path configuration
 const datapath = path.resolve(process.env.LOCALAPPDATA, 'xender-lite');
 const configFile = path.resolve(datapath, 'config.json');
 const settingFile = path.resolve(datapath, 'setting.json');
-const webviewdata = path.resolve(datapath)
+const webviewdata = path.resolve(datapath, 'bin')
 const CHUNK_DIR = path.join(os.tmpdir(), 'xender-lite', 'chunk');
 const loger = logger({
     path: path.resolve(process.env.LOCALAPPDATA, 'xender-lite', 'logs'),
@@ -62,7 +62,7 @@ function validateConfig(raw) {
             socketPort: generator.generatePortNumber(5),
             tcpport: generator.generatePortNumber(5)
         },
-        scanDir: []
+        serverdir: []
     };
 
     const cfg = raw && typeof raw === 'object' ? raw : {};
@@ -70,7 +70,7 @@ function validateConfig(raw) {
     for (const [key, value] of Object.entries(defaults.ports)) {
         cfg.ports[key] ??= value;
     }
-    cfg.scanDir ??= defaults.scanDir;
+    cfg.serverdir ??= defaults.serverdir;
     return cfg;
 }
 
@@ -79,9 +79,9 @@ function validateSetting(raw) {
         theme: 'light',
         accent: 'primary',
         hideOnWeb: true,
-        savingFolder: path.resolve(os.homedir(), 'xender-lite'),
+        savingFolder: path.resolve(os.homedir(), 'document', 'Xender lite'),
         autoOganise: false, // keep key for compatibility with existing UI
-        scanDir: []
+        serverdir: []
     };
 
     const s = raw && typeof raw === 'object' ? raw : {};
@@ -101,7 +101,7 @@ if (fs.existsSync(configFile)) {
         saveConfig(config);
     }
 } else {
-    config.scanDir = [
+    config.servedir = [
         path.resolve(os.homedir(), 'Downloads'),
         path.resolve(os.homedir(), 'Desktop'),
         path.resolve(os.homedir(), 'Documents'),
@@ -119,7 +119,7 @@ if (fs.existsSync(settingFile)) {
         setting = validateSetting(JSON.parse(fs.readFileSync(settingFile, 'utf-8')));
     } catch {
         setting = validateSetting(null);
-        setting.scanDir = [
+        setting.serverdir = [
             path.resolve(os.homedir(), 'Downloads'),
             path.resolve(os.homedir(), 'Desktop'),
             path.resolve(os.homedir(), 'Documents'),
@@ -131,7 +131,7 @@ if (fs.existsSync(settingFile)) {
     }
 } else {
     setting = validateSetting(null);
-    setting.scanDir = [
+    setting.serverdir = [
         path.resolve(os.homedir(), 'Downloads'),
         path.resolve(os.homedir(), 'Desktop'),
         path.resolve(os.homedir(), 'Documents'),
@@ -314,36 +314,6 @@ appLan.get('/upload-file', (req, res) => {
     return res.status(204).send('Not found');
 });
 
-// ===== LAN SERVER STATE =====
-let isconnect = false;
-let isStarting = false;
-let isClosing = false;
-let ipAddress = network.getLocalIP();
-let currentSsid = null;
-let connectionNumber = 0;
-
-function getWifiSsid(connections) {
-    if (!Array.isArray(connections) || connections.length === 0) return null;
-    return connections[0].ssid || connections[0].SSID || null;
-}
-
-function recreateLanHttp() {
-    try {
-        appLanhttp.removeAllListeners();
-    } catch (_) {}
-
-    appLanhttp = http.createServer(appLan);
-    appLanSocket = new Server(appLanhttp, {
-        cors: {
-            origin: '*',
-            methods: ['GET', 'POST']
-        }
-    });
-
-    // Re-bind LAN socket handlers after recreate
-    bindLanSocketHandlers();
-}
-
 function closeServer() {
     return new Promise((resolve) => {
         if (!isconnect && !appLanhttp.listening) {
@@ -374,301 +344,12 @@ function closeServer() {
         }
     });
 }
-
-async function listentoserver() {
-    if (isStarting || isClosing) return;
-
-    ipAddress = network.getLocalIP();
-    if (!ipAddress) {
-        isconnect = false;
-        appSocket.emit('is-connected', false);
-        setTimeout(listentoserver, 2000);
-        return;
-    }
-
-    if (isconnect && appLanhttp.listening) return;
-
-    isStarting = true;
-    await closeServer();
-    recreateLanHttp();
-
-    try {
-        await new Promise((resolve, reject) => {
-            const onError = (err) => {
-                appLanhttp.off('error', onError);
-                reject(err);
-            };
-            appLanhttp.once('error', onError);
-
-            appLanhttp.listen(config.ports.lanPort, ipAddress, () => {
-                appLanhttp.off('error', onError);
-                resolve();
-            });
-        });
-
-        isconnect = true;
-        isStarting = false;
-        appSocket.emit('is-connected', true);
-        let lanLink = `http://${ipAddress}:${config.ports.lanPort}`
-        child_process.exec(`start ${lanLink}`)
-        appSocket.emit('lan-link', lanLink);
-        log(`LAN server started on ${lanLink}`);
-    } catch (err) {
-        isconnect = false;
-        isStarting = false;
-
-        if (err.code === 'EADDRINUSE') {
-            config.ports.lanPort = generator.generatePortNumber(5);
-            saveConfig();
-        }
-
-        log('LAN listen failed:', err.message);
-        setTimeout(listentoserver, 2500);
-    }
-}
-
-async function onNetworkChange(connections) {
-    const ssid = getWifiSsid(connections);
-    const newIp = network.getLocalIP();
-
-    // WiFi off or no IP
-    if (!ssid || !newIp) {
-        currentSsid = null;
-        ipAddress = null;
-        await closeServer();
-        appSocket.emit('is-connected', false);
-        return;
-    }
-
-    // Same network + same IP → nothing to do
-    if (ssid === currentSsid && newIp === ipAddress && isconnect) {
-        return;
-    }
-
-    currentSsid = ssid;
-    ipAddress = newIp;
-    await closeServer();
-    await listentoserver();
-    sendQrToAll();
-}
-
-function sendQrToAll() {
-    if (!ipAddress) return;
-    const link = `http://${ipAddress}:${config.ports.lanPort}`;
-    qrcode.toDataURL(link).then((data) => {
-        appSocket.emit('qr-code', data);
-        appSocket.emit('lan-link', link);
-    }).catch(() => {});
-}
-
-// Debounced network check (avoids stacking intervals)
-let netTimer = null;
-function scheduleNetCheck() {
-    clearTimeout(netTimer);
-    netTimer = setTimeout(() => {
-        nodewifi.getCurrentConnections()
-            .then((device) => onNetworkChange(device || []))
-            .catch((err) => {
-                console.error('WiFi check failed:', err);
-                onNetworkChange([]);
-            });
-    }, 800);
-}
-
-// ===== LOCAL SOCKET HANDLERS =====
-function bindLocalSocketHandlers() {
-    appSocket.on('connection', (socket) => {
-        connectionNumber++;
-
-        socket.on('disconnect', () => {
-            connectionNumber--;
-        });
-        // Version
-        socket.emit('version', version);
-        socket.on('app-version', () => {
-            socket.broadcast.emit('version', version);
-        });
-
-        // Web mode
-        socket.emit('web-mode', setting.hideOnWeb);
-        socket.on('get-web-mode', () => {
-            socket.emit('web-mode', setting.hideOnWeb);
-        });
-        socket.on('save-web-mode', (mode) => {
-            setting.hideOnWeb = mode;
-            saveSetting();
-            socket.broadcast.emit('web-mode', setting.hideOnWeb);
-        });
-
-        // Auto-organise
-        socket.emit('auto-organize', setting.autoOganise);
-        socket.on('get-auto-organize', () => {
-            socket.emit('auto-organize', setting.autoOganise);
-        });
-        socket.on('save-auto-organize', (mode) => {
-            setting.autoOganise = mode;
-            saveSetting();
-            socket.broadcast.emit('auto-organize', setting.autoOganise);
-        });
-
-        // Save directory
-        socket.emit('save-dir', setting.savingFolder);
-        socket.on('save-save-dir', (dir) => {
-            setting.savingFolder = dir;
-            saveSetting();
-            socket.broadcast.emit('save-dir', dir);
-        });
-
-        // Scan directories
-        socket.emit('scan-dir', setting.scanDir);
-        socket.on('get-scan-dir', () => {
-            socket.emit('scan-dir', setting.scanDir);
-        });
-        socket.on('add-scan-dir', (dir) => {
-            if (!setting.scanDir.includes(dir)) {
-                setting.scanDir.push(dir);
-                config.scanDir.push(dir);
-                saveSetting();
-                saveConfig();
-                socket.broadcast.emit('scan-dir', setting.scanDir);
-            }
-        });
-        socket.on('remove-scan-dir', (dir) => {
-            setting.scanDir = setting.scanDir.filter((item) => item !== dir);
-            config.scanDir = config.scanDir.filter((item) => item !== dir);
-            saveSetting();
-            saveConfig();
-            socket.broadcast.emit('scan-dir', setting.scanDir);
-        });
-
-        // Theme
-        socket.emit('theme', setting.theme);
-        socket.on('get-theme', () => {
-            socket.emit('theme', setting.theme);
-        });
-        socket.on('save-theme', (theme) => {
-            setting.theme = theme;
-            saveSetting();
-            socket.broadcast.emit('theme', setting.theme);
-        });
-
-        // Accent
-        socket.emit('accent', setting.accent);
-        socket.on('get-accent', () => {
-            socket.emit('accent', setting.accent);
-        });
-        socket.on('save-accent', (accent) => {
-            setting.accent = accent;
-            saveSetting();
-            socket.broadcast.emit('accent', setting.accent);
-        });
-
-        // Full settings
-        socket.on('user-setting', () => {
-            socket.emit('setting', setting);
-        });
-
-        // File push to LAN clients
-        socket.on('send-file', (file) => {
-            if (isconnect && ipAddress) {
-                appLanSocket.emit('download-file', file);
-            }
-        });
-
-        // WiFi scan (single interval, not stacked)
-        let wifiScanInterval = null;
-        const startWifiScan = () => {
-            if (wifiScanInterval) return;
-            wifiScanInterval = setInterval(() => {
-                nodewifi.scan()
-                    .then((result) => {
-                        socket.emit('wifi-device', result || []);
-                    })
-                    .catch((err) => {
-                        socket.emit('scan-error', err);
-                    });
-            }, 3000);
-        };
-        socket.on('scan-wifi-devices', startWifiScan);
-        socket.on('get-wifi-devices', startWifiScan);
-        socket.on('disconnect', () => {
-            if (wifiScanInterval) {
-                clearInterval(wifiScanInterval);
-                wifiScanInterval = null;
-            }
-        });
-
-        // Network control
-        socket.on('start-server', scheduleNetCheck);
-        socket.on('get-connected-devices', () => {
-            nodewifi.getCurrentConnections().then((device) => {
-                socket.emit('connected-devices', device || []);
-                onNetworkChange(device || []);
-            });
-        });
-        socket.on('connect-device', (payload) => {
-            if (!payload || payload.id == null) return;
-            nodewifi
-                .connect({ ssid: payload.id, password: payload.password || '' })
-                .then(() => {
-                    scheduleNetCheck();
-                    socket.emit('connect-device-result', true);
-                })
-                .catch((err) => {
-                    socket.emit('device-connect-error', err);
-                });
-        });
-        socket.on('disconnect-device', () => {
-            nodewifi.disconnect().then(() => onNetworkChange([]));
-        });
-        socket.on('is-connected', () => {
-            socket.emit('is-connected', !!(isconnect && ipAddress));
-        });
-
-        // Initial QR
-        sendQrToAll();
-        if (!ipAddress) {
-            setTimeout(sendQrToAll, 2300);
-        }
-    });
-}
-
-// ===== LAN SOCKET HANDLERS =====
-function bindLanSocketHandlers() {
-    appLanSocket.on('connection', (socket) => {
-        connectionNumber++;
-
-        socket.on('disconnect', () => {
-            connectionNumber--;
-        });
-
-        socket.emit('version', version);
-        socket.emit('web-mode', setting.hideOnWeb);
-        socket.emit('auto-organize', setting.autoOganise);
-        socket.emit('theme', setting.theme);
-        socket.emit('accent', setting.accent);
-
-        socket.on('app-version', () => {
-            socket.broadcast.emit('version', version);
-        });
-        socket.on('get-web-mode', () => {
-            socket.emit('web-mode', setting.hideOnWeb);
-        });
-        socket.on('get-theme', () => {
-            socket.emit('theme', setting.theme);
-        });
-        socket.on('get-accent', () => {
-            socket.emit('accent', setting.accent);
-        });
-    });
-}
-
+ 
 // ===== FILE BROWSER (LAN) =====
 function setupBrowser() {
-    const roots = (setting.scanDir && setting.scanDir.length > 0)
-        ? setting.scanDir
+    const roots = (setting.serverdir && setting.serverdir.length > 0)
+        ? setting.serverdir
         : [setting.savingFolder || path.resolve(os.homedir(), 'Desktop')];
-
     setupXenderBrowser(appLan, appLanSocket, {
         roots,
         routePrefix: '/files',
@@ -676,53 +357,19 @@ function setupBrowser() {
         socketRoom: 'xender'
     });
 }
-
-// ===== STARTUP =====
-bindLocalSocketHandlers();
-bindLanSocketHandlers();
-setupBrowser();
-let child = false
-const webviewpath = path.resolve('plugins/xender-lite-webui.exe');
-appSocket.emit('flash')
-
 apphttp.listen(config.ports.default, (err) => {
     if (err) {
         if (err.code === 'EADDRINUSE') {
             log(`Port ${config.ports.default} is already in use.`);
             process.exit(1);
         }
-        msg.error('Failed to start app', 'Xender Lite');
+        log(err)
         return;
-    }
-    try {
-        child = child_process.spawn(
-            webviewpath,
-            ['-title', 'Xender Lite', '-url', `http://localhost:${config.ports.default}`],
-            { detached: true, stdio: 'ignore' }
-        );
-        child.on('close', (s) =>{
-            log('webview close', s)
-            closeServer()
-            process.exit(1)
-        });
-        
-        child.on('exit', (s) =>{
-            log('webview exit', s)
-        });
-        child.on('disconnect', (s) =>{
-            log('webview disconnect', s)
-        });
-        //child.unref();
-    } catch (err) {
-        log('Webview spawn failed:', err.message);
     }
     log(`Local server running on http://localhost:${config.ports.default}`);
     saveSetting();
     saveConfig();
 
-    // Start LAN server and network watcher
-    listentoserver();
-    setInterval(scheduleNetCheck, 4000);
 });
 
 // ===== GRACEFUL SHUTDOWN =====

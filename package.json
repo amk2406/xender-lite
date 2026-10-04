@@ -46,6 +46,7 @@
     "multer": "^2.2.0",
     "node-file-scanner": "^1.0.1",
     "node-logger": "github:amk2406/node-logger",
+    "node-wifi-plus": "^1.0.0",
     "qrcode": "^1.5.4",
     "serve-index": "^1.9.2",
     "socket.io": "^4.8.3",

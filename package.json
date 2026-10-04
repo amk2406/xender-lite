@@ -16,6 +16,7 @@
     "nodejs",
     "windows"
   ],
+  "type": "commonjs",
   "author": "Xender Lite Community",
   "license": "MIT",
   "os": [

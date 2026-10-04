@@ -4,20 +4,21 @@
 (function () {
   "use strict";
 
-  // ---------- CONFIG ----------
   const CONFIG = {
-    minDisplayTime: 1400,          // minimum time splash is shown (ms)
-    fadeDuration: 550,             // fade-out duration (must match CSS)
+    minDisplayTime: 1400,
+    fadeDuration: 550,
     defaultTheme: "primary",
-
-    // Logo paths for each theme
     logos: {
       primary:   "icon/logo.png",
+      colored:   "icon/logo-color.png",
+      neon:      "icon/logo-dark.png",
       alternate: "icon/logo-color.png",
       light:     "icon/logo-light.png",
       dark:      "icon/logo-dark.png"
     }
   };
+
+  const SESSION_KEY = "xender-splash-shown";
 
   // ---------- INJECT CSS ----------
   const style = document.createElement("style");
@@ -30,7 +31,7 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      background: var(--bg);
+      background: var(--bg, #000);
       transition: opacity ${CONFIG.fadeDuration}ms ease,
                   visibility ${CONFIG.fadeDuration}ms ease;
     }
@@ -42,10 +43,12 @@
     }
 
     #xender-splash img {
-      width: 220px;
-      height: 220px;
+      width: 200px;
+      height: 200px;
       object-fit: contain;
       animation: xenderPulse 1.6s ease-in-out infinite;
+      filter: drop-shadow(0 0 24px color-mix(in srgb, var(--accent, #0A84FF) 40%, transparent));
+      transition: opacity 0.35s ease, transform 0.35s ease;
     }
 
     #xender-splash .brand {
@@ -63,7 +66,6 @@
       50%      { transform: scale(1.07); opacity: 0.82; }
     }
 
-    /* Hide real content until splash finishes */
     body.xender-loading > *:not(#xender-splash) {
       opacity: 0 !important;
       pointer-events: none;
@@ -76,75 +78,95 @@
   `;
   document.head.appendChild(style);
 
-  // ---------- CREATE SPLASH ----------
-  function createSplash() {
-    const theme = document.documentElement.getAttribute("data-theme") || CONFIG.defaultTheme;
-    const logoSrc = CONFIG.logos[theme] || CONFIG.logos.primary;
+  function getAccentLogo() {
+    const accentTag = document.getElementById("accent") || document.getElementById("accent-tag");
+    let accent = "primary";
+    if (accentTag && accentTag.href) {
+      if (accentTag.href.includes("theme-color")) accent = "colored";
+      else if (accentTag.href.includes("theme-dark")) accent = "neon";
+    }
+    return CONFIG.logos[accent] || CONFIG.logos.primary;
+  }
 
+  function createSplash() {
+    const logoSrc = getAccentLogo();
     const splash = document.createElement("div");
     splash.id = "xender-splash";
-
     splash.innerHTML = `
-      <img src="${logoSrc}" alt="Xender-lite" />
+      <img src="${logoSrc}" alt="Xender-lite" id="xender-splash-logo" />
       <div class="brand">Xender-lite</div>
     `;
-
     document.body.prepend(splash);
     document.body.classList.add("xender-loading");
-
     return splash;
   }
 
-  // ---------- HIDE SPLASH ----------
+  function updateSplashLogo(accent) {
+    const img = document.getElementById("xender-splash-logo");
+    if (!img) return;
+    const src = CONFIG.logos[accent] || CONFIG.logos.primary;
+    if (img.src.indexOf(src) === -1) {
+      img.style.opacity = "0";
+      img.style.transform = "scale(0.92)";
+      setTimeout(() => {
+        img.src = src;
+        img.style.opacity = "1";
+        img.style.transform = "scale(1)";
+      }, 180);
+    }
+  }
+
   function hideSplash(splash) {
     const start = performance.now();
-
     function finish() {
       const elapsed = performance.now() - start;
       const wait = Math.max(0, CONFIG.minDisplayTime - elapsed);
-
       setTimeout(() => {
         splash.classList.add("hide");
         document.body.classList.remove("xender-loading");
         document.body.classList.add("xender-ready");
-
-        // Clean up after animation
-        setTimeout(() => {
-          splash.remove();
-        }, CONFIG.fadeDuration + 40);
+        try { sessionStorage.setItem(SESSION_KEY, "1"); } catch (_) {}
+        setTimeout(() => splash.remove(), CONFIG.fadeDuration + 40);
       }, wait);
     }
-
-    if (document.readyState === "complete") {
-      finish();
-    } else {
-      window.addEventListener("load", finish);
-    }
+    if (document.readyState === "complete") finish();
+    else window.addEventListener("load", finish);
   }
 
-  // ---------- INIT ----------
   function init() {
-    // Make sure body exists
     if (!document.body) {
       document.addEventListener("DOMContentLoaded", init);
       return;
     }
 
+    // Skip splash if already shown this session
+    try {
+      if (sessionStorage.getItem(SESSION_KEY) === "1") {
+        document.body.classList.add("xender-ready");
+        return;
+      }
+    } catch (_) {}
+
     const splash = createSplash();
     hideSplash(splash);
+
+    // Accent listener – update logo while splash is visible
+    window.addEventListener("xender-accent", (e) => {
+      if (e.detail && e.detail.accent) updateSplashLogo(e.detail.accent);
+    });
   }
 
-  // Start
   init();
 
-  // Optional: expose a small helper if you want to change theme later
   window.XenderSplash = {
     setTheme(theme) {
       document.documentElement.setAttribute("data-theme", theme);
-      const img = document.querySelector("#xender-splash img");
-      if (img && CONFIG.logos[theme]) {
-        img.src = CONFIG.logos[theme];
-      }
+    },
+    setAccent(accent) {
+      updateSplashLogo(accent);
+    },
+    resetSession() {
+      try { sessionStorage.removeItem(SESSION_KEY); } catch (_) {}
     }
   };
 })();

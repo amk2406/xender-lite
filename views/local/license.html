@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" id="accent" href="style/theme.css">
+  <link rel="icon" href="icon/logo.png" type="image/x-icon">
+  <title>Licenses • Xender-lite</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg); color: var(--text);
+      height: 100vh; overflow: hidden;
+      display: flex; flex-direction: column;
+    }
+    .topbar {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 16px; border-bottom: 1px solid var(--border);
+      background: var(--card); flex-shrink: 0;
+    }
+    .back-btn {
+      width: 36px; height: 36px; border-radius: 10px;
+      border: 1px solid var(--border); background: var(--bg-secondary);
+      color: var(--text); display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: all var(--transition);
+    }
+    .back-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .topbar h1 { font-size: 1.15rem; font-weight: 700; flex: 1; }
+    .layout {
+      display: flex; flex: 1; min-height: 0;
+      animation: fillIn 0.4s ease;
+    }
+    @keyframes fillIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+    .sidebar {
+      width: 260px; flex-shrink: 0;
+      border-right: 1px solid var(--border);
+      background: var(--bg-secondary);
+      overflow-y: auto; padding: 12px 0;
+    }
+    .sidebar-group {
+      padding: 8px 16px 4px;
+      font-size: 0.7rem; text-transform: uppercase;
+      letter-spacing: 0.06em; color: var(--text-muted); font-weight: 600;
+    }
+    .sidebar-item {
+      padding: 9px 16px; cursor: pointer;
+      font-size: 0.88rem; color: var(--text-muted);
+      border-left: 3px solid transparent;
+      transition: all 0.15s; white-space: nowrap;
+      overflow: hidden; text-overflow: ellipsis;
+    }
+    .sidebar-item:hover { background: var(--bg-tertiary); color: var(--text); }
+    .sidebar-item.active {
+      background: var(--accent-soft);
+      color: var(--accent);
+      border-left-color: var(--accent);
+      font-weight: 600;
+    }
+    .sidebar-empty {
+      padding: 24px 16px; text-align: center;
+      color: var(--text-muted); font-size: 0.85rem;
+    }
+    .content {
+      flex: 1; overflow: auto; padding: 0;
+      background: var(--bg);
+    }
+    .content pre {
+      margin: 0; padding: 20px 24px;
+      font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+      font-size: 0.82rem; line-height: 1.6;
+      white-space: pre-wrap; word-break: break-word;
+      min-height: 100%;
+      animation: fillIn 0.3s ease;
+    }
+    .content .placeholder {
+      display: flex; align-items: center; justify-content: center;
+      height: 100%; color: var(--text-muted); font-size: 0.95rem;
+    }
+    .content .loading {
+      display: flex; align-items: center; justify-content: center;
+      height: 100%; color: var(--accent); font-size: 0.9rem;
+    }
+
+    @media (max-width: 640px) {
+      .sidebar { width: 160px; }
+      .sidebar-item { font-size: 0.8rem; padding: 8px 12px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <button type="button" class="back-btn" onclick="history.back()" title="Back">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="15 18 9 12 15 6"/>
+      </svg>
+    </button>
+    <h1>Open-source Licenses</h1>
+  </div>
+
+  <div class="layout">
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-empty" id="sidebarEmpty">Loading licenses…</div>
+    </aside>
+    <main class="content" id="content">
+      <div class="placeholder" id="placeholder">Select a package</div>
+    </main>
+  </div>
+
+  <script src="script/socket/socket.io.min.js"></script>
+  <script src="script/setting.js"></script>
+  <script src="script/toast.js"></script>
+  <script>
+    const socket = io();
+    const sidebar = document.getElementById('sidebar');
+    const sidebarEmpty = document.getElementById('sidebarEmpty');
+    const content = document.getElementById('content');
+    let activeModule = null;
+    // { name, group? }[]
+    let modules = [];
+
+    function renderSidebar() {
+      sidebar.querySelectorAll('.sidebar-item, .sidebar-group').forEach((n) => n.remove());
+      if (modules.length === 0) {
+        sidebarEmpty.style.display = 'block';
+        sidebarEmpty.textContent = 'No licenses found';
+        return;
+      }
+      sidebarEmpty.style.display = 'none';
+
+      let lastGroup = null;
+      modules.forEach((m) => {
+        const name = typeof m === 'string' ? m : m.name;
+        const group = typeof m === 'object' ? (m.group || m.type) : null;
+        if (group && group !== lastGroup) {
+          const g = document.createElement('div');
+          g.className = 'sidebar-group';
+          g.textContent = group;
+          sidebar.appendChild(g);
+          lastGroup = group;
+        }
+        const item = document.createElement('div');
+        item.className = 'sidebar-item' + (name === activeModule ? ' active' : '');
+        item.textContent = name;
+        item.title = name;
+        item.addEventListener('click', () => selectModule(name));
+        sidebar.appendChild(item);
+      });
+    }
+
+    function selectModule(name) {
+      activeModule = name;
+      renderSidebar();
+      content.innerHTML = '<div class="loading">Loading…</div>';
+
+      // HTTP: /license?module=express
+      fetch('/license?module=' + encodeURIComponent(name))
+        .then(async (res) => {
+          if (res.status === 404) {
+            // Remove from list
+            modules = modules.filter((m) => {
+              const n = typeof m === 'string' ? m : m.name;
+              return n !== name;
+            });
+            renderSidebar();
+            content.innerHTML = '<div class="placeholder">License not found</div>';
+            if (window.Toast) Toast.warning('License not found: ' + name);
+            return;
+          }
+          const text = await res.text();
+          showLicense(text);
+        })
+        .catch((err) => {
+          content.innerHTML = '<div class="placeholder">Failed to load</div>';
+          if (window.Toast) Toast.error('Failed to load license');
+        });
+
+      // Also notify server (optional)
+      // socket.emit('get-license', { module: name });
+    }
+
+    function showLicense(text) {
+      const pre = document.createElement('pre');
+      pre.textContent = text || '(empty license)';
+      content.innerHTML = '';
+      content.appendChild(pre);
+    }
+
+    socket.on('connect', () => {
+      // EVENT → server: request license module list
+      socket.emit('get-license-list');
+    });
+
+    // SERVER → client: list of modules
+    // payload: string[] | { modules: ({ name, group? }|string)[] }
+    // Example groups: "Node.js", "Dependencies", "Dev Dependencies"
+    socket.on('license-list', (data) => {
+      const list = Array.isArray(data) ? data : (data && data.modules) || [];
+      modules = list.slice();
+      renderSidebar();
+    });
+
+    // Optional: server pushes license text
+    socket.on('license-content', (data) => {
+      if (data && data.module === activeModule) {
+        showLicense(data.content || data.text || '');
+      }
+    });
+  </script>
+</body>
+</html>

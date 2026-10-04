@@ -7,115 +7,57 @@
   <link rel="stylesheet" id="accent" href="style/theme.css">
   <link rel="icon" href="icon/logo.png" type="image/x-icon">
   <link rel="manifest" href="manifest.json">
-  <link rel="preload" href="script/socket/socket.io.min.js" as="script">
   <title>Files • Xender-lite</title>
   <style>
-    *{
-      scroll-behavior: smooth;
-      scrollbar-width: thin;
+    * {
+      scroll-behavior: smooth; scrollbar-width: thin;
       scrollbar-color: var(--accent) var(--bg-tertiary);
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
+      margin: 0; padding: 0; box-sizing: border-box;
     }
-    ::-webkit-scrollbar-thumb {
-      background: color-mix(in srgb, var(--accent) 60%, transparent);
-      border-radius: 10px;
-    }
-    ::-webkit-scrollbar { width: 6px; background: transparent; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      line-height: 1.5;
-      transition: background var(--transition), color var(--transition);
+      background: var(--bg); color: var(--text); line-height: 1.5;
+      animation: pageIn 0.35s ease;
     }
-    .app {
-      margin: 0 auto;
-      padding: 20px 16px 100px;
+    @keyframes pageIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
     }
+    .app { margin: 0 auto; padding: 20px 16px 100px; }
     header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 20px;
-      padding-top: 8px;
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 20px; padding-top: 8px;
     }
     header h1 { font-size: 1.4rem; font-weight: 700; }
     .icon-btn {
       width: 40px; height: 40px; border-radius: 50%;
-      border: 1px solid var(--border);
-      background: var(--bg-secondary);
-      color: var(--text);
-      display: flex; align-items: center; justify-content: center;
+      border: 1px solid var(--border); background: var(--bg-secondary);
+      color: var(--text); display: flex; align-items: center; justify-content: center;
       cursor: pointer; transition: all var(--transition);
     }
     .icon-btn:hover { border-color: var(--accent); color: var(--accent); }
-    .search-box { position: relative; margin-bottom: 18px; }
-    .search-box input {
-      width: 100%;
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 12px 16px 12px 42px;
-      color: var(--text);
-      font-size: 0.95rem;
-      outline: none;
+
+    .section-title {
+      font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.06em;
+      color: var(--text-muted); margin-bottom: 12px; padding-left: 4px;
     }
-    .search-box input:focus { border-color: var(--accent); }
-    .search-box svg {
-      position: absolute; left: 14px; top: 50%;
-      transform: translateY(-50%);
-      color: var(--text-muted);
-      width: 18px; height: 18px;
-    }
-    .tabs {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 18px;
-      justify-content: space-around;
-      align-items: center;
-      padding-bottom: 4px;
-      overflow-x: auto;
-    }
-    .drop-zone {
-      border: 2px dashed var(--border);
-      border-radius: var(--radius, 16px);
-      padding: 32px 20px;
-      text-align: center;
-      margin-bottom: 20px;
-      transition: all var(--transition);
-      cursor: pointer;
-    }
-    .drop-zone.dragover {
-      border-color: var(--accent);
-      background: rgba(34, 211, 238, 0.06);
-      box-shadow: var(--shadow-glow);
-    }
-    .drop-zone .icon { font-size: 2.2rem; margin-bottom: 10px; }
-    .drop-zone h3 { font-size: 1rem; margin-bottom: 4px; }
-    .drop-zone p { font-size: 0.85rem; color: var(--text-muted); }
     .card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius, 16px);
-      overflow: hidden;
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--radius-lg, 16px); overflow: hidden; margin-bottom: 20px;
     }
     .list-item {
       display: flex; align-items: center; gap: 14px;
-      padding: 14px 16px;
-      border-bottom: 1px solid var(--border);
-      transition: background var(--transition);
+      padding: 14px 16px; border-bottom: 1px solid var(--border);
+      transition: background var(--transition), opacity 0.3s ease, transform 0.3s ease;
     }
     .list-item:last-child { border-bottom: none; }
     .list-item:hover { background: var(--bg-tertiary); }
-    .list-item.hidden { display: none; }
+    .list-item.removing {
+      opacity: 0; transform: translateX(20px) scale(0.98);
+    }
     .file-icon {
       width: 42px; height: 42px; border-radius: 10px;
-      background: var(--status, rgba(34,211,238,0.12));
-      color: var(--accent);
+      background: var(--accent-soft); color: var(--accent);
       display: flex; align-items: center; justify-content: center;
       font-size: 1.25rem; flex-shrink: 0;
     }
@@ -125,38 +67,27 @@
       overflow: hidden; text-overflow: ellipsis;
     }
     .file-info p { font-size: 0.78rem; color: var(--text-muted); }
-    .file-info .path { font-size: 0.81rem; color: var(--text); text-overflow: ellipsis; display: flex; flex-direction: row; flex-wrap: nowrap; text-wrap: none; line-break: none;}
-    .file-actions { display: flex; gap: 8px; }
+    .file-actions { display: flex; gap: 6px; }
     .file-actions button {
-      background: transparent; border: none;
+      background: transparent; border: 1px solid var(--border);
       color: var(--text-muted); cursor: pointer;
-      padding: 6px; border-radius: 8px;
-      transition: all var(--transition);
+      width: 32px; height: 32px; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      transition: all var(--transition); padding: 0;
     }
     .file-actions button:hover {
-      color: var(--accent); background: var(--status, rgba(34,211,238,0.12));
+      color: var(--danger); border-color: var(--danger);
+      background: rgba(239, 68, 68, 0.08);
     }
+    .file-actions button svg { width: 14px; height: 14px; }
     .empty-state {
       padding: 36px 20px; text-align: center; color: var(--text-muted);
     }
-    .empty-state p { font-size: 0.95rem; }
     .bottom-nav {
       position: fixed; bottom: 0; left: 0; right: 0;
-      backdrop-filter: blur(10px);
-      border-top: 1px solid var(--border);
-      display: flex; justify-content: space-around;
-      padding: 10px 14px; margin: 0 auto;
-      background: color-mix(in srgb, var(--bg) 85%, transparent);
-    }
-    @media (max-width: 960px) {
-      .tabs { gap: 5px; }
-      .tab { padding: 8px 10px; gap: 5px; }
-    }
-    @media (max-width: 769px) {
-      .tab { padding: 7px 9px; gap: 4px; flex-direction: column; }
-    }
-    @media (max-width: 549px) {
-      .tab { padding: 5px 7px; gap: 3px; flex-direction: column; font-size: small; }
+      backdrop-filter: blur(12px); border-top: 1px solid var(--border);
+      display: flex; justify-content: space-around; padding: 10px 14px;
+      background: color-mix(in srgb, var(--bg) 85%, transparent); z-index: 100;
     }
     .nav-item {
       display: flex; flex-direction: column; align-items: center; gap: 4px;
@@ -179,15 +110,10 @@
       </button>
     </header>
 
-    <div class="drop-zone" id="dropZone">
-      <div class="icon"><i class="fa fa-folder-open"></i></div>
-      <h3>Click to select files</h3>
-      <p>Select file to be send to others</p>
-    </div>
-
+    <div class="section-title">Recent transfers</div>
     <div class="card" id="fileList">
       <div class="empty-state" id="emptyState">
-        <p>No files yet. Select to add some.</p>
+        <p>No recent transfers yet.</p>
       </div>
     </div>
   </div>
@@ -215,59 +141,141 @@
   <script src="script/socket/socket.io.min.js"></script>
   <script src="script/setting.js"></script>
   <script>
-    // ===== File state =====
     const fileListEl = document.getElementById('fileList');
     const emptyState = document.getElementById('emptyState');
     const socket = io();
-    const native = xenderNative
-    const log = console.log
-    const dropZone = document.getElementById('dropZone');
-    let isconnected = false
+    const transfers = new Map();
+
+    const SVG_X = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M18 6L6 18M6 6l12 12"/></svg>`;
+
+    function itemKey(t) {
+      return String(t.path || t.id || t.name || '');
+    }
+
+    function formatSize(bytes) {
+      if (bytes == null) return '';
+      const n = Number(bytes);
+      if (Number.isNaN(n)) return String(bytes);
+      if (n < 1024) return n + ' B';
+      if (n < 1024 * 1024) return (n / 1024).toFixed(1) + ' KB';
+      return (n / (1024 * 1024)).toFixed(1) + ' MB';
+    }
+
+    function iconFor(name) {
+      const ext = (name || '').split('.').pop().toLowerCase();
+      if (['png','jpg','jpeg','gif','webp','svg'].includes(ext)) return '🖼️';
+      if (['mp4','mkv','mov','webm','avi'].includes(ext)) return '🎬';
+      if (['mp3','wav','flac','aac','ogg'].includes(ext)) return '🎵';
+      if (ext === 'pdf') return '📕';
+      if (['zip','rar','7z','tar','gz'].includes(ext)) return '📦';
+      return '📄';
+    }
+
+    function createRow(t) {
+      const key = itemKey(t);
+      const row = document.createElement('div');
+      row.className = 'list-item';
+      row.dataset.key = key;
+      row.innerHTML = `
+        <div class="file-icon"></div>
+        <div class="file-info"><h4></h4><p></p></div>
+        <div class="file-actions">
+          <button type="button" class="btn-remove" title="Remove">${SVG_X}</button>
+        </div>
+      `;
+      row.querySelector('.file-icon').textContent = iconFor(t.name);
+      row.querySelector('h4').textContent = t.name || 'Untitled';
+      const meta = [formatSize(t.size), t.path].filter(Boolean).join(' · ');
+      row.querySelector('p').textContent = meta || 'Recent transfer';
+
+      row.querySelector('.btn-remove').addEventListener('click', () => {
+        // EVENT → server: remove transfer by path + name
+        socket.emit('remove-transfer', {
+          path: t.path || '',
+          name: t.name || '',
+        });
+        removeRowAnimated(key);
+      });
+      return row;
+    }
+
+    function removeRowAnimated(key) {
+      transfers.delete(key);
+      const el = fileListEl.querySelector(`.list-item[data-key="${CSS.escape(key)}"]`);
+      if (el) {
+        el.classList.add('removing');
+        setTimeout(() => {
+          el.remove();
+          if (fileListEl.querySelectorAll('.list-item').length === 0) {
+            emptyState.style.display = 'block';
+          }
+        }, 300);
+      }
+    }
+
+    function renderList(list) {
+      transfers.clear();
+      fileListEl.querySelectorAll('.list-item').forEach((n) => n.remove());
+      (list || []).forEach((t) => {
+        const key = itemKey(t);
+        if (!key) return;
+        transfers.set(key, t);
+        fileListEl.appendChild(createRow(t));
+      });
+      emptyState.style.display = transfers.size === 0 ? 'block' : 'none';
+    }
+
+    function upsert(t) {
+      if (!t) return;
+      const key = itemKey(t);
+      if (!key) return;
+      transfers.set(key, t);
+      emptyState.style.display = 'none';
+      const existing = fileListEl.querySelector(`.list-item[data-key="${CSS.escape(key)}"]`);
+      const row = createRow(t);
+      if (existing) existing.replaceWith(row);
+      else fileListEl.prepend(row);
+    }
+
+    document.getElementById('refresh').addEventListener('click', () => {
+      if (socket.connected) {
+        // EVENT → server
+        socket.emit('get-recent-transfers');
+      }
+    });
 
     socket.on('connect', () => {
-      console.log('Connected to server');
       socket.emit('start-live');
-      socket.on('file-changed', ()=>location.reload())
-      socket.on('is-connected', (conn)=>{
-      if (conn) {
-        isconnected = true
-      }
-      if (!conn) {
-        isconnected = false
-      }
-    })
-    
+      // EVENT → server: request recent transfers
+      socket.emit('get-recent-transfers');
     });
-    
+
     socket.on('disconnect', () => {
-      if (Toast) Toast.warning('Disconnected from the main System');
+      if (window.Toast) Toast.warning('Disconnected from server');
     });
 
-dropZone.addEventListener('click', (e) => {
-        native.selectFiles({filters: '*'}).then(result => {
-          if (result && result.data && result.data.files !== 0) {
-            const files = result.data.files;
-            if (!isconnected) Toast.warning(`No any connected device, connect and try again.`)
-            if (Toast) Toast.info(`Sending ${result.data.files.length} files`);
-            files.forEach(file => {
-                socket.emit('send-file', file)
-                log('sindind', file)
-            });
-          }
-        })
-      });
-      socket.on('flash', () =>{
-      console.log('close app emite')
-      xenderNative.flash()
-    })
-      
-    // ===== Socket.IO =====
-    wireThemeSocket(socket);
-      socket.on('close-app', () =>{
-      xenderNative.close()
-    })
-    
+    // SERVER → client: full list of recent transfers
+    // payload: array | { transfers: array }
+    // each item: { name, path, size? }
+    socket.on('recent-transfers', (data) => {
+      const list = Array.isArray(data) ? data : (data && data.transfers) || [];
+      renderList(list);
+    });
 
-</script>
+    // SERVER → client: single transfer added/updated
+    socket.on('transfer-added', (t) => upsert(t));
+    socket.on('recent-transfer', (t) => upsert(t));
+
+    // SERVER → client: confirm remove (optional; UI already animates on click)
+    socket.on('transfer-removed', (data) => {
+      const key = itemKey(data || {});
+      if (key) removeRowAnimated(key);
+    });
+
+    /* ─── COMMENTED ───
+    socket.on('theme', (t) => setTheme(t));
+    socket.on('accent', (a) => setAccent(a));
+    ─────────────────── */
+  </script>
 </body>
 </html>

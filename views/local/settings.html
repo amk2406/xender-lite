@@ -4,1099 +4,493 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="stylesheet" href="font-icon/css/all.min.css">
-  <link rel="icon" href="favicon.ico" type="image/x-icon">
-  <link rel="stylesheet" id="accent-tag" href="style/theme-dark.css">
+  <link rel="icon" href="icon/logo.png" type="image/x-icon">
+  <link rel="stylesheet" id="accent-tag" href="style/theme.css">
   <link rel="manifest" href="manifest.json">
-  <link rel="preload" href="script/socket/socket.io.min.js", as="script">
   <title>Settings • Xender-lite</title>
   <style>
-    *{
-      scroll-behavior: smooth;
-      scrollbar-width: thin;
-      scrollbar-color: var(--accent) var(--bg-tertiary);
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      outline: none;
-    }
-    ::-webkit-scrollbar-thumb {
-      background: color-mix(in srgb, var(--accent) 60%, transparent);
-      border-radius: 10px;
-    }
-    ::-webkit-scrollbar {
-      width: 6px;
-      background: transparent;
-    }
-
-    ::-webkit-scrollbar-track {
-      background: transparent;
-    }
-
-    ::-webkit-scrollbar-thumb {
-      background: var(--accent);
-      border-radius: 10px;
-    }
-
-    ::-webkit-scrollbar-thumb:hover {
-      background: var(--accent);
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      line-height: 1.5;
-      transition: background var(--transition), color var(--transition);
+      background: var(--bg); color: var(--text); min-height: 100vh; line-height: 1.5;
+      animation: pageIn 0.35s ease;
     }
-    .container {
-      margin: 0 auto;
-      padding: 20px 16px 100px;
+    @keyframes pageIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
     }
+    .app { margin: 0 auto; padding: 20px 16px 100px; max-width: 560px; }
     header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 28px;
-      padding-top: 12px;
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 24px; padding-top: 8px;
     }
-    header h1 {
-      font-size: 1.5rem;
-      font-weight: 700;
+    header h1 { font-size: 1.4rem; font-weight: 700; }
+    .icon-btn {
+      width: 40px; height: 40px; border-radius: 50%;
+      border: 1px solid var(--border); background: var(--bg-secondary);
+      color: var(--text); display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: all var(--transition);
     }
-    .theme-btn {
-      background: var(--bg-tertiary);
-      border: 1px solid var(--border);
-      color: var(--text);
-      width: 42px;
-      height: 42px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: all var(--transition);
-    }
-    .theme-btn:hover {
-      background: var(--accent);
-      color: #000;
-      border-color: var(--accent);
-    }
-    .section {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      margin-bottom: 18px;
-      overflow: hidden;
-      box-shadow: var(--shadow);
-      transition: all var(--transition);
-    }
+    .icon-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+    .section { margin-bottom: 28px; }
     .section-title {
-      font-size: 0.75rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: var(--text-muted);
-      padding: 14px 18px 8px;
+      font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.07em;
+      color: var(--text-muted); margin-bottom: 10px; padding-left: 4px;
     }
     .setting-row {
-      display: flex;
-      align-items: center;
-      padding: 14px 18px;
-      gap: 14px;
-      border-top: 1px solid var(--border); cursor: pointer;
+      display: flex; align-items: center; gap: 14px;
+      padding: 14px 16px; background: var(--card);
+      border: 1px solid var(--border); cursor: pointer;
       transition: background var(--transition);
     }
-    .setting-row:first-of-type { border-top: none; }
+    .setting-row:first-of-type { border-radius: 14px 14px 0 0; }
+    .setting-row:last-of-type { border-radius: 0 0 14px 14px; }
+    .setting-row:only-of-type { border-radius: 14px; }
+    .setting-row + .setting-row { border-top: none; }
     .setting-row:hover { background: var(--bg-tertiary); }
-    .icon {
-      width: 22px;
-      height: 22px;
-      color: var(--accent);
-      flex-shrink: 0;
+    .setting-row .icon {
+      width: 28px; text-align: center; color: var(--accent); font-size: 1.15rem; flex-shrink: 0;
     }
-    .setting-info { flex: 1; }
-    .setting-info h3 {
-      font-size: 0.95rem;
-      font-weight: 500;
-    }
-    .setting-info p {
-      font-size: 0.8rem; 
-      color: var(--text-muted);
-      margin-top: 2px;
-    }
+    .setting-info { flex: 1; min-width: 0; }
+    .setting-info h3 { font-size: 0.95rem; font-weight: 600; }
+    .setting-info p { font-size: 0.78rem; color: var(--text-muted); margin-top: 2px; }
+    .setting-row .value { font-size: 0.85rem; color: var(--text-muted); }
+    .setting-row .chevron { color: var(--text-muted); font-size: 1.2rem; }
+
     .switch {
-      position: relative;
-      width: 46px;
-      height: 26px; }
-    .switch input {
-      opacity: 0;
-      width: 0;
-      height: 0;
+      position: relative; width: 44px; height: 26px; flex-shrink: 0;
     }
+    .switch input { opacity: 0; width: 0; height: 0; }
     .slider {
-      position: absolute;
-      cursor: pointer;
-      inset: 0;
-      background: var(--border);
-      border-radius: 34px;
-      transition: var(--transition);
+      position: absolute; inset: 0; border-radius: 999px;
+      background: var(--bg-tertiary); border: 1px solid var(--border);
+      cursor: pointer; transition: 0.25s;
     }
-    .slider:before {
-      position: absolute;
-      content: "";
-      height: 20px;
-      width: 20px;
-      left: 3px;
-      bottom: 3px;
-      background: white;
-      border-radius: 50%;
-      transition: var(--transition);
+    .slider::before {
+      content: ""; position: absolute; width: 20px; height: 20px;
+      left: 2px; top: 2px; border-radius: 50%;
+      background: var(--text-muted); transition: 0.25s;
     }
-    input:checked + .slider { background: var(--accent); }
-    input:checked + .slider:before { transform: translateX(20px); }
-    .value {
-      font-size: 0.85rem;
-      color: var(--text-muted);
+    .switch input:checked + .slider {
+      background: var(--accent); border-color: var(--accent);
     }
-    .chevron {
-      color: var(--text-muted);
-      font-size: 1.1rem;
+    .switch input:checked + .slider::before {
+      transform: translateX(18px); background: #fff;
     }
+
+    /* DeepSeek-style dialog */
+    .modal-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0); backdrop-filter: blur(0);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 10000; padding: 20px;
+      opacity: 0; visibility: hidden; pointer-events: none;
+      transition: opacity 0.28s ease, visibility 0.28s, background 0.28s, backdrop-filter 0.28s;
+    }
+    .modal-overlay.open {
+      opacity: 1; visibility: visible; pointer-events: auto;
+      background: rgba(0,0,0,0.5); backdrop-filter: blur(8px);
+    }
+    .modal {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 18px; width: 100%; max-width: 400px;
+      padding: 24px 22px; box-shadow: 0 24px 60px rgba(0,0,0,0.35);
+      transform: scale(0.94) translateY(14px);
+      transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+      max-height: 80vh; overflow-y: auto;
+    }
+    .modal-overlay.open .modal { transform: scale(1) translateY(0); }
+    .modal h3 { font-size: 1.1rem; margin-bottom: 16px; }
+    .modal .btn-row { display: flex; gap: 10px; margin-top: 8px; flex-wrap: wrap; }
+    .modal .btn-row button {
+      flex: 1; min-width: 100px; padding: 12px; border-radius: 12px;
+      font-weight: 600; font-size: 0.9rem; cursor: pointer; border: none;
+      transition: all var(--transition);
+    }
+    .modal .btn-row button.primary {
+      background: var(--gradient); color: #000;
+    }
+    .modal .btn-row button.primary:hover { box-shadow: var(--shadow-glow); }
+    .modal .btn-row button.ghost {
+      background: transparent; border: 1px solid var(--border); color: var(--text);
+    }
+    .modal .btn-row button.ghost:hover { border-color: var(--accent); color: var(--accent); }
+
+    .accent-options { display: flex; flex-direction: column; gap: 8px; }
+    .accent-option {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 14px; border-radius: 12px;
+      border: 1px solid var(--border); cursor: pointer;
+      transition: all var(--transition);
+    }
+    .accent-option:hover, .accent-option.selected {
+      border-color: var(--accent); background: var(--accent-soft);
+    }
+    .accent-option .swatch {
+      width: 28px; height: 28px; border-radius: 8px; flex-shrink: 0;
+    }
+    .accent-option .swatch.primary { background: linear-gradient(135deg, #0A84FF, #A855F7); }
+    .accent-option .swatch.colored { background: linear-gradient(135deg, #F59E0B, #22C55E); }
+    .accent-option .swatch.neon { background: linear-gradient(135deg, #0EA5E9, #22D3EE); }
+    .accent-option span { font-size: 0.95rem; font-weight: 500; }
+
+    .scan-dir-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
+    .scan-dir-item {
+      display: flex; gap: 8px; align-items: center;
+    }
+    .scan-dir-item input {
+      flex: 1; padding: 10px 12px; border-radius: 10px;
+      border: 1px solid var(--border); background: var(--bg);
+      color: var(--text); font-size: 0.88rem;
+    }
+    .scan-dir-item button {
+      width: 36px; height: 36px; border-radius: 8px;
+      border: 1px solid var(--border); background: transparent;
+      color: var(--text-muted); cursor: pointer;
+    }
+    .scan-dir-item button:hover { color: var(--danger); border-color: var(--danger); }
+    .scan-dir-new {
+      width: 100%; padding: 10px 12px; border-radius: 10px;
+      border: 1px solid var(--border); background: var(--bg);
+      color: var(--text); font-size: 0.88rem; margin-bottom: 10px;
+    }
+
     .bottom-nav {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      backdrop-filter: blur(10px);
-      border-top: 1px solid var(--border);
-      display: flex;
-      justify-content: space-around;
-      padding: 10px 0 14px;
-      margin: 0 auto;
+      position: fixed; bottom: 0; left: 0; right: 0;
+      backdrop-filter: blur(12px); border-top: 1px solid var(--border);
+      display: flex; justify-content: space-around; padding: 10px 14px;
+      background: color-mix(in srgb, var(--bg) 85%, transparent); z-index: 100;
     }
     .nav-item {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 4px;
-      color: var(--text);
-      text-decoration: none;
-      font-size: 0.72rem;
+      display: flex; flex-direction: column; align-items: center; gap: 4px;
+      color: var(--text); text-decoration: none; font-size: 0.72rem;
       transition: color var(--transition);
     }
     .nav-item.active, .nav-item:hover { color: var(--accent); }
     .nav-item svg { width: 22px; height: 22px; }
-    #popoverContainer{
-      position: fixed;
-      inset: 0;
-      margin: 0;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      padding: 1rem;
-      border: var(--border);
-      background-color: transparent;
-      backdrop-filter: blur(50px);
-      border-radius: 0.45rem;
-      padding-top: 2rem;
-      max-width: 400px;
-    }
-    #popoverContainer i.close-icon{
-      position: absolute;
-      top: 5px;
-      right: 7px;
-      padding: 5px 13px;
-      border-radius: 5px;
-      background-color: var(--card);
-      font-size: 1.1em;
-      display: flex;
-      text-align: center;
-      align-items: center;
-      justify-content: center;
-      transition: var(--transition);
-      color: var(--accent);
-      z-index: 10;
-    }
-    #popoverContainer i.close-icon:hover{
-      background-color: var(--bg-tertiary);
-      cursor: pointer;
-      transition: var(--transition);
-    }
-    #popoverContent{
-      width: 320px;
-      max-width: max(380px);
-      min-width: min(180px);
-      color: var(--text);
-      padding-top: 10px;
-    }
-    #popoverContent h3{
-      padding: 10px;
-      display: flex;
-      align-self: flex-start;
-      text-align: left;
-      margin-left: 15px;
-      font-size: 1.5rem;
-      color: var(--text);
-    }
-    #popoverContent button{
-      padding: 10px;
-      display: flex;
-      margin: 10px;
-      width: 80%;
-      align-self: center;
-      justify-self: center;
-      cursor: pointer;
-      border: var(--border);
-      text-align: center;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.1rem;
-      border-radius: 0.5rem;
-      transition: var(--transition);
-      color: var(--text);
-      background-color: var(--bg-tertiary);
-    }
-    #popoverContent button:hover{
-      background-color: var(--card);
-      transition: var(--transition);
-    }
-    #popoverContent .accent{
-      padding: 5px;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: stretch;
-      gap: 7px;
-    }
-    .accent div{
-      display: flex;
-      flex-direction: row;
-      justify-content: space-between;
-      align-items: center;
-      padding: 8px;
-      color: var(--text);
-      cursor: pointer;
-      border-radius: 0.5rem;
-      transition: var(--transition);
-    }
-    .accent div:hover{
-      background-color: var(--div-hover);
-      transition: var(--transition);
-    }
-    .accent div span{
-      display: flex;
-      flex-direction: row;
-      gap: 10px;
-    }
-    .color-sample{
-      padding: 15px;
-      border-radius: 50%;
-    }
-    input[type='radio']{
-      accent-color: var(--accent);
-      outline: none;
-    }
-    .primary-sample{
-      background-image: linear-gradient(135deg, #1e8fff 0%, #a749ff 100%);
-    }
-    .colored-sample{
-      background-image: linear-gradient(135deg, #F59E0B 0%, #22C55E 100%);
-    }
-    .neon-sample{
-      background-image: linear-gradient(135deg, #49c5ff, #0073b6);
-    }
-    
-    /* ===== SCAN DIRECTORY STYLES ===== */
-    .scan-dir-container {
-      padding: 10px;
-    }
-    
-    .scan-dir-list {
-      display: flex;
-      flex-direction: column;
-      gap: 5px;
-      margin-bottom: 7px;
-      max-height: 300px;
-      overflow-y: auto;
-    }
-    
-    .scan-dir-item {
-      display: flex;
-      gap: 5px;
-      align-items: center;
-    }
-    
-    .scan-dir-input {
-      flex: 1;
-      padding: 8px;
-      border: 1px solid var(--border);
-      border-radius: 5px;
-      background: var(--bg-tertiary);
-      color: var(--text);
-      font-size: 0.9rem;
-      transition: all var(--transition);
-      outline: none;
-    }
-    
-    .scan-dir-input:focus {
-      outline: none;
-      border-color: var(--accent);
-      box-shadow: 0 0 0 2px rgba(var(--accent-rgb), 0.1);
-    }
-    
-    .scan-dir-remove-btn {
-      padding: 8px 12px;
-      background: var(--bg-tertiary);
-      border: 1px solid var(--border);
-      border-radius: 5px;
-      color: var(--text);
-      cursor: not-allowed;
-      font-size: 0.85rem;
-      transition: all var(--transition);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .scan-dir-remove-btn i {
-      margin: 0;
-    }
-    
-    .scan-dir-remove-btn:not(:disabled) {
-      cursor: pointer;
-      color: #ef4444;
-      border-color: #ef4444;
-      background: rgba(239, 68, 68, 0.1);
-    }
-    
-    .scan-dir-remove-btn:not(:disabled):hover {
-      background: rgba(239, 68, 68, 0.2);
-    }
-    
-    .scan-dir-actions {
-      display: flex;
-      gap: 10px;
-    }
-    
-    .scan-dir-add-btn {
-      flex: 1;
-      padding: 10px;
-      background: var(--accent);
-      border: none;
-      border-radius: 5px;
-      color: #000;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all var(--transition);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-    }
-    .scan-dir-add-btn i {
-      margin: 0;
-    }
-    
-    .scan-dir-add-btn:hover {
-      opacity: 0.9;
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(var(--accent-rgb), 0.3);
-    }
-    
-    .scan-dir-new-input {
-      width: 100%;
-      padding: 10px;
-      border: 2px dashed var(--accent);
-      border-radius: 5px;
-      background: var(--bg-tertiary);
-      color: var(--text);
-      font-size: 0.9rem;
-      margin-bottom: 10px;
-    }
-    
-    .scan-dir-new-input::placeholder {
-      color: var(--text-muted);
-    }
   </style>
 </head>
 <body>
-  <div class="container" id="settingsContainer">
-    <header id="settingsHeader">
-      <h1 id="settingsTitle">Settings</h1>
-      <button class="theme-btn" id="themeToggleBtn" title="Toggle theme">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+  <div class="app">
+    <header>
+      <h1>Settings</h1>
+      <button class="icon-btn" id="themeToggleBtn" title="Toggle theme">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
         </svg>
       </button>
     </header>
 
-    <div class="section" id="appearanceSection">
+    <div class="section">
       <div class="section-title">Appearance</div>
-      <div class="setting-row" id="themeSetting" onClick="showThemePop()">
-        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
-        </svg>
-        <div class="setting-info" id="themeInfo">
-          <h3>Theme</h3>
-          <p>Light / Dark</p>
-        </div>
-        <span class="value" id="themeValue">Ligth</span>
+      <div class="setting-row" id="themeSetting">
+        <i class="icon fa fa-moon"></i>
+        <div class="setting-info"><h3>Theme</h3><p id="themeValue">Dark</p></div>
+        <span class="chevron">›</span>
       </div>
       <div class="setting-row" id="accentColorSetting">
-        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="13.5" cy="6.5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="12" r="2.5"/><circle cx="8.5" cy="18.5" r="2.5"/><circle cx="15.5" cy="18.5" r="2.5"/>
-        </svg>
-        <div class="setting-info" id="accentColorInfo">
-          <h3>Accent Color</h3>
-          <p id="accent-color-text">Primary</p>
-        </div>
+        <i class="icon fa fa-palette"></i>
+        <div class="setting-info"><h3>Accent</h3><p id="accent-color-text">Primary</p></div>
         <span class="chevron">›</span>
       </div>
     </div>
 
-    <div class="section" id="transferSection">
-      <div class="section-title">Transfer & Connection</div>
-      <div class="setting-row" id="transferModeSetting">
-        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><circle cx="12" cy="20" r="1"/>
-        </svg>
-        <div class="setting-info" id="transferModeInfo">
-          <h3>Default Transfer Mode</h3>
-          <p>Wi-Fi - Hotspot</p>
-        </div>
-        <span class="value" id="transferModeValue">Wi-Fi - Hospot</span>
-      </div>
+    <div class="section">
+      <div class="section-title">Transfer</div>
       <div class="setting-row" id="keepScreenOnSetting">
-        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>
-        </svg>
-        <div class="setting-info" id="keepScreenOnInfo"><h3>Keep screen on</h3><p>During active transfers</p></div>
-        <label class="switch"><input type="checkbox" id="keepScreenOnToggle" checked><span class="slider"></span></label>
+        <i class="icon fa fa-mobile-alt"></i>
+        <div class="setting-info"><h3>Keep screen on</h3><p>While transferring</p></div>
+        <label class="switch"><input type="checkbox" id="keepScreenOnToggle"><span class="slider"></span></label>
       </div>
-    </div>
-
-    <div class="section" id="webPhoneSection">
-      <div class="section-title">Web & Phones</div>
       <div class="setting-row" id="hideFilesInWebModeSetting">
-        <i class="icon fa fa-eye"></i>
-        <div class="setting-info" id="hideFilesInWebModeInfo">
-          <h3>Hide files in web mode</h3>
-          <p>Fles will be hide, user only see what you send</p>
-        </div>
-        <label class="switch">
-          <input type="checkbox" id="hideFilesInWebModeToggle" checked>
-          <span class="slider"></span>
-        </label>
+        <i class="icon fa fa-eye-slash"></i>
+        <div class="setting-info"><h3>Hide files in web mode</h3><p>Don't show shared list on LAN page</p></div>
+        <label class="switch"><input type="checkbox" id="hideFilesInWebModeToggle"><span class="slider"></span></label>
       </div>
     </div>
 
-    <div class="section" id="storageSection">
-      <div class="section-title">Storage & Files</div>
+    <div class="section">
+      <div class="section-title">Storage</div>
       <div class="setting-row" id="downloadFolderSetting">
-        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
-        </svg>
-        <div class="setting-info" id="downloadFolderInfo">
-          <h3>Default Saving folder</h3>
-          <p id="downloadFolderPath"></p>
-        </div>
+        <i class="icon fa fa-folder"></i>
+        <div class="setting-info"><h3>Download folder</h3><p id="downloadFolderPath">Default</p></div>
         <span class="chevron">›</span>
       </div>
-      <div class="setting-row" id="scanDirectorySetting" onclick="showScanDirPop()">
-        <i class="fa fa-shield-alt icon" style="font-size:1.4rem;"></i> 
-        <div class="setting-info" id="scanDirectoryInfo"><h3>Serve Directory</h3>
-          <p id="scanDirectoryPreview">directorey that will be serve on LAN connection</p>
-        </div>
+      <div class="setting-row" id="scanDirectorySetting">
+        <i class="icon fa fa-shield-alt"></i>
+        <div class="setting-info"><h3>Serve directories</h3><p id="scanDirectoryPreview">None</p></div>
         <span class="chevron">›</span>
       </div>
       <div class="setting-row" id="autoOrganizeFileSetting">
         <i class="icon fa fa-layer-group"></i>
-        
-        <div class="setting-info" id="autoOrganizeFileInfo"><h3>Auto-organize files</h3><p>By type (Images, Videos, Docs...)</p></div>
+        <div class="setting-info"><h3>Auto-organize files</h3><p>By type (Images, Videos…)</p></div>
         <label class="switch"><input type="checkbox" id="autoOrganizeToggle" checked><span class="slider"></span></label>
       </div>
-      <div class="setting-row" id="clearAppCacheySetting">
-        <i class="far fas fa-database icon" style="font-size:1.4rem;"></i> 
-        <div class="setting-info" id="clearAppCache"><h3>Cache Management</h3>
-          <p>Clear all app cache</p>
-        </div>
+      <div class="setting-row" id="clearAppCacheSetting">
+        <i class="icon fa fa-database"></i>
+        <div class="setting-info"><h3>Clear cache</h3><p>Remove temporary data</p></div>
         <span class="chevron">›</span>
       </div>
     </div>
 
-    <div class="section" id="privacySection">
-      <div class="section-title">Privacy & Security</div>
+    <div class="section">
+      <div class="section-title">Privacy</div>
       <div class="setting-row" id="hideFromGallerySetting">
-        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
-          <line x1="1" y1="1" x2="23" y2="23"/>
-
-        </svg>
-        <div class="setting-info" id="hideFromGalleryInfo"><h3>Hide from gallery</h3><p>Received media stays private</p></div>
+        <i class="icon fa fa-eye-slash"></i>
+        <div class="setting-info"><h3>Hide from gallery</h3><p>Received media stays private</p></div>
         <label class="switch"><input type="checkbox" id="hideFromGalleryToggle" checked><span class="slider"></span></label>
       </div>
     </div>
 
-    <div class="section" id="aboutSection">
+    <div class="section">
       <div class="section-title">About</div>
       <div class="setting-row" id="versionSetting">
-        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
-        </svg>
-        <div class="setting-info" id="versionInfo"><h3>Version</h3></div>
+        <i class="icon fa fa-info-circle"></i>
+        <div class="setting-info"><h3>Version</h3></div>
         <span class="value" id="versionValue">1.0.0</span>
       </div>
-      <div class="setting-row" id="helpFeedbackSetting">
-        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/>
-        </svg>
-        <div class="setting-info" id="helpFeedbackInfo"><h3>Help & Feedback</h3></div>
+      <div class="setting-row" id="logSetting" onclick="location.href='log'">
+        <i class="icon fa fa-clipboard-list"></i>
+        <div class="setting-info"><h3>App Logs</h3></div>
         <span class="chevron">›</span>
       </div>
-      <div class="setting-row" id="licenseSetting">
-        <i class="icon fa fas fa-book-reader"></i>
-        <div class="setting-info" id="licenseInfo"><h3> Open-source License</h3></div>
+      <div class="setting-row" id="licenseSetting" onclick="location.href='license'">
+        <i class="icon fa fa-book"></i>
+        <div class="setting-info"><h3>Open-source Licenses</h3></div>
         <span class="chevron">›</span>
       </div>
-    </div>
-
-    <div class="section" id="othersSection">
-      <div class="section-title">Others</div>
-      <div class="setting-row" id="applogfiles">
-        <i class="icon fa fas fas fas fa-clipboard-list"></i>
-        <div class="setting-info" id="applog"><h3>App Logs</h3></div>
-        <span class="chevron">›</span>
-      </div>
-      <div class="setting-row" id="cheackForUpdate">
-        <i class="icon fa fas fas fas fa-clipboard-list"></i>
-        <div class="setting-info" id="applog">
-          <h3>Cheack for Update</h3>
-          <p id="update-text">Current Version </p>
-        </div>
+      <div class="setting-row" id="checkForUpdate">
+        <i class="icon fa fa-sync"></i>
+        <div class="setting-info"><h3>Check for Update</h3><p id="update-text">Current version</p></div>
         <span class="chevron">›</span>
       </div>
     </div>
   </div>
-  <nav class="bottom-nav" id="bottomNav">
-    <a href="/" class="nav-item" id="homeNavItem">
+
+  <nav class="bottom-nav">
+    <a href="/" class="nav-item">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
       Home
     </a>
-    <a href="files" class="nav-item" id="filesNavItem">
+    <a href="files" class="nav-item">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
       Files
     </a>
-    <a href="devices" class="nav-item" id="devicesNavItem">
+    <a href="devices" class="nav-item">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
       Devices
     </a>
-    <a href="settings" class="nav-item active" id="settingsNavItem">
+    <a href="settings" class="nav-item active">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
       Settings
     </a>
   </nav>
-  <dialog id="popoverContainer">
-    <i class="fa fa-close close-icon" id="popoverCloseBtn" onclick="closePopover(event)"></i>
-    <div id="popoverContent"></div>
-  </dialog>
+
+  <!-- Dialog overlay -->
+  <div class="modal-overlay" id="popoverOverlay">
+    <div class="modal" id="popoverContent"></div>
+  </div>
+
   <script src="script/toast.js"></script>
-  <script src="script/include-html.js"></script>
   <script src="script/socket/socket.io.min.js"></script>
+  <script src="script/setting.js"></script>
   <script>
-    // ===== DOM ELEMENTS REFERENCE =====
-    
-    // Main Container & Header
-    const settingsContainer = document.getElementById('settingsContainer');
-    const settingsHeader = document.getElementById('settingsHeader');
-    const settingsTitle = document.getElementById('settingsTitle');
-    const themeToggleBtn = document.getElementById('themeToggleBtn');
-    
-    // Appearance Section
-    const appearanceSection = document.getElementById('appearanceSection');
-    const themeSetting = document.getElementById('themeSetting');
-    const themeInfo = document.getElementById('themeInfo');
-    const themeValue = document.getElementById('themeValue');
-    const accentColorSetting = document.getElementById('accentColorSetting');
-    const accentColorInfo = document.getElementById('accentColorInfo');
-    const accentColorText = document.getElementById('accent-color-text');
-    
-    // Transfer & Connection Section
-    const transferSection = document.getElementById('transferSection');
-    const transferModeSetting = document.getElementById('transferModeSetting');
-    const transferModeInfo = document.getElementById('transferModeInfo');
-    const transferModeValue = document.getElementById('transferModeValue');
-    const keepScreenOnSetting = document.getElementById('keepScreenOnSetting');
-    const keepScreenOnInfo = document.getElementById('keepScreenOnInfo');
-    const keepScreenOnToggle = document.getElementById('keepScreenOnToggle');
-    
-    // Web & Phones Section
-    const webPhoneSectionn = document.getElementById('webPhoneSection');
-    const hideFilesInWebModeSetting = document.getElementById('hideFilesInWebModeSetting');
-    const hideFilesInWebModeInfo = document.getElementById('hideFilesInWebModeInfo');
-    const hideFilesInWebModeToggle = document.getElementById('hideFilesInWebModeToggle');
-    
-    // Storage & Files Section
-    const storageSection = document.getElementById('storageSection');
-    const downloadFolderSetting = document.getElementById('downloadFolderSetting');
-    const downloadFolderInfo = document.getElementById('downloadFolderInfo');
-    const downloadFolderPath = document.getElementById('downloadFolderPath');
-    const scanDirectorySetting = document.getElementById('scanDirectorySetting');
-    const scanDirectoryInfo = document.getElementById('scanDirectoryInfo');
-    const autoOrganizeFileSetting = document.getElementById('autoOrganizeFileSetting');
-    const autoOrganizeFileInfo = document.getElementById('autoOrganizeFileInfo');
-    const autoOrganizeToggle = document.getElementById('autoOrganizeToggle');
-    const clearAppCacheSetting = document.getElementById('clearAppCacheySetting');
-    const clearAppCacheInfo = document.getElementById('clearAppCache');
-    
-    // Privacy & Security Section
-    const privacySection = document.getElementById('privacySection');
-    const hideFromGallerySetting = document.getElementById('hideFromGallerySetting');
-    const hideFromGalleryInfo = document.getElementById('hideFromGalleryInfo');
-    const hideFromGalleryToggle = document.getElementById('hideFromGalleryToggle');
-    
-    // About Section
-    const aboutSection = document.getElementById('aboutSection');
-    const versionSetting = document.getElementById('versionSetting');
-    const versionInfo = document.getElementById('versionInfo');
-    const versionValue = document.getElementById('versionValue');
-    const helpFeedbackSetting = document.getElementById('helpFeedbackSetting');
-    const helpFeedbackInfo = document.getElementById('helpFeedbackInfo');
-    const licenseSetting = document.getElementById('licenseSetting');
-    const licenseInfo = document.getElementById('licenseInfo');
-    
-    // Others Section
-    const othersSection = document.getElementById('othersSection');
-    const appLogSetting = document.getElementById('applogfiles');
-    const appLogInfo = document.getElementById('applog');
-    const updateCheckText = document.getElementById('update-text');
-    const cheackForUpdate = document.getElementById('cheackForUpdate')
-    // Popover Elements
-    const popoverContainer = document.getElementById('popoverContainer');
-    const popoverContent = document.getElementById('popoverContent');
-    const popoverCloseBtn = document.getElementById('popoverCloseBtn');
-    
-    // Bottom Navigation
-    const bottomNav = document.getElementById('bottomNav');
-    const homeNavItem = document.getElementById('homeNavItem');
-    const accentTag = document.getElementById('accent-tag');
-    const filesNavItem = document.getElementById('filesNavItem');
-    const devicesNavItem = document.getElementById('devicesNavItem');
-    const settingsNavItem = document.getElementById('settingsNavItem');
-
-    const primary = document.getElementById('primary')
-    const colored = document.getElementById('colored')
-    const neon = document.getElementById('neon')
-    
-    // ===== GLOBAL VARIABLES =====
-    const html = document.documentElement;
     const socket = io();
-    const log = console.log;
-    let theme;
-    let accent;
-    let downloadFolder;
-
-    // ===== FUNCTIONS =====
-    
-    /**
-     * Close the popover modal
-     */
-    function closePopover(event) {
-      if (event) {
-        event.stopPropagation();
-      }
-      popoverContainer.close();
-    }
-    
-    /**
-     * Display content in the popover
-     * @param {string} content - HTML content to display
-     */
-    function showPopoverContent(content) {
-      popoverContent.innerHTML = content;
-      popoverContainer.showModal();
-    }
-    
-    /**
-     * Show theme selection popover
-     */
-    function showThemePop() {
-      let themeHtml = `
-      <h3>Theme</h3>
-      <div class="btn">
-        <button onclick="setTheme('light', true); closePopover();">Light</button>
-        <button onclick="setTheme('dark', true); closePopover();">Dark</button>
-      </div>`;
-      showPopoverContent(themeHtml);
-    }
-    
-    function showAccentPop() {
-      let themeHtml = `
-        <h3>Accent</h3>
-        <div class="accent">
-          <div id="primary-part" onclick="document.getElementById('primary').checked = true; setAccent('primary', true)">
-            <span id="">
-              <input type="radio" name="accent" id="primary"><p> Primary</p>
-            </span>
-            <span class="color-sample primary-sample"></span>
-          </div>
-          <div id="colored-part" onclick="document.getElementById('colored').checked = true; setAccent('colored', true)">
-            <span id="">
-              <input type="radio" name="accent" id="colored"><p> Colored</p>
-            </span>
-            <span class="color-sample colored-sample"></span>
-          </div>
-          <div id="neon-part" onclick="document.getElementById('neon').checked = true; setAccent('neon', true);">
-            <span id="">
-              <input type="radio" name="accent" id="neon"><p> Neon</p>
-            </span>
-            <span class="color-sample neon-sample"></span>
-          </div>
-        </div>
-      `;
-      showPopoverContent(themeHtml);
-    }
-    accentColorSetting.addEventListener('click', (e) =>{{
-      showAccentPop()
-    }})
-    
-    /**
-     * Show app logs in popover
-     */
-    function showAppLogs() {
-      showPopoverContent('<h3>App Logs</h3><p>Logs loading...</p>');
-    }
-    
-    /**
-     * ===== SCAN DIRECTORY MANAGEMENT =====
-     */
+    const accentTag = document.getElementById('accent-tag');
+    const themeValue = document.getElementById('themeValue');
+    const accentText = document.getElementById('accent-color-text');
+    const overlay = document.getElementById('popoverOverlay');
+    const popoverContent = document.getElementById('popoverContent');
     let currentScanDirs = [];
-    let selectedDirIndex = -1;
-    
-    /**
-     * Show scan directory management popover
-     */
-    function showScanDirPop() {
-      let dirItemsHtml = '';
-      
-      if (currentScanDirs.length > 0) {
-        dirItemsHtml = currentScanDirs.map((dir, index) => `
-          <div class="scan-dir-item">
-            <input 
-              type="text" 
-              class="scan-dir-input" 
-              value="${dir}" 
-              data-index="${index}"
-              onclick="selectScanDir(${index})"
-              onfocus="selectScanDir(${index})"
-              onchange="updateScanDir(${index}, this.value)"
-            />
-            <button 
-              class="scan-dir-remove-btn" 
-              id="remove-btn-${index}"
-              onclick="removeScanDir(${index})"
-              ${index === selectedDirIndex ? '' : 'disabled'}
-              title="Remove this directory"
-            >
-              <i class="fa fa-trash"></i>
-            </button>
+
+    function openDialog(html) {
+      popoverContent.innerHTML = html;
+      overlay.classList.add('open');
+    }
+    function closeDialog() {
+      overlay.classList.remove('open');
+    }
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) closeDialog();
+    });
+
+    function setThemeLocal(t, save) {
+      document.documentElement.setAttribute('data-theme', t);
+      document.body.setAttribute('data-theme', t);
+      themeValue.textContent = t.charAt(0).toUpperCase() + t.slice(1);
+      if (save) socket.emit('save-theme', t);
+    }
+
+    function setAccentLocal(accent, save) {
+      const accents = {
+        primary: { src: 'style/theme.css', icon: 'icon/logo.png', label: 'Primary' },
+        colored: { src: 'style/theme-color.css', icon: 'icon/logo-color.png', label: 'Colored' },
+        neon: { src: 'style/theme-dark.css', icon: 'icon/logo-dark.png', label: 'Neon' },
+      };
+      const found = accents[accent] || accents.primary;
+      accentTag.href = found.src;
+      const iconTag = document.querySelector('link[rel="icon"]');
+      if (iconTag) iconTag.href = found.icon;
+      accentText.textContent = found.label;
+      window.dispatchEvent(new CustomEvent('xender-accent', { detail: { accent } }));
+      if (save) socket.emit('save-accent', accent);
+    }
+
+    // Theme dialog
+    document.getElementById('themeSetting').addEventListener('click', () => {
+      openDialog(`
+        <h3>Theme</h3>
+        <div class="btn-row">
+          <button class="primary" onclick="setThemeLocal('light', true); closeDialog();">Light</button>
+          <button class="primary" onclick="setThemeLocal('dark', true); closeDialog();">Dark</button>
+        </div>
+        <div class="btn-row" style="margin-top:12px">
+          <button class="ghost" onclick="closeDialog()">Cancel</button>
+        </div>
+      `);
+    });
+
+    // Accent dialog
+    document.getElementById('accentColorSetting').addEventListener('click', () => {
+      openDialog(`
+        <h3>Accent</h3>
+        <div class="accent-options">
+          <div class="accent-option" onclick="setAccentLocal('primary', true); closeDialog();">
+            <div class="swatch primary"></div><span>Primary</span>
           </div>
-        `).join('');
-      } else {
-        dirItemsHtml = '<p style="text-align: center; color: var(--text-muted); padding: 10px;">No directories added yet</p>';
-      }
-      
-      let popoverHtml = `
-        <h3>Scan Directories</h3>
-        <div class="scan-dir-container">
-          <div class="scan-dir-list">
-            ${dirItemsHtml}
+          <div class="accent-option" onclick="setAccentLocal('colored', true); closeDialog();">
+            <div class="swatch colored"></div><span>Colored</span>
           </div>
-          <input 
-            type="text"
-            inert
-            class="scan-dir-new-input" 
-            id="newDirInput"
-            placeholder="Enter path to add new directory (e.g., C:\\Users\\Downloads)"
-          />
-          <button id="select-btn" onclick="openFolder()">Select</button>
-          <div class="scan-dir-actions">
-            <button class="scan-dir-add-btn" onclick="addScanDir()" title="Add new directory">
-              <i class="fa fa-plus"></i> Add Directory
-            </button>
+          <div class="accent-option" onclick="setAccentLocal('neon', true); closeDialog();">
+            <div class="swatch neon"></div><span>Neon</span>
           </div>
         </div>
-      `;
-    
-      showPopoverContent(popoverHtml);
-    }
-    function openFolder() {
-        const newInput = document.getElementById('newDirInput')
-        const selectBtn = document.getElementById('select-btn')
-        const addScandir = document.querySelector('select-btn')
-        selectBtn.addEventListener('click', async (e) =>{
-          const path = await xenderNative.selectFolder()
-          if (path.ok) {
-            newInput.value = path.data.path
-            addScanDir.click()
-            socket.emit('add-scan-dir', path.data.path)
-          }
-        })
-        console.log(xenderNative)
-        
-    }
-    /**
-     * Select a scan directory (enable remove button)
-     */
-    function selectScanDir(index) {
-      selectedDirIndex = index;
-      
-      // Update all remove buttons
-      currentScanDirs.forEach((_, i) => {
-        const btn = document.getElementById(`remove-btn-${i}`);
-        if (btn) {
-          if (i === index) {
-            btn.disabled = false;
-          } else {
-            btn.disabled = true;
-          }
-        }
-      });
-    }
-    
-    /**
-     * Add a new scan directory
-     */
-    function addScanDir() {
-      const newDirInput = document.getElementById('newDirInput');
-      const newDir = newDirInput.value.trim();
-      
-      if (!newDir) {
-        Toast.warning('Please enter a directory path');
-        return;
-      }
-      
-      if (currentScanDirs.includes(newDir)) {
-        Toast.warning('This directory is already in the list');
-        return;
-      }
-      
-      currentScanDirs.push(newDir);
-      selectedDirIndex = -1;
-      
-      // Emit to socket
-      socket.emit('add-scan-dir', newDir);
-      Toast.success('Directory added');
-      
-      // Refresh popover
-      showScanDirPop();
-    }
-    
-    /**
-     * Update a scan directory path
-     */
-    function updateScanDir(index, newPath) {
-      const oldPath = currentScanDirs[index];
-      
-      if (!newPath.trim()) {
-        Toast.warning('Directory path cannot be empty');
-        showScanDirPop();
-        return;
-      }
-      
-      if (newPath === oldPath) return;
-      
-      currentScanDirs[index] = newPath;
-      socket.emit('remove-scan-dir', oldPath);
-      socket.emit('add-scan-dir', newPath);
-      Toast.success('Directory updated');
-      updateScanDirPreview();
-    }
-    
-    /**
-     * Remove a scan directory
-     */
-    function removeScanDir(index) {
-      const dirToRemove = currentScanDirs[index];
-      currentScanDirs.splice(index, 1);
-      selectedDirIndex = -1;
-      
-      // Emit to socket
-      socket.emit('remove-scan-dir', dirToRemove);
-      Toast.success('Directory removed');
-      
-      // Refresh popover
-      if (currentScanDirs.length > 0) {
-        showScanDirPop();
-      } else {
-        closePopover();
-      }
-      updateScanDirPreview();
-    }
-    
-    /**
-     * Update the preview text
-     */
-    function updateScanDirPreview() {
-      const preview = document.getElementById('scanDirectoryPreview');
-      if (preview) {
-        const shortPaths = currentScanDirs.map(p => p.split('\\').pop()).join(', ');
-        preview.textContent = shortPaths || 'No directories';
-      }
+        <div class="btn-row" style="margin-top:14px">
+          <button class="ghost" onclick="closeDialog()">Cancel</button>
+        </div>
+      `);
+    });
+
+    // Theme toggle button
+    document.getElementById('themeToggleBtn').addEventListener('click', () => {
+      const cur = document.documentElement.getAttribute('data-theme') || 'dark';
+      setThemeLocal(cur === 'dark' ? 'light' : 'dark', true);
+      if (window.Toast) Toast.info('Theme: ' + (cur === 'dark' ? 'Light' : 'Dark'));
+    });
+
+    // Serve directories dialog
+    function updateScanPreview() {
+      const el = document.getElementById('scanDirectoryPreview');
+      if (!el) return;
+      el.textContent = currentScanDirs.length
+        ? currentScanDirs.map((p) => p.split(/[/\\]/).pop()).join(', ')
+        : 'None';
     }
 
-    function setAccent(accent, a=false) {
-      const accents = {
-        'primary': { src: 'style/theme.css', icon: 'icon/logo.png' },
-        'colored': { src: 'style/theme-color.css', icon: 'icon/logo-color.png'  },
-        'neon': { src: 'style/theme-dark.css', icon: 'icon/logo-dark.png'  },
-      }
-      const current = accentTag.href
-      const found = accents[accent]
-      const iconTag = document.querySelector('link[rel="icon"]')
-      iconTag.href = found.icon
-      if (found.src !== current) {
-        accentColorText.innerText = accent
-        accentTag.href = found.src
-        if (a) {
-          socket.emit('save-accent', accent)
+    document.getElementById('scanDirectorySetting').addEventListener('click', () => {
+      const items = currentScanDirs.map((dir, i) => `
+        <div class="scan-dir-item">
+          <input type="text" value="${dir.replace(/"/g, '&quot;')}" data-i="${i}" class="dir-input" />
+          <button type="button" data-remove="${i}" title="Remove">✕</button>
+        </div>
+      `).join('');
+      openDialog(`
+        <h3>Serve Directories</h3>
+        <div class="scan-dir-list" id="dirList">${items || '<p style="color:var(--text-muted);font-size:0.85rem">No directories</p>'}</div>
+        <input class="scan-dir-new" id="newDirInput" placeholder="Path e.g. C:\\Users\\Downloads" />
+        <div class="btn-row">
+          <button class="primary" id="addDirBtn">Add</button>
+          <button class="ghost" onclick="closeDialog()">Done</button>
+        </div>
+      `);
+      document.getElementById('addDirBtn').addEventListener('click', () => {
+        const v = document.getElementById('newDirInput').value.trim();
+        if (!v) return;
+        if (currentScanDirs.includes(v)) {
+          if (window.Toast) Toast.warning('Already added');
+          return;
         }
-      }
-    }
-    setAccent('neon')
-    /**
-     * Check for application updates
-     */
-    function checkForUpdate() {
+        currentScanDirs.push(v);
+        socket.emit('add-scan-dir', v);
+        updateScanPreview();
+        closeDialog();
+        if (window.Toast) Toast.success('Directory added');
+      });
+      popoverContent.querySelectorAll('[data-remove]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const i = Number(btn.dataset.remove);
+          const removed = currentScanDirs.splice(i, 1)[0];
+          if (removed) socket.emit('remove-scan-dir', removed);
+          updateScanPreview();
+          closeDialog();
+          if (window.Toast) Toast.success('Removed');
+        });
+      });
+    });
+
+    document.getElementById('clearAppCacheSetting').addEventListener('click', () => {
+      openDialog(`
+        <h3>Clear Cache</h3>
+        <p style="color:var(--text-muted);font-size:0.9rem;margin-bottom:16px">This removes temporary files. Transfers and settings are kept.</p>
+        <div class="btn-row">
+          <button class="primary" id="confirmClear">Clear</button>
+          <button class="ghost" onclick="closeDialog()">Cancel</button>
+        </div>
+      `);
+      document.getElementById('confirmClear').addEventListener('click', () => {
+        socket.emit('clear-cache', true);
+        closeDialog();
+        if (window.Toast) Toast.info('Cache cleared');
+      });
+    });
+
+    document.getElementById('checkForUpdate').addEventListener('click', () => {
       if (!navigator.onLine) {
-        Toast.warning('You are  Offline, Connect and try again')
+        if (window.Toast) Toast.warning('You are offline');
+        return;
       }
-      //showPopoverContent('<h3>Check for Update</h3><p>Checking for updates...</p>');
-    }
-    
-    /**
-     * Clear application cache
-     */
-    function clearCache() {
-      Toast.info('Clearing cache...');
-      // Add cache clearing logic here
-      socket.emit('clear-cache', true)
-    }
+      if (window.Toast) Toast.info('Checking for updates…');
+      // socket.emit('check-update');
+    });
 
-    // ===== EVENT LISTENERS & INITIALIZATION =====
-    const socketHandler = socket.on('connect', () => {
-      console.log('Connected to server');
+    // Toggles
+    document.getElementById('hideFilesInWebModeToggle').addEventListener('change', (e) => {
+      socket.emit('save-web-mode', e.target.checked);
+    });
+    document.getElementById('autoOrganizeToggle').addEventListener('change', (e) => {
+      socket.emit('save-auto-organize', e.target.checked);
+    });
+
+    // Expose for dialog onclick
+    window.setThemeLocal = setThemeLocal;
+    window.setAccentLocal = setAccentLocal;
+    window.closeDialog = closeDialog;
+
+    socket.on('connect', () => {
       socket.emit('start-live');
-      socket.on('file-changed', (data) => {
-        location.reload();
-      });
-      socket.on('version', version =>{
-        console.log(version)
-        versionValue.innerText = version;
-        updateCheckText.innerText = 'Current Version '+ version
-      })
-      socket.on('theme', theme =>{
-        setTheme(theme)
-      })
-      socket.on('accent', accent =>{
-        setAccent(accent)
-      })
-      socket.on('web-mode', mode =>{
-        hideFilesInWebModeToggle.checked = mode
-      })
-      socket.on('auto-organize', auto =>{
-        autoOrganizeToggle.checked = auto
-      })
-      socket.on('scan-dir', (dirs) => {
-        currentScanDirs = dirs || [];
-        updateScanDirPreview();
-      })
-      socket.on('save-dir', (dir) =>{
-        downloadFolderPath.innerText = dir;
-      })
+      // socket.emit('user-setting');
     });
 
-    socketHandler.on('version', version =>{
-      versionValue.innerText = version;
-      updateCheckText.innerText = 'Current Version '+ version
-    })
-
-    downloadFolderSetting.addEventListener('click', async (e) =>{
-        const savepath = await XenderNative.chooseDownloadRoot()
-        if (savepath.ok) {
-          socketHandler.emit('save-save-dir', savepath.data.path)
-          downloadFolderPath.innerText = savepath.data.path;
-        }
-    })    
-    
-    // Set initial theme value
-    themeValue.textContent = html.getAttribute('data-theme') || 'Light';
-    
-    // Theme toggle button listener
-    themeToggleBtn.addEventListener('click', () => {
-      const current = html.getAttribute('data-theme');
-      const next = current === 'dark' ? 'light' : 'dark';
-      setTheme(next, true);
-      Toast.info('Theme changed to ' + next);
+    socket.on('version', (v) => {
+      document.getElementById('versionValue').textContent = v;
+      document.getElementById('update-text').textContent = 'Current version ' + v;
     });
-    
-    /**
-     * Set the application theme
-     * @param {string} newTheme - Theme to set ('light' or 'dark')
-     */
-    function setTheme(newTheme, a = false) {
-      html.setAttribute('data-theme', newTheme);
-      if (a) {
-        socketHandler.emit('save-theme', newTheme);
-      }
-      themeValue.textContent = newTheme.charAt(0).toUpperCase() + newTheme.slice(1);
-    }
-    function saveTheme(theme) {
-      socketHandler.emit('save-theme', theme);
-    }
-
-    // Keep screen on toggle listener
-    keepScreenOnToggle.addEventListener('change', () => {
-      console.log('Keep screen on:', keepScreenOnToggle.checked);
+    socket.on('theme', (t) => setThemeLocal(t, false));
+    socket.on('accent', (a) => setAccentLocal(a, false));
+    socket.on('web-mode', (m) => {
+      document.getElementById('hideFilesInWebModeToggle').checked = !!m;
     });
-
-    cheackForUpdate.addEventListener('click', checkForUpdate)
-    
-    // Hide files in web mode listener
-    hideFilesInWebModeToggle.addEventListener('change', () => {
-      console.log('Hide files in web mode:', hideFilesInWebModeToggle.checked);
-      socket.emit('save-web-mode', hideFilesInWebModeToggle.checked)
-    }); 
-
-    // Auto-organize toggle listener
-    autoOrganizeToggle.addEventListener('change', () => {
-      console.log('Auto-organize files:', autoOrganizeToggle.checked);
-      socket.emit('save-auto-organize', autoOrganizeToggle.checked)
+    socket.on('auto-organize', (a) => {
+      document.getElementById('autoOrganizeToggle').checked = !!a;
     });
-    
-    // Hide from gallery toggle listener
-    hideFromGalleryToggle.addEventListener('change', () => {
-      console.log('Hide from gallery:', hideFromGalleryToggle.checked);
-      
+    socket.on('scan-dir', (dirs) => {
+      currentScanDirs = dirs || [];
+      updateScanPreview();
     });
-    
-    // Clear cache setting listener
-    clearAppCacheSetting.addEventListener('click', clearCache);
-    
-    // App log setting listener
-    appLogSetting.addEventListener('click', showAppLogs);
-    
-    // Prevent clicks inside popover content from closing the dialog
-    popoverContent.addEventListener('click', (event) => {
-      event.stopPropagation();
+    socket.on('save-dir', (dir) => {
+      document.getElementById('downloadFolderPath').textContent = dir || 'Default';
     });
-    socket.on('flash', () =>{
-      console.log('close app emite')
-      xenderNative.flash()
-    })
-  </script>
-  <script src="script/xender-native.js"></script>
-  <script>
-    socket.on('close-app', () =>{
-      xenderNative.close()
-    })
   </script>
 </body>
 </html>

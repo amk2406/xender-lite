@@ -5,97 +5,59 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="stylesheet" href="font-icon/css/all.min.css">
   <link rel="stylesheet" id="accent" href="style/theme.css">
-  <link rel="stylesheet" href="font-icon/css/all.min.css">
   <link rel="icon" href="icon/logo.png" type="image/x-icon">
   <link rel="manifest" href="manifest.json">
-  <link rel="preload" href="script/socket/socket.io.min.js" as="script">
   <title>Devices • Xender-lite</title>
   <style>
-    *{
-      scroll-behavior: smooth;
-      scrollbar-width: thin;
+    * {
+      scroll-behavior: smooth; scrollbar-width: thin;
       scrollbar-color: var(--accent) var(--bg-tertiary);
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      outline: none;
-    }
-    ::-webkit-scrollbar-thumb {
-      background: color-mix(in srgb, var(--accent) 60%, transparent);
-      border-radius: 10px;
-    }
-    ::-webkit-scrollbar {
-      width: 6px;
-      background: transparent;
+      margin: 0; padding: 0; box-sizing: border-box; outline: none;
     }
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-      line-height: 1.5;
+      background: var(--bg); color: var(--text);
+      min-height: 100vh; line-height: 1.5;
+      animation: pageIn 0.35s ease;
     }
-    .app {
-      margin: 0 auto;
-      padding: 20px 16px 100px;
+    @keyframes pageIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
     }
+    .app { margin: 0 auto; padding: 20px 16px 100px; }
     header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 20px;
-      padding-top: 8px;
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 20px; padding-top: 8px;
     }
     header h1 { font-size: 1.4rem; font-weight: 700; }
     .icon-btn {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      border: 1px solid var(--border);
-      background: var(--bg-secondary);
-      color: var(--text);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: all var(--transition, 0.2s);
+      width: 40px; height: 40px; border-radius: 50%;
+      border: 1px solid var(--border); background: var(--bg-secondary);
+      color: var(--text); display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: all var(--transition);
     }
-    .icon-btn:hover {
-      border-color: var(--accent);
-      color: var(--accent);
-    }
+    .icon-btn:hover { border-color: var(--accent); color: var(--accent); }
     .section-title {
-      font-size: 0.8rem;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      color: var(--text-muted);
-      margin-bottom: 12px;
-      padding-left: 4px;
+      font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.06em;
+      color: var(--text-muted); margin-bottom: 12px; padding-left: 4px;
     }
     .card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius, 16px);
-      overflow: hidden;
-      margin-bottom: 20px;
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--radius-lg, 16px); overflow: hidden; margin-bottom: 20px;
     }
     .list-item {
       display: flex; align-items: center; gap: 14px;
-      padding: 14px 16px;
-      border-bottom: 1px solid var(--border);
-      transition: background 0.15s;
+      padding: 14px 16px; border-bottom: 1px solid var(--border);
+      transition: background 0.15s, opacity 0.3s, transform 0.3s;
     }
     .list-item:last-child { border-bottom: none; }
     .list-item:hover { background: var(--bg-tertiary); }
+    .list-item.removing { opacity: 0; transform: translateX(16px); }
     .device-icon {
       width: 44px; height: 44px; border-radius: 12px;
-      background: rgba(34, 211, 238, 0.12);
-      color: var(--accent);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.3rem;
-      flex-shrink: 0;
+      background: var(--accent-soft); color: var(--accent);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.3rem; flex-shrink: 0;
     }
     .device-info { flex: 1; min-width: 0; text-align: left; }
     .device-info h4 {
@@ -105,29 +67,27 @@
     .device-info p { font-size: 0.78rem; color: var(--text-muted); }
     .badge {
       font-size: 0.7rem; padding: 3px 8px; border-radius: 999px;
-      background: rgba(34, 211, 238, 0.15); color: var(--accent);
-      font-weight: 600;
+      background: var(--accent-soft); color: var(--accent); font-weight: 600;
+      flex-shrink: 0;
     }
     .badge.offline { background: rgba(148,163,184,0.2); color: var(--text-muted); }
     .badge.connected { background: rgba(16,185,129,0.2); color: #34d399; }
     .connect-btn {
       padding: 8px 14px; border-radius: 10px; border: none;
-      background: var(--gradient, linear-gradient(135deg, #22d3ee, #a78bfa));
-      color: #000; font-weight: 600; font-size: 0.85rem;
-      cursor: pointer; white-space: nowrap;
+      background: var(--gradient); color: #000; font-weight: 600;
+      font-size: 0.85rem; cursor: pointer; white-space: nowrap;
+      transition: all var(--transition); flex-shrink: 0;
     }
-    .connect-btn:disabled {
-      opacity: 0.5; cursor: not-allowed;
-    }
+    .connect-btn:hover { transform: translateY(-1px); box-shadow: var(--shadow-sm); }
+    .connect-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
     .connect-btn.secondary {
-      background: transparent;
-      border: 1px solid var(--border);
-      color: var(--text);
+      background: transparent; border: 1px solid var(--border); color: var(--text);
     }
+    .connect-btn.secondary:hover { border-color: var(--accent); color: var(--accent); }
     .empty-state {
       padding: 40px 20px; text-align: center; color: var(--text-muted);
     }
-    .empty-state .big { font-size: 2.5rem; margin-bottom: 10px; }
+    .empty-state .big { font-size: 2.5rem; margin-bottom: 10px; opacity: 0.6; }
     .scan-bar {
       display: flex; gap: 10px; margin-bottom: 18px; align-items: center;
     }
@@ -137,82 +97,80 @@
     .scan-bar .status-text.scanning { color: var(--accent); }
     .scan-btn {
       padding: 10px 16px; border-radius: 10px;
-      border: 1px solid var(--border);
-      background: var(--bg-secondary);
-      color: var(--text); font-weight: 600; font-size: 0.85rem;
-      cursor: pointer;
+      border: 1px solid var(--border); background: var(--bg-secondary);
+      color: var(--text); font-weight: 600; font-size: 0.85rem; cursor: pointer;
+      transition: all var(--transition);
     }
     .scan-btn:hover { border-color: var(--accent); color: var(--accent); }
 
-    /* Modal */
+    /* Modal – DeepSeek-style fade backdrop */
     .modal-overlay {
       position: fixed; inset: 0;
-      background: rgba(0,0,0,0.55);
-      display: none; align-items: center; justify-content: center;
+      background: rgba(0,0,0,0);
+      backdrop-filter: blur(0);
+      display: flex; align-items: center; justify-content: center;
       z-index: 10000; padding: 20px;
+      opacity: 0; visibility: hidden; pointer-events: none;
+      transition: opacity 0.28s ease, visibility 0.28s ease, background 0.28s ease, backdrop-filter 0.28s ease;
     }
-    .modal-overlay.open { display: flex; }
+    .modal-overlay.open {
+      opacity: 1; visibility: visible; pointer-events: auto;
+      background: rgba(0,0,0,0.5);
+      backdrop-filter: blur(6px);
+    }
     .modal {
-      background: var(--card, #1e293b);
-      border: 1px solid var(--border, #334155);
-      border-radius: 16px;
-      width: 100%; max-width: 360px;
-      padding: 24px 20px;
-      box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      width: 100%; max-width: 380px;
+      padding: 24px 22px;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.35);
       text-align: left;
+      transform: scale(0.94) translateY(12px);
+      transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .modal-overlay.open .modal {
+      transform: scale(1) translateY(0);
     }
     .modal h2 { font-size: 1.15rem; margin-bottom: 6px; }
     .modal .modal-sub {
       font-size: 0.85rem; color: var(--text-muted); margin-bottom: 18px;
     }
     .modal label {
-      display: block; font-size: 0.8rem; color: var(--text-muted);
-      margin-bottom: 6px;
+      display: block; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 6px;
     }
     .modal input[type="password"],
     .modal input[type="text"] {
-      width: 100%;
-      padding: 12px 14px;
-      border-radius: 10px;
-      border: 1px solid var(--border, #334155);
-      background: var(--bg, #0f172a);
-      color: var(--text, #f1f5f9);
-      font-size: 0.95rem;
-      outline: none;
-      margin-bottom: 8px;
+      width: 100%; padding: 12px 14px; border-radius: 12px;
+      border: 1px solid var(--border); background: var(--bg);
+      color: var(--text); font-size: 0.95rem; outline: none; margin-bottom: 8px;
+      transition: border-color var(--transition);
     }
-    .modal input:focus { border-color: var(--accent); }
+    .modal input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
     .modal .error-msg {
-      color: #f87171; font-size: 0.8rem; min-height: 1.2em;
-      margin-bottom: 12px;
+      color: var(--danger); font-size: 0.8rem; min-height: 1.2em; margin-bottom: 12px;
     }
-    .modal-actions {
-      display: flex; gap: 10px; margin-top: 8px;
-    }
+    .modal-actions { display: flex; gap: 10px; margin-top: 8px; }
     .modal-actions button {
-      flex: 1; padding: 12px; border-radius: 10px;
-      font-weight: 600; font-size: 0.95rem; cursor: pointer;
-      border: none;
+      flex: 1; padding: 12px; border-radius: 12px;
+      font-weight: 600; font-size: 0.95rem; cursor: pointer; border: none;
+      transition: all var(--transition);
     }
     .modal-actions .cancel {
-      background: transparent; border: 1px solid var(--border);
-      color: var(--text);
+      background: transparent; border: 1px solid var(--border); color: var(--text);
     }
+    .modal-actions .cancel:hover { border-color: var(--accent); color: var(--accent); }
     .modal-actions .confirm {
-      background: var(--gradient, linear-gradient(135deg, #22d3ee, #a78bfa));
-      color: #000;
+      background: var(--gradient); color: #000;
     }
-    .modal-actions .confirm:disabled {
-      opacity: 0.55; cursor: not-allowed;
-    }
+    .modal-actions .confirm:hover { box-shadow: var(--shadow-glow); }
+    .modal-actions .confirm:disabled { opacity: 0.55; cursor: not-allowed; }
 
     .bottom-nav {
       position: fixed; bottom: 0; left: 0; right: 0;
-      backdrop-filter: blur(10px);
-      border-top: 1px solid var(--border);
-      display: flex; justify-content: space-around;
-      padding: 10px 14px;
-      background: color-mix(in srgb, var(--bg) 85%, transparent);
+      backdrop-filter: blur(12px); border-top: 1px solid var(--border);
+      display: flex; justify-content: space-around; padding: 10px 14px;
+      background: color-mix(in srgb, var(--bg) 85%, transparent); z-index: 100;
     }
     .nav-item {
       display: flex; flex-direction: column; align-items: center; gap: 4px;
@@ -256,8 +214,7 @@
     </div>
   </div>
 
-  <!-- Password / connect dialog -->
-  <div class="modal-overlay" id="connectModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <div class="modal-overlay" id="connectModal" role="dialog" aria-modal="true">
     <div class="modal">
       <h2 id="modalTitle">Connect to device</h2>
       <p class="modal-sub" id="modalSub">Enter the transfer password if required.</p>
@@ -294,11 +251,9 @@
   <script src="script/socket/socket.io.min.js"></script>
   <script src="script/setting.js"></script>
   <script>
-    /** @type {Map<string, object>} */
+    /** Key devices by name or ssid (node-wifi style) */
     const devicesMap = new Map();
-    /** @type {Map<string, object>} */
     const connectedMap = new Map();
-
     let pendingDevice = null;
     let connecting = false;
 
@@ -309,7 +264,6 @@
     const scanStatus = document.getElementById('scanStatus');
     const scanBtn = document.getElementById('scanBtn');
     const refreshBtn = document.getElementById('refreshBtn');
-
     const modal = document.getElementById('connectModal');
     const modalSub = document.getElementById('modalSub');
     const passwordInput = document.getElementById('passwordInput');
@@ -317,44 +271,46 @@
     const modalCancel = document.getElementById('modalCancel');
     const modalConfirm = document.getElementById('modalConfirm');
 
-    function deviceId(d) {
-      return String(d.id || d.ip || d.address || d.ssid || d.name);
+    function deviceKey(d) {
+      // Prefer name / ssid (how node-wifi reports), fall back to ip
+      return String(d.name || d.ssid || d.hostname || d.ip || d.address || '');
     }
 
     function deviceIcon(d) {
       const t = (d.type || d.kind || '').toLowerCase();
-      if (t.includes('phone') || t.includes('mobile') || t.includes('android') || t.includes('ios')) return '<i class="fa fa-mobile"></i>';
+      if (t.includes('phone') || t.includes('mobile') || t.includes('android') || t.includes('ios'))
+        return '<i class="fa fa-mobile"></i>';
       if (t.includes('tablet')) return '<i class="fa fa-tablet"></i>';
       if (t.includes('tv')) return '<i class="fa fa-tv"></i>';
       return '<i class="fa fa-laptop"></i>';
     }
 
     function createDeviceRow(d, isConnected) {
-      const id = deviceId(d);
+      const key = deviceKey(d);
       const row = document.createElement('div');
       row.className = 'list-item';
-      row.dataset.id = id;
+      row.dataset.key = key;
 
       const status = isConnected ? 'connected' : (d.online === false ? 'offline' : '');
-      const badgeClass = status === 'connected' ? 'badge connected' : (status === 'offline' ? 'badge offline' : 'badge');
-      const badgeText = status === 'connected' ? 'Connected' : (status === 'offline' ? 'Offline' : (d.signal || d.rssi ? 'Nearby' : 'Available'));
+      const badgeClass = status === 'connected' ? 'badge connected'
+        : (status === 'offline' ? 'badge offline' : 'badge');
+      const badgeText = status === 'connected' ? 'Connected'
+        : (status === 'offline' ? 'Offline' : (d.signal || d.rssi ? 'Nearby' : 'Available'));
 
       row.innerHTML = `
         <div class="device-icon"></div>
-        <div class="device-info">
-          <h4></h4>
-          <p></p>
-        </div>
+        <div class="device-info"><h4></h4><p></p></div>
         <span class="${badgeClass}">${badgeText}</span>
         <button type="button" class="connect-btn ${isConnected ? 'secondary' : ''}"></button>
       `;
       row.querySelector('.device-icon').innerHTML = deviceIcon(d);
-      row.querySelector('h4').textContent = d.name || d.hostname || d.ssid ||'Unknown device';
+      row.querySelector('h4').textContent = d.name || d.ssid || d.hostname || 'Unknown device';
       const ip = d.ip || d.address || '';
       const extra = d.os || d.platform || '';
       row.querySelector('p').textContent = [ip, extra].filter(Boolean).join(' • ') || 'Wi‑Fi device';
 
       const btn = row.querySelector('.connect-btn');
+      // Always show the button
       if (isConnected) {
         btn.textContent = 'Disconnect';
         btn.addEventListener('click', () => disconnectDevice(d));
@@ -367,7 +323,7 @@
 
     function renderNearby() {
       deviceListEl.querySelectorAll('.list-item').forEach((n) => n.remove());
-      const list = Array.from(devicesMap.values()).filter((d) => !connectedMap.has(deviceId(d)));
+      const list = Array.from(devicesMap.values()).filter((d) => !connectedMap.has(deviceKey(d)));
       if (list.length === 0) {
         emptyState.style.display = 'block';
       } else {
@@ -389,19 +345,18 @@
 
     function upsertDevice(d) {
       if (!d) return;
-      const id = deviceId(d);
-      devicesMap.set(id, { ...devicesMap.get(id), ...d });
-      if (d.connected) {
-        connectedMap.set(id, devicesMap.get(id));
-      }
+      const key = deviceKey(d);
+      if (!key) return;
+      devicesMap.set(key, { ...devicesMap.get(key), ...d });
+      if (d.connected) connectedMap.set(key, devicesMap.get(key));
       renderNearby();
       renderConnected();
     }
 
-    function removeDevice(dOrId) {
-      const id = typeof dOrId === 'object' ? deviceId(dOrId) : String(dOrId);
-      devicesMap.delete(id);
-      connectedMap.delete(id);
+    function removeDevice(dOrKey) {
+      const key = typeof dOrKey === 'object' ? deviceKey(dOrKey) : String(dOrKey);
+      devicesMap.delete(key);
+      connectedMap.delete(key);
       renderNearby();
       renderConnected();
     }
@@ -410,7 +365,7 @@
       pendingDevice = device;
       modalError.textContent = '';
       passwordInput.value = '';
-      modalSub.textContent = `Connect to “${device.name || device.hostname || device.ip || 'device'}”. Enter password if the host requires one.`;
+      modalSub.textContent = `Connect to “${device.name || device.ssid || device.hostname || device.ip || 'device'}”. Enter password if required.`;
       modal.classList.add('open');
       passwordInput.focus();
     }
@@ -426,40 +381,37 @@
     function submitConnect() {
       if (!pendingDevice || connecting) return;
       if (!socket.connected) {
-        modalError.textContent = 'Not connected to server. Try again.';
-        if (Toast) Toast.error('Server offline');
+        modalError.textContent = 'Not connected to server.';
+        if (window.Toast) Toast.error('Server offline');
         return;
       }
-
       connecting = true;
       modalConfirm.disabled = true;
       modalConfirm.textContent = 'Connecting…';
       modalError.textContent = '';
 
       const payload = {
-        id: pendingDevice.id || deviceId(pendingDevice),
+        name: pendingDevice.name || pendingDevice.ssid,
+        ssid: pendingDevice.ssid || pendingDevice.name,
         ip: pendingDevice.ip || pendingDevice.address,
-        name: pendingDevice.name,
         password: passwordInput.value || undefined,
       };
 
-      // Timeout safety
       const timeout = setTimeout(() => {
         if (!connecting) return;
         connecting = false;
         modalConfirm.disabled = false;
         modalConfirm.textContent = 'Connect';
-        modalError.textContent = 'Connection timed out. Check the password and network.';
-        if (Toast) Toast.error('Connection timed out');
+        modalError.textContent = 'Connection timed out.';
+        if (window.Toast) Toast.error('Connection timed out');
       }, 15000);
 
+      // EVENT → server
       socket.emit('connect-device', payload, (ack) => {
         clearTimeout(timeout);
-        // Optional callback-style ack from server
         if (ack) handleConnectResult(ack);
       });
 
-      // Also listen once for result event (servers may not use ack)
       socket.once('connect-device-result', (res) => {
         clearTimeout(timeout);
         handleConnectResult(res);
@@ -470,71 +422,64 @@
       connecting = false;
       modalConfirm.disabled = false;
       modalConfirm.textContent = 'Connect';
-
       if (!res) {
         modalError.textContent = 'No response from server.';
         return;
       }
-
       if (res.ok || res.success || res.status === 'connected') {
         const dev = res.device || pendingDevice;
         if (dev) {
-          const id = deviceId(dev);
-          connectedMap.set(id, { ...dev, connected: true });
-          devicesMap.set(id, connectedMap.get(id));
+          const key = deviceKey(dev);
+          connectedMap.set(key, { ...dev, connected: true });
+          devicesMap.set(key, connectedMap.get(key));
         }
         renderNearby();
         renderConnected();
         closeModal();
-        if (Toast) {
-          Toast.success(res.message || `Connected to ${dev && (dev.name || dev.ip) || 'device'}`);
-        }
+        if (window.Toast) Toast.success(res.message || 'Connected');
         return;
       }
-
-      // Error cases
-      const code = res.code || res.errorCode || '';
       let msg = res.error || res.message || 'Could not connect';
-      if (code === 'WRONG_PASSWORD' || /password/i.test(msg)) {
-        msg = 'Incorrect password. Please try again.';
-      } else if (code === 'UNREACHABLE' || /unreachable|timeout/i.test(msg)) {
-        msg = 'Device unreachable. Are you on the same Wi‑Fi?';
-      } else if (code === 'BUSY') {
-        msg = 'Device is busy. Try again in a moment.';
-      } else if (code === 'REJECTED') {
-        msg = 'Connection rejected by the other device.';
-      }
+      const code = res.code || res.errorCode || '';
+      if (code === 'WRONG_PASSWORD' || /password/i.test(msg)) msg = 'Incorrect password.';
+      else if (code === 'UNREACHABLE' || /unreachable|timeout/i.test(msg)) msg = 'Device unreachable. Same Wi‑Fi?';
+      else if (code === 'BUSY') msg = 'Device is busy.';
+      else if (code === 'REJECTED') msg = 'Connection rejected.';
       modalError.textContent = msg;
-      if (Toast) Toast.error(msg);
+      if (window.Toast) Toast.error(msg);
     }
 
     function disconnectDevice(d) {
       if (!socket.connected) {
-        if (Toast) Toast.error('Not connected to server',);
+        if (window.Toast) Toast.error('Not connected to server');
         return;
       }
+      // EVENT → server (keyed by name/ssid)
       socket.emit('disconnect-device', {
-        id: d.id || d.ssid || deviceId(d),
+        name: d.name || d.ssid,
+        ssid: d.ssid || d.name,
         ip: d.ip || d.address,
       });
-      connectedMap.delete(deviceId(d));
-      if (devicesMap.has(deviceId(d))) {
-        devicesMap.set(deviceId(d), { ...devicesMap.get(deviceId(d)), connected: false });
+      const key = deviceKey(d);
+      connectedMap.delete(key);
+      if (devicesMap.has(key)) {
+        devicesMap.set(key, { ...devicesMap.get(key), connected: false });
       }
       renderNearby();
       renderConnected();
-      if (Toast) Toast.info('Disconnected');
+      if (window.Toast) Toast.info('Disconnected');
     }
 
     function startScan() {
       if (!socket.connected) {
         scanStatus.textContent = 'Server offline — reconnecting…';
         scanStatus.classList.remove('scanning');
-        if (Toast) Toast.error('Not connected to server');
+        if (window.Toast) Toast.error('Not connected to server');
         return;
       }
       scanStatus.textContent = 'Scanning Wi‑Fi for devices…';
       scanStatus.classList.add('scanning');
+      // EVENT → server
       socket.emit('scan-wifi-devices');
       socket.emit('get-wifi-devices');
     }
@@ -545,41 +490,37 @@
       if (e.key === 'Enter') submitConnect();
       if (e.key === 'Escape') closeModal();
     });
-    modal.addEventListener('click', (e) => {
-      if (e.target === modal) closeModal();
-    });
-
+    modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
     scanBtn.addEventListener('click', startScan);
     refreshBtn.addEventListener('click', startScan);
 
-    // ===== Socket =====
     const socket = io();
-    wireThemeSocket(socket);
 
     socket.on('connect', () => {
       scanStatus.textContent = 'Connected — scanning…';
       scanStatus.classList.add('scanning');
       socket.emit('start-live');
-      socket.emit('user-setting');
+      // socket.emit('user-setting');
       socket.emit('scan-wifi-devices');
       socket.emit('get-wifi-devices');
       socket.emit('get-connected-devices');
-      console.log('socket connected')
     });
 
     socket.on('disconnect', () => {
       scanStatus.textContent = 'Disconnected from server';
       scanStatus.classList.remove('scanning');
-      if (Toast) Toast.warning('Disconnected from server');
+      if (window.Toast) Toast.warning('Disconnected from server');
     });
 
+    // SERVER → client: list of wifi devices (name/ssid based)
     socket.on('wifi-devices', (data) => {
       const list = Array.isArray(data) ? data : (data && data.devices) || [];
       devicesMap.clear();
       list.forEach((d) => {
-        const id = deviceId(d);
-        devicesMap.set(id, d);
-        if (d.connected) connectedMap.set(id, d);
+        const key = deviceKey(d);
+        if (!key) return;
+        devicesMap.set(key, d);
+        if (d.connected) connectedMap.set(key, d);
       });
       renderNearby();
       renderConnected();
@@ -589,11 +530,7 @@
       scanStatus.classList.remove('scanning');
     });
 
-    socket.on('wifi-device', (d) => {
-      upsertDevice(d);
-      scanStatus.classList.remove('scanning');
-    });
-
+    socket.on('wifi-device', (d) => { upsertDevice(d); scanStatus.classList.remove('scanning'); });
     socket.on('device-found', (d) => upsertDevice(d));
     socket.on('device-lost', (d) => removeDevice(d));
     socket.on('device-updated', (d) => upsertDevice(d));
@@ -601,7 +538,10 @@
     socket.on('connected-devices', (data) => {
       const list = Array.isArray(data) ? data : (data && data.devices) || [];
       connectedMap.clear();
-      list.forEach((d) => connectedMap.set(deviceId(d), { ...d, connected: true }));
+      list.forEach((d) => {
+        const key = deviceKey(d);
+        if (key) connectedMap.set(key, { ...d, connected: true });
+      });
       renderConnected();
       renderNearby();
     });
@@ -615,14 +555,14 @@
         modalConfirm.textContent = 'Connect';
         modalError.textContent = msg;
       }
-      if (Toast) Toast.error(msg);
+      if (window.Toast) Toast.error(msg);
     });
 
     socket.on('scan-error', (err) => {
       const msg = (err && (err.message || err.error)) || 'Scan failed';
       scanStatus.textContent = msg;
       scanStatus.classList.remove('scanning');
-      if (Toast) Toast.error(msg);
+      if (window.Toast) Toast.error(msg);
     });
 
     socket.on('scan-complete', (data) => {
@@ -630,13 +570,6 @@
       const n = (data && data.count) != null ? data.count : devicesMap.size;
       scanStatus.textContent = n ? `Found ${n} device(s)` : 'Scan complete — no devices';
     });
-    socket.on('flash', () =>{
-      console.log('close app emite')
-      xenderNative.flash()
-    })
-    socket.on('close-app', () =>{
-      xenderNative.close()
-    })
   </script>
 </body>
 </html>

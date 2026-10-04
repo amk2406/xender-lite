@@ -9,7 +9,7 @@
   <link rel="manifest" href="manifest.json">
   <link rel="preload" href="script/socket/socket.io.min.js" as="script">
   <link rel="preload" href="script/splash-screen.js" as="script">
-  <script src="script/splash-screen.js" ></script>
+  <script src="script/splash-screen.js"></script>
   <title>Xender-lite</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -23,6 +23,11 @@
     .app {
       margin: 0 auto;
       padding: 20px 16px 100px;
+      animation: pageIn 0.4s ease;
+    }
+    @keyframes pageIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
     }
     header {
       display: flex;
@@ -46,17 +51,13 @@
     }
     .header-actions { display: flex; gap: 10px; }
     .icon-btn {
-      width: 42px;
-      height: 42px;
-      border-radius: 50%;
+      width: 42px; height: 42px; border-radius: 50%;
       border: 1px solid var(--border);
       background: var(--bg-secondary);
       color: var(--text);
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      display: flex; align-items: center; justify-content: center;
       cursor: pointer;
-      transition: all var(--transition, 0.2s);
+      transition: all var(--transition);
     }
     .icon-btn:hover {
       border-color: var(--accent);
@@ -66,231 +67,180 @@
     .hero {
       background: var(--card);
       border: 1px solid var(--border);
-      border-radius: var(--radius, 16px);
+      border-radius: var(--radius-lg);
       padding: 28px 20px;
       text-align: center;
       margin-bottom: 20px;
       box-shadow: var(--shadow);
+      transition: all var(--transition);
     }
     .hero h2 { font-size: 1.4rem; margin-bottom: 6px; }
-    .hero p { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 22px; }
+    .hero p { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 20px; }
+
     .qr-box {
-      width: 250px;
-      height: 250px;
-      margin: 0 auto 18px;
+      width: 220px; height: 220px;
+      margin: 0 auto 16px;
       background: var(--bg);
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--text);
-      font-size: 0.85rem;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
       overflow: hidden;
+      position: relative;
+      transition: box-shadow var(--transition), border-color var(--transition);
+    }
+    .qr-box.has-qr {
+      border-color: var(--accent);
+      box-shadow: var(--shadow-glow);
     }
     .qr-box img {
-      height: 100%;
-      width: 100%;
+      width: 100%; height: 100%;
       object-fit: contain;
+      padding: 8px;
     }
-    .status {
-      display: inline-flex;
+    .qr-placeholder {
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+      color: var(--text-muted); font-size: 0.85rem; padding: 16px;
+    }
+    .qr-placeholder svg { opacity: 0.5; }
+
+    .link-row {
+      display: none;
       align-items: center;
-      gap: 6px;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+    .link-row.visible { display: flex; }
+    .link-text {
       font-size: 0.85rem;
       color: var(--accent);
-      background: var(--status, rgba(34,211,238,0.12));
-      padding: 6px 14px;
-      border-radius: 999px;
+      background: var(--accent-soft);
+      padding: 6px 12px;
+      border-radius: 8px;
+      max-width: 260px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-family: ui-monospace, monospace;
+    }
+    .copy-btn {
+      width: 36px; height: 36px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--bg-secondary);
+      color: var(--text-muted);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      transition: all var(--transition);
+      flex-shrink: 0;
+    }
+    .copy-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      box-shadow: var(--shadow-sm);
+    }
+    .copy-btn.copied {
+      border-color: var(--success);
+      color: var(--success);
+    }
+
+    .status {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 0.85rem; color: var(--accent);
+      background: var(--accent-soft);
+      padding: 6px 14px; border-radius: 999px;
+      margin-bottom: 18px;
     }
     .status::before {
-      content: "";
-      width: 8px;
-      height: 8px;
-      background: var(--accent);
-      border-radius: 50%;
+      content: ""; width: 8px; height: 8px;
+      background: var(--accent); border-radius: 50%;
       animation: pulse 1.5s infinite;
     }
+    .status.offline { color: var(--text-muted); background: var(--bg-tertiary); }
+    .status.offline::before { background: var(--text-muted); animation: none; }
     @keyframes pulse {
       0%, 100% { opacity: 1; }
       50% { opacity: 0.4; }
     }
+
+    .web-btn {
+      display: block; width: 100%; max-width: 280px; margin: 0 auto;
+      padding: 14px 20px; border: none; border-radius: 12px;
+      font-size: 1rem; font-weight: 600; cursor: pointer;
+      transition: all var(--transition);
+      background: var(--gradient); color: #000;
+    }
+    .web-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-glow);
+    }
+    .web-btn.running {
+      background: transparent;
+      border: 1.5px solid var(--danger);
+      color: var(--danger);
+    }
+    .web-btn.running:hover {
+      background: rgba(239, 68, 68, 0.1);
+      box-shadow: 0 0 20px rgba(239, 68, 68, 0.25);
+    }
+    .web-btn:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
+
     .actions {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
       margin-bottom: 24px;
     }
     .action-btn {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius, 16px);
-      padding: 20px 12px;
-      text-align: center;
-      cursor: pointer;
-      transition: all var(--transition, 0.2s);
-      color: var(--text);
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); padding: 20px 12px;
+      text-align: center; cursor: pointer;
+      transition: all var(--transition); color: var(--text);
     }
     .action-btn:hover {
       border-color: var(--accent);
       box-shadow: var(--shadow-glow);
       transform: translateY(-2px);
     }
-    .action-btn .icon { font-size: 1.5rem; margin-bottom: 8px; }
+    .action-btn .icon { font-size: 1.5rem; margin-bottom: 8px; color: var(--accent); }
     .action-btn strong { display: block; font-size: 0.95rem; }
     .action-btn span { font-size: 0.78rem; color: var(--text-muted); }
+
     .section-title {
-      font-size: 0.8rem;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      color: var(--text-muted);
-      margin-bottom: 12px;
-      padding-left: 4px;
+      font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.06em;
+      color: var(--text-muted); margin-bottom: 12px; padding-left: 4px;
     }
     .card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius, 16px);
-      overflow: hidden;
-      margin-bottom: 20px;
-    }
-    .list-item {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      padding: 14px 16px;
-      border-bottom: 1px solid var(--border);
-      transition: background var(--transition, 0.2s);
-    }
-    .list-item:last-child { border-bottom: none; }
-    .list-item:hover { background: var(--bg-tertiary); }
-    .file-icon {
-      width: 40px;
-      height: 40px;
-      border-radius: 10px;
-      background: rgba(34, 211, 238, 0.12);
-      color: var(--accent);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.2rem;
-      flex-shrink: 0;
-    }
-    .file-info { flex: 1; min-width: 0; }
-    .file-info h4 {
-      font-size: 0.92rem;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .file-info p { font-size: 0.78rem; color: var(--text-muted); }
-    .progress-wrap {
-      margin-top: 6px;
-      height: 6px;
-      background: var(--bg-tertiary, #1e293b);
-      border-radius: 999px;
-      overflow: hidden;
-    }
-    .progress-bar {
-      height: 100%;
-      width: 0%;
-      background: var(--gradient, linear-gradient(90deg, #22d3ee, #a78bfa));
-      border-radius: 999px;
-      transition: width 0.25s ease;
-    }
-    .transfer-pct {
-      font-size: 0.75rem;
-      font-weight: 600;
-      color: var(--accent);
-      min-width: 40px;
-      text-align: right;
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); overflow: hidden; margin-bottom: 20px;
     }
     .empty-transfers {
-      padding: 28px 16px;
-      text-align: center;
-      color: var(--text-muted);
+      padding: 28px 16px; text-align: center; color: var(--text-muted);
     }
     .empty-transfers button {
-      margin-top: 12px;
-      height: 44px;
-      padding: 0 18px;
-      border-radius: var(--radius, 16px);
-      border: none;
-      background: var(--bg);
-      color: var(--text);
-      cursor: pointer;
-      box-shadow: var(--shadow-glow);
-      font-weight: 600;
+      margin-top: 12px; height: 44px; padding: 0 18px;
+      border-radius: var(--radius); border: none;
+      background: var(--bg); color: var(--text); cursor: pointer;
+      box-shadow: var(--shadow-glow); font-weight: 600;
+      transition: all var(--transition);
     }
+    .empty-transfers button:hover { border-color: var(--accent); color: var(--accent); }
+
     .bottom-nav {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      backdrop-filter: blur(10px);
+      position: fixed; bottom: 0; left: 0; right: 0;
+      backdrop-filter: blur(12px);
       border-top: 1px solid var(--border);
-      display: flex;
-      justify-content: space-around;
+      display: flex; justify-content: space-around;
       padding: 10px 14px;
-      margin: 0 auto;
       background: color-mix(in srgb, var(--bg) 85%, transparent);
+      z-index: 100;
     }
     .nav-item {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 4px;
-      color: var(--text);
-      text-decoration: none;
-      font-size: 0.72rem;
-      transition: color var(--transition, 0.2s);
+      display: flex; flex-direction: column; align-items: center; gap: 4px;
+      color: var(--text); text-decoration: none; font-size: 0.72rem;
+      transition: color var(--transition);
     }
-    .nav-item.active, .nav-item:hover {
-      color: var(--accent);
-    }
-    .nav-item svg {
-      width: 22px;
-      height: 22px;
-    }
-    ::-webkit-scrollbar-thumb {
-      background: color-mix(in srgb, var(--accent) 60%, transparent);
-      border-radius: 10px;
-    }
-    ::-webkit-scrollbar { width: 6px; background: transparent; }
-    ::-webkit-scrollbar-track { background: transparent; }
-
-    .mode-toggle {
-      display: flex;
-      gap: 12px;
-      margin-bottom: 24px;
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius, 16px);
-      padding: 6px;
-    }
-    .mode-btn {
-      flex: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      padding: 12px 16px;
-      background: transparent;
-      border: 1px solid transparent;
-      border-radius: calc(var(--radius, 16px) - 4px);
-      color: var(--text-muted);
-      cursor: pointer;
-      font-size: 0.95rem;
-      font-weight: 500;
-      transition: all var(--transition, 0.2s);
-    }
-    .mode-btn:hover { color: var(--text); }
-    .mode-btn.active {
-      background: var(--bg-tertiary);
-      border-color: var(--accent);
-      color: var(--accent);
-      box-shadow: var(--shadow);
-    }
-    .mode-btn i { font-size: 1.2rem; }
+    .nav-item.active, .nav-item:hover { color: var(--accent); }
+    .nav-item svg { width: 22px; height: 22px; }
   </style>
 </head>
 <body>
@@ -306,49 +256,45 @@
       </div>
     </header>
 
-    <div class="mode-toggle" id="modeToggleButtons">
-      <button class="mode-btn active" id="webModeBtn" onclick="switchMode('web')">
-        <i class="fas fa-globe"></i>
-        Connect to Web
-      </button>
-      <button class="mode-btn" id="pcModeBtn" onclick="switchMode('pc')">
-        <i class="fas fa-desktop"></i>
-        Connect to PC
-      </button>
-    </div>
+    <div class="hero" id="heroPanel">
+      <h2 id="heroTitle">Ready to share</h2>
+      <p id="heroSub">Start the web server so phones can connect</p>
 
-    <div class="hero" id="heroWeb">
-      <h2>Ready to share</h2>
-      <p>Scan the QR code or connect on the same Wi-Fi</p>
-      <div class="qr-box" id="qrcodeWeb">
-        <img src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20100%20100%22%20width%3D%22100%22%20height%3D%22100%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22xg%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%232379e9c0%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23842de9d7%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Ctext%20x%3D%2250%22%20y%3D%2235%22%20text-anchor%3D%22middle%22%20font-family%3D%22Arial%2Csans-serif%22%20font-size%3D%2210%22%20fill%3D%22%23000000%22%3EConnect%20to%20a%20WiFi%3C%2Ftext%3E%3Ctext%20x%3D%2250%22%20y%3D%2246%22%20text-anchor%3D%22middle%22%20font-family%3D%22Arial%2Csans-serif%22%20font-size%3D%224%22%20fill%3D%22%231d1d1d%22%3EShare%20files%20wirelessly%3C%2Ftext%3E%3Ctext%20x%3D%2250%22%20y%3D%2264%22%20text-anchor%3D%22middle%22%20font-family%3D%22Arial%20Rounded%20MT%20Bold%2CArial%2Csans-serif%22%20font-size%3D%229%22%20font-weight%3D%22800%22%20letter-spacing%3D%22-0.4%22%20fill%3D%22url(%23xg)%22%3EXender-lite%3C%2Ftext%3E%3C%2Fsvg%3E" style="background-color: transparent;" alt="You are not connected">
+      <div class="qr-box" id="qrBox">
+        <div class="qr-placeholder" id="qrPlaceholder">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+            <rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM20 14v6M14 20h6"/>
+          </svg>
+          <span>Start Web to show QR</span>
+        </div>
+        <img id="qrImage" src="" alt="QR Code" style="display:none;" />
       </div>
-      <div class="status" id="connStatus">Not Connected</div>
-    </div>
 
-    <div class="hero" id="heroPc" style="display: none;">
-      <h2>Connect via USB</h2>
-      <p>Connect your PC to transfer files directly</p>
-      <div class="qr-box" id="qrcodePc">
-        <i class="fas fa-desktop" style="font-size: 3rem; color: var(--accent);"></i>
+      <div class="link-row" id="linkRow">
+        <span class="link-text" id="linkText"></span>
+        <button type="button" class="copy-btn" id="copyBtn" title="Copy link">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+          </svg>
+        </button>
       </div>
-      <div class="status">Waiting for Connection</div>
+
+      <div class="status offline" id="connStatus">Web server off</div>
+
+      <button type="button" class="web-btn" id="webBtn">Start Web</button>
     </div>
 
     <div class="actions">
       <button class="action-btn" onclick="location.href='files'">
-        <div class="icon">
-          <i class="fa far fa-folder-open"></i>
-        </div>
+        <div class="icon"><i class="fa far fa-folder-open"></i></div>
         <strong>Send Files</strong>
         <span>Browse & share</span>
       </button>
       <button class="action-btn" onclick="location.href='devices'">
-        <div class="icon">
-          <i class="fa fa-file-arrow-down"></i>
-        </div>
-        <strong>Receive</strong>
-        <span id="receiveHint">Waiting…</span>
+        <div class="icon"><i class="fa fa-file-arrow-down"></i></div>
+        <strong>Devices</strong>
+        <span>Nearby & connected</span>
       </button>
     </div>
 
@@ -383,239 +329,169 @@
   <script src="script/toast.js"></script>
   <script src="script/socket/socket.io.min.js"></script>
   <script src="script/setting.js"></script>
-  <script src="script/xender-native.js"></script>
   <script>
     const socket = io();
-    let a =true
-    function switchMode(mode) {
-      if (a) {
-        console.log(a)
-        socket.on('connect', () =>{
-          socket.emit('start-server')
-        })
-        a = false
-      }
-      const heroWeb = document.getElementById('heroWeb');
-      const heroPc = document.getElementById('heroPc');
-      const webModeBtn = document.getElementById('webModeBtn');
-      const pcModeBtn = document.getElementById('pcModeBtn');
-      if (mode === 'web') {
-        heroWeb.style.display = 'block';
-        heroPc.style.display = 'none';
-        webModeBtn.classList.add('active');
-        pcModeBtn.classList.remove('active');
-      } else if (mode === 'pc') {
-        heroWeb.style.display = 'none';
-        heroPc.style.display = 'block';
-        webModeBtn.classList.remove('active');
-        pcModeBtn.classList.add('active');
-      }
-      if (typeof socket !== 'undefined' && socket.connected) {
-        socket.emit('set-mode', { mode });
-      }
-    }
+    let webServerRunning = false;
+    let currentLink = '';
 
-    // ===== Incoming transfers =====
-    /** @type {Map<string, object>} */
-    const transfers = new Map();
-    const transfersCard = document.getElementById('transfersCard');
-    const emptyTransfers = document.getElementById('emptyTransfers');
-    const receiveHint = document.getElementById('receiveHint');
+    const webBtn = document.getElementById('webBtn');
     const connStatus = document.getElementById('connStatus');
+    const qrBox = document.getElementById('qrBox');
+    const qrImage = document.getElementById('qrImage');
+    const qrPlaceholder = document.getElementById('qrPlaceholder');
+    const linkRow = document.getElementById('linkRow');
+    const linkText = document.getElementById('linkText');
+    const copyBtn = document.getElementById('copyBtn');
+    const heroTitle = document.getElementById('heroTitle');
+    const heroSub = document.getElementById('heroSub');
 
-    function transferId(t) {
-      return String(t.id || t.transferId || t.name + '-' + (t.from || ''));
+    function ensureHttp(url) {
+      if (!url) return '';
+      const s = String(url).trim();
+      if (/^https?:\/\//i.test(s)) return s;
+      return 'http://' + s;
     }
 
-    function formatSize(bytes) {
-      if (bytes == null) return '';
-      const n = Number(bytes);
-      if (Number.isNaN(n)) return String(bytes);
-      if (n < 1024) return n + ' B';
-      if (n < 1024 * 1024) return (n / 1024).toFixed(1) + ' KB';
-      return (n / (1024 * 1024)).toFixed(1) + ' MB';
-    }
-
-    function clampPct(p) {
-      const n = Number(p);
-      if (Number.isNaN(n)) return 0;
-      return Math.max(0, Math.min(100, Math.round(n)));
-    }
-
-    function createTransferEl(t) {
-      const id = transferId(t);
-      const pct = clampPct(t.progress != null ? t.progress : t.percent);
-      const div = document.createElement('div');
-      div.className = 'list-item';
-      div.dataset.id = id;
-      div.innerHTML = `
-        <div class="file-icon">📥</div>
-        <div class="file-info">
-          <h4></h4>
-          <p class="meta"></p>
-          <div class="progress-wrap"><div class="progress-bar"></div></div>
-        </div>
-        <div class="transfer-pct"></div>
-      `;
-      div.querySelector('h4').textContent = t.name || t.filename || 'Incoming file';
-      const from = t.from || t.device || t.source || '';
-      const size = formatSize(t.size || t.total);
-      const status = t.status || (pct >= 100 ? 'Done' : 'Receiving');
-      div.querySelector('.meta').textContent = [from, size, status].filter(Boolean).join(' • ');
-      div.querySelector('.progress-bar').style.width = pct + '%';
-      div.querySelector('.transfer-pct').textContent = pct + '%';
-      return div;
-    }
-
-    function upsertTransfer(t) {
-      if (!t) return;
-      const id = transferId(t);
-      const prev = transfers.get(id) || {};
-      const merged = { ...prev, ...t, id };
-      transfers.set(id, merged);
-
-      emptyTransfers.style.display = 'none';
-      let el = transfersCard.querySelector(`.list-item[data-id="${CSS.escape(id)}"]`);
-      if (el) {
-        const pct = clampPct(merged.progress != null ? merged.progress : merged.percent);
-        el.querySelector('h4').textContent = merged.name || merged.filename || 'Incoming file';
-        const from = merged.from || merged.device || merged.source || '';
-        const size = formatSize(merged.size || merged.total);
-        const status = merged.status || (pct >= 100 ? 'Done' : 'Receiving');
-        el.querySelector('.meta').textContent = [from, size, status].filter(Boolean).join(' • ');
-        el.querySelector('.progress-bar').style.width = pct + '%';
-        el.querySelector('.transfer-pct').textContent = pct + '%';
-      } else {
-        transfersCard.appendChild(createTransferEl(merged));
+    function setQr(dataUrl) {
+      if (!dataUrl) {
+        qrImage.style.display = 'none';
+        qrPlaceholder.style.display = 'flex';
+        qrBox.classList.remove('has-qr');
+        return;
       }
-
-      const active = Array.from(transfers.values()).filter((x) => clampPct(x.progress != null ? x.progress : x.percent) < 100).length;
-      receiveHint.textContent = active ? `${active} receiving…` : 'Waiting…';
+      qrImage.src = dataUrl;
+      qrImage.style.display = 'block';
+      qrPlaceholder.style.display = 'none';
+      qrBox.classList.add('has-qr');
     }
 
-    function removeTransfer(tOrId) {
-      const id = typeof tOrId === 'object' ? transferId(tOrId) : String(tOrId);
-      transfers.delete(id);
-      const el = transfersCard.querySelector(`.list-item[data-id="${CSS.escape(id)}"]`);
-      if (el) el.remove();
-      if (transfers.size === 0) emptyTransfers.style.display = 'block';
-      const active = Array.from(transfers.values()).filter((x) => clampPct(x.progress != null ? x.progress : x.percent) < 100).length;
-      receiveHint.textContent = active ? `${active} receiving…` : 'Waiting…';
+    function setLink(link) {
+      currentLink = ensureHttp(link);
+      if (currentLink) {
+        linkText.textContent = currentLink;
+        linkRow.classList.add('visible');
+      } else {
+        linkRow.classList.remove('visible');
+        linkText.textContent = '';
+      }
     }
 
-    function renderTransfers(list) {
-      transfers.clear();
-      transfersCard.querySelectorAll('.list-item').forEach((n) => n.remove());
-      (list || []).forEach((t) => {
-        transfers.set(transferId(t), t);
-        transfersCard.appendChild(createTransferEl(t));
-      });
-      emptyTransfers.style.display = transfers.size === 0 ? 'block' : 'none';
+    function setRunningUI(running) {
+      webServerRunning = running;
+      if (running) {
+        webBtn.textContent = 'Close Web Server';
+        webBtn.classList.add('running');
+        connStatus.textContent = 'Web server running';
+        connStatus.classList.remove('offline');
+        heroTitle.textContent = 'Sharing over Wi‑Fi';
+        heroSub.textContent = 'Scan the QR or open the link on your phone';
+      } else {
+        webBtn.textContent = 'Start Web';
+        webBtn.classList.remove('running');
+        connStatus.textContent = 'Web server off';
+        connStatus.classList.add('offline');
+        heroTitle.textContent = 'Ready to share';
+        heroSub.textContent = 'Start the web server so phones can connect';
+        setQr(null);
+        setLink('');
+      }
     }
+
+    webBtn.addEventListener('click', () => {
+      if (!socket.connected) {
+        if (window.Toast) Toast.error('Not connected to server');
+        return;
+      }
+      webBtn.disabled = true;
+      if (webServerRunning) {
+        // EVENT → server: stop the web server
+        socket.emit('stop-web-server');
+      } else {
+        // EVENT → server: start the web server (port decided by server, e.g. 30 or configured)
+        socket.emit('start-web-server');
+      }
+      setTimeout(() => { webBtn.disabled = false; }, 1500);
+    });
+
+    copyBtn.addEventListener('click', async () => {
+      if (!currentLink) return;
+      try {
+        await navigator.clipboard.writeText(currentLink);
+        copyBtn.classList.add('copied');
+        if (window.Toast) Toast.success('Link copied', 1800);
+        setTimeout(() => copyBtn.classList.remove('copied'), 2000);
+      } catch (_) {
+        // fallback
+        const ta = document.createElement('textarea');
+        ta.value = currentLink;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        ta.remove();
+        copyBtn.classList.add('copied');
+        if (window.Toast) Toast.success('Link copied', 1800);
+        setTimeout(() => copyBtn.classList.remove('copied'), 2000);
+      }
+    });
 
     // ===== Socket =====
-    
-    wireThemeSocket(socket);
-
     socket.on('connect', () => {
-      console.log('Connected to server');
-      socket.emit('user-setting');
-      socket.emit('start-server')
-      socket.on('lan-link', link =>{
-        connStatus.innerText = ` http://${link}`
-      })
-      socket.emit('get-incoming-transfers');
-      socket.on('qr-code', (data) => {
-        const img = document.querySelector('#qrcodeWeb img');
-        if (!img) return;
-        if (typeof data === 'string') img.src = data;
-        else if (data && data.dataUrl) img.src = data.dataUrl;
-        else if (data && data.url) img.src = data.url;
-      });
-      if (Toast) Toast.success('Connected', 1800);
+      // socket.emit('user-setting');
+      // socket.emit('get-incoming-transfers');
+      if (window.Toast) Toast.success('Connected', 1600);
     });
 
     socket.on('disconnect', () => {
-      if (Toast) Toast.warning('Disconnected from main System');
+      if (window.Toast) Toast.warning('Disconnected from server');
     });
 
-    socket.on('file-changed', (data) => {
-      if (data && data.path && /\.(html|css|js)$/i.test(data.path)) {
-        location.reload();
-      }
-    }); 
-
-    // Incoming transfer lifecycle from LAN / peer
-    socket.on('incoming-transfer', (data) => {
-      upsertTransfer(data);
-      if (data && !data.silent && Toast) {
-        const name = data.name || data.filename || 'File';
-        Toast.info('Incoming: ' + name, 2500);
-      }
-    });
-
-    socket.on('transfer-progress', (data) => {
-      // data: { id, progress|percent, received?, total?, name? }
-      upsertTransfer(data);
-    });
-
-    socket.on('transfer-complete', (data) => {
-      const t = { ...data, progress: 100, status: 'Done' };
-      upsertTransfer(t);
-      if (Toast) {
-        Toast.success((data && (data.name || data.filename)) || 'Transfer' + ' complete');
-      }
-      // Optional: remove after a short delay
-      setTimeout(() => {
-        if (data && (data.removeAfter !== false)) {
-          // keep visible unless server sends transfer-remove
-        }
-      }, 0);
-    });
-
-    socket.on('transfer-error', (data) => {
+    // SERVER → client: web server started
+    // payload example: { link: '192.168.1.5:30', qr: 'data:image/png;base64,...' }
+    socket.on('web-server-started', (data) => {
+      setRunningUI(true);
       if (data) {
-        upsertTransfer({ ...data, status: 'Failed' });
+        if (data.link || data.url || data.host) setLink(data.link || data.url || data.host);
+        if (data.qr || data.dataUrl || data.qrCode) setQr(data.qr || data.dataUrl || data.qrCode);
       }
-      const msg = (data && (data.error || data.message)) || 'Transfer failed';
-      if (Toast) Toast.error(msg);
+      if (window.Toast) Toast.success('Web server started');
     });
 
-    socket.on('transfer-remove', (data) => removeTransfer(data));
-    socket.on('transfer-cancelled', (data) => {
-      removeTransfer(data);
-      if (Toast)Ttoast.info('Transfer cancelled');
+    // SERVER → client: web server stopped / closed
+    socket.on('web-server-stopped', () => {
+      setRunningUI(false);
+      if (window.Toast) Toast.info('Web server stopped');
+    });
+    // alias
+    socket.on('web-server-closed', () => {
+      setRunningUI(false);
     });
 
-    socket.on('incoming-transfers', (data) => {
-      const list = Array.isArray(data) ? data : (data && data.transfers) || [];
-      renderTransfers(list);
-    });
-
-    // QR / connection helpers if server sends them
+    // SERVER → client: QR image update
+    // payload: string dataUrl OR { dataUrl | url | qr }
     socket.on('qr-code', (data) => {
-      const img = document.querySelector('#qrcodeWeb img');
-      if (!img) return;
-      if (typeof data === 'string') img.src = data;
-      else if (data && data.dataUrl) img.src = data.dataUrl;
-      else if (data && data.url) img.src = data.url;
+      if (typeof data === 'string') setQr(data);
+      else if (data && (data.dataUrl || data.url || data.qr)) setQr(data.dataUrl || data.url || data.qr);
     });
-    socket.on('lan-link', link =>{
-        connStatus.textContent = link
-    })
 
-    socket.on('connection-status', (data) => {
-      if (!data) return;
-      connStatus.textContent = data.text || data.status || (data.connected ? 'Connected' : 'Not Connected');
+    // SERVER → client: LAN link / address
+    // payload: string OR { link | url | ip }
+    socket.on('lan-link', (link) => {
+      const v = typeof link === 'string' ? link : (link && (link.link || link.url || link.ip));
+      if (v) setLink(v);
     });
-    socket.on('close-app', () =>{
-      console.log('close app emite')
-      xenderNative.close()
-    })
-    socket.on('flash', () =>{
-      console.log('close app emite')
-      xenderNative.flash()
-    })
+
+    /* ─── COMMENTED: re-enable when wiring server ───
+    socket.on('theme', (t) => setTheme(t));
+    socket.on('accent', (a) => setAccent(a));
+
+    socket.on('incoming-transfer', (data) => { ... });
+    socket.on('transfer-progress', (data) => { ... });
+    socket.on('transfer-complete', (data) => { ... });
+    socket.on('transfer-error', (data) => { ... });
+    socket.on('transfer-remove', (data) => { ... });
+    socket.on('incoming-transfers', (list) => { ... });
+    socket.on('connection-status', (data) => { ... });
+    ──────────────────────────────────────────────── */
   </script>
 </body>
 </html>

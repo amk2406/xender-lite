@@ -4,85 +4,81 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="stylesheet" id="accent" href="style/theme.css">
-  <link rel="icon" type="image/x-icon">
+  <link rel="icon" type="image/x-icon" href="icon/logo.png">
   <title id="title">Xender-lite Web UI</title>
   <style>
-    *{
+    * {
       scroll-behavior: smooth;
       scrollbar-width: thin;
       scrollbar-color: var(--accent) var(--bg-tertiary);
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
+      margin: 0; padding: 0; box-sizing: border-box;
     }
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
       background: var(--bg);
       color: var(--text);
       min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: flex-start;
-      padding: 24px;
-      text-align: center;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: flex-start;
+      padding: 24px; text-align: center;
+      animation: fadeIn 0.4s ease;
     }
-    .logo { font-size: 1.8rem; font-weight: 700; margin-bottom: 8px; margin-top: 12px; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .logo {
+      font-size: 1.9rem; font-weight: 700;
+      margin-bottom: 8px; margin-top: 12px;
+    }
     .logo span {
       background: var(--gradient);
       -webkit-background-clip: text;
       background-clip: text;
       color: transparent;
     }
-    .subtitle { color: var(--text-muted); margin-bottom: 28px; font-size: 0.95rem; }
+    .subtitle {
+      color: var(--text-muted); margin-bottom: 28px; font-size: 0.95rem;
+    }
     .card {
       background: var(--card);
       border: 1px solid var(--border);
-      border-radius: var(--radius, 16px);
+      border-radius: var(--radius-lg, 16px);
       padding: 32px 28px;
-      width: 100%;
-      max-width: 400px;
-      box-shadow: var(--shadow-glow);
+      width: 100%; max-width: 400px;
+      box-shadow: var(--shadow);
+      transition: box-shadow var(--transition), border-color var(--transition);
     }
+    .card:hover { box-shadow: var(--shadow-glow); }
     .device-name { font-size: 1.15rem; font-weight: 600; margin-bottom: 6px; }
     .device-ip { color: var(--accent); font-size: 0.9rem; margin-bottom: 24px; }
     .status {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 8px 16px;
-      border-radius: 999px;
-      font-size: 0.85rem;
-      margin-bottom: 28px;
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 8px 16px; border-radius: 999px;
+      font-size: 0.85rem; margin-bottom: 28px;
+      background: var(--accent-soft); color: var(--accent);
     }
-    .connect::before {
-      content: "";
-      width: 8px;
-      height: 8px;
-      background: var(--accent);
-      border-radius: 50%;
+    .status.connect::before {
+      content: ""; width: 8px; height: 8px;
+      background: var(--accent); border-radius: 50%;
       animation: pulse 1.5s infinite;
+    }
+    .status.offline {
+      background: var(--bg-tertiary); color: var(--text-muted);
     }
     @keyframes pulse {
       0%, 100% { opacity: 1; }
       50% { opacity: 0.35; }
     }
     .btn {
-      display: block;
-      width: 100%;
-      padding: 14px;
-      border: none;
-      border-radius: 12px;
-      font-size: 1rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all var(--transition, 0.2s);
-      margin-bottom: 12px;
-      color: var(--text);
+      display: block; width: 100%; padding: 14px;
+      border: none; border-radius: 12px;
+      font-size: 1rem; font-weight: 600;
+      cursor: pointer; transition: all var(--transition, 0.2s);
+      margin-bottom: 12px; color: var(--text);
     }
     .btn-primary {
-      background: var(--gradient);
-      color: #000;
+      background: var(--gradient); color: #000;
     }
     .btn-primary:hover {
       transform: translateY(-2px);
@@ -98,73 +94,60 @@
       color: var(--accent);
     }
     .files-section {
-      width: 100%;
-      max-width: 400px;
-      margin-top: 24px;
-      text-align: left;
+      width: 100%; max-width: 400px;
+      margin-top: 24px; text-align: left;
       display: none;
+      animation: fadeIn 0.35s ease;
     }
     .files-section.visible { display: block; }
     .files-section h3 {
-      font-size: 0.8rem;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      color: var(--text-muted);
-      margin-bottom: 10px;
-      padding-left: 4px;
+      font-size: 0.8rem; text-transform: uppercase;
+      letter-spacing: 0.06em; color: var(--text-muted);
+      margin-bottom: 10px; padding-left: 4px;
     }
     .files-card {
       background: var(--card);
       border: 1px solid var(--border);
-      border-radius: var(--radius, 16px);
+      border-radius: var(--radius-lg, 16px);
       overflow: hidden;
     }
     .list-item {
-      display: flex;
-      align-items: center;
-      gap: 12px;
+      display: flex; align-items: center; gap: 12px;
       padding: 12px 14px;
       border-bottom: 1px solid var(--border);
-      transition: background 0.15s;
+      transition: background 0.15s, opacity 0.3s, transform 0.3s;
     }
     .list-item:last-child { border-bottom: none; }
     .list-item:hover { background: var(--bg-tertiary); }
+    .list-item.removing {
+      opacity: 0; transform: translateX(20px);
+    }
     .file-icon {
       width: 36px; height: 36px; border-radius: 8px;
-      background: rgba(34, 211, 238, 0.12);
-      color: var(--accent);
+      background: var(--accent-soft); color: var(--accent);
       display: flex; align-items: center; justify-content: center;
       font-size: 1.1rem; flex-shrink: 0;
     }
     .file-info { flex: 1; min-width: 0; }
     .file-info h4 {
-      font-size: 0.88rem;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      font-size: 0.88rem; white-space: nowrap;
+      overflow: hidden; text-overflow: ellipsis;
     }
     .file-info p { font-size: 0.75rem; color: var(--text-muted); }
     .file-actions button {
-      background: transparent;
-      border: none;
-      color: var(--accent);
-      cursor: pointer;
-      padding: 6px 10px;
-      border-radius: 8px;
-      font-size: 0.8rem;
-      font-weight: 600;
+      background: transparent; border: none;
+      color: var(--accent); cursor: pointer;
+      padding: 6px 10px; border-radius: 8px;
+      font-size: 0.8rem; font-weight: 600;
+      transition: background 0.15s;
     }
-    .file-actions button:hover { background: rgba(34, 211, 238, 0.12); }
+    .file-actions button:hover { background: var(--accent-soft); }
     .empty-files {
-      padding: 20px;
-      text-align: center;
-      color: var(--text-muted);
-      font-size: 0.9rem;
+      padding: 20px; text-align: center;
+      color: var(--text-muted); font-size: 0.9rem;
     }
     .footer {
-      margin-top: 40px;
-      font-size: 0.8rem;
-      color: var(--text-muted);
+      margin-top: 40px; font-size: 0.8rem; color: var(--text-muted);
     }
   </style>
 </head>
@@ -173,9 +156,9 @@
   <p class="subtitle">Connected via local network</p>
 
   <div class="card">
-    <div class="device-name" id="deviceName">My Computer</div>
-    <div class="device-ip" id="deviceIp">192.168.X.X</div>
-    <div class="status connect" id="status">Ready to receive files</div>
+    <div class="device-name" id="deviceName">Host Device</div>
+    <div class="device-ip" id="deviceIp">—</div>
+    <div class="status connect" id="status">Connecting…</div>
     <button class="btn btn-primary" onclick="location.href='./upload'">Send Files</button>
     <button class="btn btn-secondary" onclick="location.reload()">Refresh Connection</button>
   </div>
@@ -183,7 +166,7 @@
   <div class="files-section" id="filesSection">
     <h3>Shared files</h3>
     <div class="files-card" id="filesList">
-      <div class="empty-files" id="emptyFiles">No shared files yet. Allow it in settings (Allow viw no web)</div>
+      <div class="empty-files" id="emptyFiles">No shared files yet</div>
     </div>
   </div>
 
@@ -197,17 +180,15 @@
     const deviceNameEl = document.getElementById('deviceName');
     const htmlTitle = document.getElementById('title');
     const deviceIpEl = document.getElementById('deviceIp');
-    const accentTag = document.getElementById('accent');
     const statusEl = document.getElementById('status');
     const filesSection = document.getElementById('filesSection');
     const filesList = document.getElementById('filesList');
     const emptyFiles = document.getElementById('emptyFiles');
 
     let allowFilesView = false;
-    /** @type {Map<string, object>} */
     const filesMap = new Map();
 
-    deviceIpEl.innerText = location.hostname;
+    deviceIpEl.innerText = location.hostname || '—';
 
     function fileId(file) {
       return String(file.id || file.path || file.name);
@@ -239,10 +220,7 @@
       div.dataset.id = id;
       div.innerHTML = `
         <div class="file-icon"></div>
-        <div class="file-info">
-          <h4></h4>
-          <p></p>
-        </div>
+        <div class="file-info"><h4></h4><p></p></div>
         <div class="file-actions">
           <button type="button" data-action="save">Save</button>
         </div>
@@ -251,7 +229,9 @@
       div.querySelector('h4').textContent = file.name || 'Untitled';
       div.querySelector('p').textContent = formatSize(file.size);
       div.querySelector('[data-action="save"]').addEventListener('click', () => {
-        saveFile(file.id || id);
+        // EVENT → server: save-file { id }
+        socket.emit('save-file', { id: file.id || id });
+        if (window.Toast) Toast.info('Saving…', 2000);
       });
       return div;
     }
@@ -291,65 +271,39 @@
       const id = typeof fileOrId === 'object' ? fileId(fileOrId) : String(fileOrId);
       filesMap.delete(id);
       const el = filesList.querySelector(`.list-item[data-id="${CSS.escape(id)}"]`);
-      if (el) el.remove();
-      toggleEmpty();
-    }
-
-    function saveFile(id) {
-      if (!socket.connected) {
-        if (Toast) toast('Not connected', 'error');
-        return;
-      }
-      socket.emit('save-file', { id });
-      if (Toast) toast('Saving file…', 'info', 2000);
-    }
-
-    function setTheme(newTheme) {
-      document.body.setAttribute('data-theme', newTheme);
-    }
-    function setAccent(accent) {
-      const accents = {
-        primary: { src: 'style/theme.css', icon: 'icon/logo.png' },
-        colored: { src: 'style/theme-color.css', icon: 'icon/logo-color.png' },
-        neon: { src: 'style/theme-dark.css', icon: 'icon/logo-dark.png' },
-      };
-      const found = accents[accent] || accents.primary;
-      const iconTag = document.querySelector('link[rel="icon"]');
-      if (iconTag) iconTag.href = found.icon;
-      if (accentTag && accentTag.href.indexOf(found.src) === -1) {
-        accentTag.href = found.src;
+      if (el) {
+        el.classList.add('removing');
+        setTimeout(() => { el.remove(); toggleEmpty(); }, 300);
+      } else {
+        toggleEmpty();
       }
     }
 
     socket.on('connect', () => {
-      statusEl.innerText = 'Connected, Ready to send.';
+      statusEl.innerText = 'Connected · Ready to send';
       statusEl.classList.add('connect');
-      htmlTitle.innerText = 'Xender-lite Web UI • Connected';
+      statusEl.classList.remove('offline');
+      htmlTitle.innerText = 'Xender-lite · Connected';
+      // EVENT → server
       socket.emit('start-live');
     });
 
     socket.on('disconnect', () => {
-      statusEl.innerText = 'You are disconnected';
+      statusEl.innerText = 'Disconnected';
       statusEl.classList.remove('connect');
-      htmlTitle.innerText = 'Xender-lite Web UI • Disconnected';
-      if (Toast) toast('Disconnected', 'warning');
+      statusEl.classList.add('offline');
+      htmlTitle.innerText = 'Xender-lite · Disconnected';
+      if (window.Toast) Toast.warning('Disconnected');
     });
 
-    socket.on('file-changed', (data) => {
-      if (data && data.path && /\.(html|css|js)$/i.test(data.path)) {
-        location.reload();
-        return;
-      }
-      // treat as file-change for shared list
-      handleLanFileChange(data);
-    });
-
+    // SERVER → client: allow file list view
+    // payload: { allow: boolean, files?: array }
     socket.on('allow-files', (rules) => {
       if (rules && rules.allow) {
         allowFilesView = true;
         filesSection.classList.add('visible');
         renderFiles(rules.files || []);
-        if (Toast) toast('File sharing enabled on this page', 'success', 2500);
+        if (window.Toast) Toast.success('File sharing enabled', 2500);
       } else {
         allowFilesView = false;
         filesSection.classList.remove('visible');
@@ -357,10 +311,6 @@
         filesList.querySelectorAll('.list-item').forEach((n) => n.remove());
         toggleEmpty();
       }
-    });
-
-    socket.on('save-file', (file) => {
-      saveFile(file && (file.id || file));
     });
 
     socket.on('device-name', (name) => {
@@ -371,51 +321,27 @@
       deviceIpEl.innerText = (ip && (ip.ip || ip)) || location.hostname;
     });
 
-    socket.on('theme', setTheme);
-    socket.on('accent', setAccent);
-
-    socket.on('update-file', (file) => {
-      if (allowFilesView) updateFile(file);
-    });
-
-    socket.on('file-added', (file) => {
-      if (allowFilesView) updateFile(file);
-    });
-
-    socket.on('file-removed', (file) => {
-      if (allowFilesView) removeFile(file);
-    });
-
-    socket.on('file-deleted', (file) => {
-      if (allowFilesView) removeFile(file);
-    });
-
-    socket.on('file-change', handleLanFileChange);
-
-    function handleLanFileChange(payload) {
-      if (!allowFilesView || !payload) return;
-      const action = (payload.action || payload.type || '').toLowerCase();
-      const file = payload.file || payload.data || payload;
-
-      if (action === 'delete' || action === 'remove' || action === 'deleted') {
-        removeFile(file.id != null ? file.id : file);
-        return;
-      }
-      if (action === 'add' || action === 'added' || action === 'create' || action === 'update' || action === 'updated') {
-        updateFile(typeof file === 'object' ? file : { id: file, name: String(file) });
-        return;
-      }
-      if (file && (file.name || file.id)) updateFile(file);
-    }
+    socket.on('file-added', (file) => { if (allowFilesView) updateFile(file); });
+    socket.on('update-file', (file) => { if (allowFilesView) updateFile(file); });
+    socket.on('file-removed', (file) => { if (allowFilesView) removeFile(file); });
+    socket.on('file-deleted', (file) => { if (allowFilesView) removeFile(file); });
 
     socket.on('save-result', (res) => {
       if (!res) return;
       if (res.ok || res.success) {
-        if (Toast) toast(res.message || 'File saved', 'success');
+        if (window.Toast) Toast.success(res.message || 'File saved');
       } else {
-        if (Toast) toast(res.error || res.message || 'Save failed', 'error');
+        if (window.Toast) Toast.error(res.error || res.message || 'Save failed');
       }
     });
+
+    /* ─── COMMENTED: theme / accent via server ───
+    socket.on('theme', (t) => setTheme(t));
+    socket.on('accent', (a) => setAccent(a));
+    socket.on('file-changed', (data) => {
+      if (data && data.path && /\.(html|css|js)$/i.test(data.path)) location.reload();
+    });
+    ──────────────────────────────────────────── */
   </script>
 </body>
 </html>

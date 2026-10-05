@@ -27,10 +27,24 @@ const settingpath = path.resolve(datapath, 'setting.json')
 fs.ensureDir = (dir) =>{ if (!fs.existsSync(dir)){fs.mkdirSync(dir); return dir}}
 fs.ensureFile = (filepath) =>{fs.ensureDir(path.dirname(filepath));fs.writeFileSync(filepath, '')}
 
+// Module configuration
+const wifi = new WifiPlus({
+    autoReconnect: true,
+    watchInterval: 1300,
+})
+
+const win = new WebView({
+  title: 'Xender Lite',
+  width: 1000,
+  height: 700,
+  center: true,
+  windowsHide: false,
+  icon: './res/icon-color.ico'
+});
+win.setBackgroundColor('#000')
+win.show()
 const app = express()
 const lanapp = express()
-
-
 
 app.use(express.static(path.resolve('static')),express.json())
 

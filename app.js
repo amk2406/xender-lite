@@ -20,9 +20,13 @@ const datapath = path.resolve(process.env.LOCALAPPDATA, 'Xender Lite')
 const tempdir = path.resolve(os.tmpdir(), 'Xender Lite')
 const logpath = path.resolve(datapath, 'logs')
 const chunkpath = path.relative(tempdir, 'chunks')
+const configpath = path.resolve(datapath, 'config.json')
+const settingpath = path.resolve(datapath, 'setting.json')
 
-// Additional config
-fs.ensureDir = (dir) =>{if (!fs.existsSync(dir)){fs.mkdirSync(dir); return dir}}
+// Additional helper
+fs.ensureDir = (dir) =>{ if (!fs.existsSync(dir)){fs.mkdirSync(dir); return dir}}
+fs.ensureFile = (filepath) =>{fs.ensureDir(path.dirname(filepath));fs.writeFileSync(filepath, '')}
+
 const app = express()
 const lanapp = express()
 
@@ -64,9 +68,7 @@ app.get('/license', (req, res, next) =>{
 
 
 const apphttp = http.createServer(app)
-const appsocket = new Server(apphttp, {
-    
-})
+const appsocket = new Server(apphttp, {cors: { methods: ['GET', 'POST']}})
 
 
 
@@ -76,6 +78,6 @@ const appsocket = new Server(apphttp, {
 
 
 
-appsocket.listen(3000, ()=>{
+apphttp.listen(3000, ()=>{
     console.log('server start')
 })

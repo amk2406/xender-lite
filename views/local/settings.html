@@ -47,7 +47,7 @@
     .setting-row:first-of-type { border-radius: 14px 14px 0 0; }
     .setting-row:last-of-type { border-radius: 0 0 14px 14px; }
     .setting-row:only-of-type { border-radius: 14px; }
-    .setting-row + .setting-row { border-top: none; }
+    .setting-row + .setting-row { padding: 10px; border-top: none; }
     .setting-row:hover { background: var(--bg-tertiary); }
     .setting-row .icon {
       width: 28px; text-align: center; color: var(--accent); font-size: 1.15rem; flex-shrink: 0;
@@ -248,7 +248,7 @@
       <div class="setting-row" id="versionSetting">
         <i class="icon fa fa-info-circle"></i>
         <div class="setting-info"><h3>Version</h3></div>
-        <span class="value" id="versionValue">1.0.0</span>
+        <span class="value" id="versionValue">2.0.0</span>
       </div>
       <div class="setting-row" id="logSetting" onclick="location.href='log'">
         <i class="icon fa fa-clipboard-list"></i>

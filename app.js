@@ -220,7 +220,9 @@ apphttp.listen(port, async (err)=>{
             })
         }
 
-        const startLanapp = (ip, socket) =>{if (!islanconnect) {log(lanhttp.listening)}}
+        const startLanapp = (ip, socket) =>{
+            if (!islanconnect) {log(lanhttp.listening)}
+        }
         const closelanapp = async () =>{
             try {
                 await lanhttp.close()

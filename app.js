@@ -10,7 +10,8 @@ const { Socket, Server } = require('socket.io')
 const logger = require('node-logger');
 const multer = require('multer')
 const { WebView } = require('webview-node')
-const { WifiPlus } = require('node-wifi-plus');
+const webviewapp = require('webview-node').app
+const { WifiPlus, } = require('node-wifi-plus');
 
 // custom modules
 const generator = require('./modules/generator')
@@ -22,27 +23,33 @@ const logpath = path.resolve(datapath, 'logs')
 const chunkpath = path.relative(tempdir, 'chunks')
 const configpath = path.resolve(datapath, 'config.json')
 const settingpath = path.resolve(datapath, 'setting.json')
+const webviewdata = path.resolve(datapath, 'Webview Data')
 
 // Additional helper
 fs.ensureDir = (dir) =>{ if (!fs.existsSync(dir)){fs.mkdirSync(dir); return dir}}
 fs.ensureFile = (filepath) =>{fs.ensureDir(path.dirname(filepath));fs.writeFileSync(filepath, '')}
+
+// Little helpers
+const log = console.log
 
 // Module configuration
 const wifi = new WifiPlus({
     autoReconnect: true,
     watchInterval: 1300,
 })
-
 const win = new WebView({
   title: 'Xender Lite',
-  width: 1000,
+  width: 1200,
   height: 700,
-  center: true,
+  minWidth: 500,
   windowsHide: false,
-  icon: './res/icon-color.ico'
+  icon: './res/icon.ico',
+  devTools: false,
+  backgroundColor: '#e71111',
+  userDataFolder: webviewdata
 });
-win.setBackgroundColor('#000')
-win.show()
+
+//win.show()
 const app = express()
 const lanapp = express()
 
@@ -89,9 +96,26 @@ const appsocket = new Server(apphttp, {cors: { methods: ['GET', 'POST']}})
 
 
 
+const port = 3000
 
-
-
-apphttp.listen(3000, ()=>{
-    console.log('server start')
+apphttp.listen(port, (err)=>{
+    if (err) {
+        if (err.code === 'EADDRINUSE') {
+            log('[APP HTTP] Error starting local app http ', err.message)
+            setTimeout(() => {
+                process.exit(1)
+            }, 650);
+        }
+        log('[APP HTTP] Error starting local app http ', err.message)
+    }
+    log('[APP HTTP] App start successfully on port ', port)
+    win._options.url = 'http://localhost:'+port
+    //win.show()
+    appsocket.on('connection', (socket) =>{
+        socket.onAny((event, ...args) =>{
+            console.log(`Event fron id: ${socket.id},
+            With event name of: ${event},
+            And argument of: ${args}`)
+        })
+    })
 })

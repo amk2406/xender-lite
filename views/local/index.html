@@ -348,7 +348,9 @@
     const copyBtn = document.getElementById('copyBtn');
     const heroTitle = document.getElementById('heroTitle');
     const heroSub = document.getElementById('heroSub');
-
+    socket.onAny((event, ...args) =>{
+      console.log(event, args)
+    })
     function ensureHttp(url) {
       if (!url) return '';
       const s = String(url).trim();

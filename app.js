@@ -15,6 +15,7 @@ const { WifiPlus, } = require('node-wifi-plus');
 
 // custom modules
 const generator = require('./modules/generator')
+const network = require('./modules/networkinfo')
 
 // Path config
 const datapath = path.resolve(process.env.LOCALAPPDATA, 'Xender Lite')
@@ -108,9 +109,13 @@ apphttp.listen(port, (err)=>{
         }
         log('[APP HTTP] Error starting local app http ', err.message)
     }
+
     log('[APP HTTP] App start successfully on port ', port)
     win._options.url = 'http://localhost:'+port
     //win.show()
+
+    let ipaddress = network.getLocalIP()
+    
     appsocket.on('connection', (socket) =>{
         socket.onAny((event, ...args) =>{
             console.log(`Event fron id: ${socket.id},

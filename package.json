@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node app.js",
     "dev": "node --watch app.js",
-    "test": "nose --watch app.js"
+    "test": "node --watch app.js"
   },
   "keywords": [
     "xender",

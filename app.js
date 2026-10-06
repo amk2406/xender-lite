@@ -5,6 +5,7 @@ const path = require('path');
 const crypto = require('crypto');
 
 const qrcode = require('qrcode');
+const chalk = require('chalk');
 const express = require('express');
 const { Socket, Server } = require('socket.io')
 const logger = require('node-logger');
@@ -33,6 +34,7 @@ fs.ensureFile = (filepath, content = '') =>{fs.ensureDir(path.dirname(filepath))
 
 // Little helpers
 const log = console.log
+const err = console.error
 
 // Module config
 const wifi = new WifiPlus({
@@ -78,7 +80,7 @@ function settingdata(filepath = settingpath) {
             saveSetting(layout)
             return layout
         } catch (error) {
-            log('[PARSEING ERR] fail to parse setting json', error.message)
+            err('[PARSEING ERR] fail to parse setting json', error.message)
             saveSetting(layout)
             return layout
         }
@@ -90,7 +92,7 @@ function saveSetting(data = setting) {
         const s = JSON.stringify(data, null, 2)
         fs.writeFileSync(settingpath, s)
     } catch (error) {
-        log('[SAVE ERR] fail to save setting data', err.message)
+        err('[SAVE ERR] fail to save setting data', err.message)
     }
 }
 
@@ -103,18 +105,15 @@ function configdata(filepath = configpath) {
     }
     try {
         const conf = JSON.parse(fs.readFileSync(filepath))
-      
         layout.ports = typeof conf.ports === 'object' ? conf.ports : layout.ports;
         layout.ports.default = typeof conf.ports.default === 'number' ? conf.ports.default : layout.ports.default
         layout.ports.lanport = typeof conf.ports.lanport === 'number' ? conf.ports.lanport : layout.ports.lanport
         layout.ports.socketport = typeof conf.ports.socketport === 'number' ? conf.ports.socketport : layout.ports.socketport
         layout.ports.tcpport = typeof conf.ports.tcpport === 'number' ? conf.ports.tcpport : layout.ports.tcpport
-        saveConfig(layout)
-        return layout
+        saveConfig(layout); return layout
     } catch (error) {
-        log('[PARSEING ERR] fail to parse config json', error.message)
-        saveConfig(layout)
-        return layout
+        err('[PARSEING ERR] fail to parse config json', error.message)
+        saveConfig(layout); return layout
     }
 }
 function saveConfig(data = config) {
@@ -122,7 +121,7 @@ function saveConfig(data = config) {
         const s = JSON.stringify(data, null, 2)
         fs.writeFileSync(configpath, s)
     } catch (error) {
-        log('[SAVE ERR] fail to save config data', err.message)
+        err('[SAVE ERR] fail to save config data', err.message)
     }
 }
 
@@ -165,6 +164,14 @@ app.get('/license', (req, res, next) =>{
     } catch (err) { next(err)}
 })
 
+app.use((err, req, res, next) =>{
+    if (err) {
+        err('[APP ROUTE] An error from App route ', err)
+    } else{
+
+    }
+})
+
 
 const apphttp = http.createServer(app)
 const appsocket = new Server(apphttp, {cors: { methods: ['GET', 'POST']}})
@@ -174,7 +181,7 @@ const lansocket = new Server(lanhttp, {cors: { methods: ['GET', 'POST']}})
 
 
 const port = config.ports.default
-apphttp.listen(port, (err)=>{
+apphttp.listen(port, async (err)=>{
     if (err) {
         if (err.code === 'EADDRINUSE') {
             log('[APP HTTP] Error starting local app http ', err.message)
@@ -184,40 +191,73 @@ apphttp.listen(port, (err)=>{
         }
         log('[APP HTTP] Error starting local app http ', err.message)
     }
+    try {
+        log('[APP HTTP] App start successfully on port ', port)
+        win.loadUrl('http://localhost:'+port)
+        win.setMinSize(550, 300);
 
-    log('[APP HTTP] App start successfully on port ', port)
-    win._options.url = 'http://localhost:'+port
-    //win.show()
-
-    let ipaddress = network.getLocalIP()
-    let islanconnect = lanhttp.listening
-    
-    const getQrcode = (string) => {
-        return qrcode.toDataURL(string).then(link => {
-            return link
-        }).catch(err => {
-            log('[QRCODE] Fail to create qrcode for link ', err.message)
-            return 'about:blank'
+        let ipaddress = network.getLocalIP()
+        let isontranfer = false
+        let isinwifi = false
+        wifi.on('connect', () =>{
+            isinwifi = true
+            ipaddress = network.getLocalIP()
         })
-    }
-
-    const startLanserver = (ip, socket) =>{
-        if (!islanconnect) {
-            log(lanhttp.listening)
-        }
-    }
-
-    appsocket.on('connection', (socket) =>{
-        socket.onAny((event, ...args) =>{
-            console.log(`Event fron id: ${socket.id},
-            With event name of: ${event},
-            And argument of: ${args}`)
+        wifi.on('reconnect', () =>{
+            isinwifi = true
         })
-
-        if (islanconnect) {
-            socket.emit('web-server-started', { link: `http://${lanhttp.address().address}:${lanhttp.address().port}`, qr: getQrcode(`http://${lanhttp.address().address}:${lanhttp.address().port}`) })
+        wifi.on('disconnect', () =>{
+            isinwifi = false
+        })
+        wifi.on('networkChange', () =>{
+            //ipaddress = network.getLocalIP()
+        })
+        
+        const getQrcode = (string = `http://${lanhttp.address().address}:${lanhttp.address().port}`) => {
+            return qrcode.toDataURL(string).then(link => { return link;
+            }).catch(err => {
+                err('[QRCODE] Fail to create qrcode for link ', err.message);return 'about:blank'
+            })
         }
 
-    })
+        const startLanapp = (ip, socket) =>{if (!islanconnect) {log(lanhttp.listening)}}
+        const closelanapp = async () =>{
+            try {
+                await lanhttp.close()
+                isontranfer = false
+            } catch (er) {
+                err('[LAN APP] err, fail to close lan http', er.message)
+            }
+        }
 
+        appsocket.on('connection', (socket) =>{
+
+            socket.onAny((event, ...args) =>{
+                console.log(`Event fron id: ${socket.id},
+                With event name of: ${event},
+                And argument of: ${args}`)
+            })
+
+            if (lanhttp.listening) {
+                const qr = getQrcode(`http://${lanhttp.address().address}:${lanhttp.address().port}`)
+                const lanlink = `http://${lanhttp.address().address}:${lanhttp.address().port}`
+                socket.emit('web-server-started', { link: lanlink, qr: qr })
+                socket.emit('qrcode', {qr: qr})
+                socket.emit('lan-link', lanlink)
+            }
+            socket.on('stop-web-server',  async () =>{
+                if(lanhttp.listening && isontranfer) {
+                    await win.dialog.confirm('There is A current Transfer, are you sure you Want to close it',
+                        'Xender Lite').then( async (result)=> {
+                        if (result === true) {
+                            await closelanapp().then(() =>{
+                                socket.emit('web-server-stopped', true)
+                            })
+                        }
+                    })
+                }
+            });
+        })
+        //win.show()
+    } catch (error) { err('[APP ROUTE] An error Occur Stack: ', error.stack)}
 })

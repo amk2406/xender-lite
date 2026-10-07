@@ -7,7 +7,7 @@
   <link rel="stylesheet" id="accent" href="style/theme.css">
   <link rel="icon" href="icon/logo.png" type="image/x-icon">
   <link rel="manifest" href="manifest.json">
-  <title>Devices • Xender-lite</title>
+  <title>Devices • Xender Lite</title>
   <style>
     * {
       scroll-behavior: smooth; scrollbar-width: thin;
@@ -497,6 +497,8 @@
     const socket = io();
 
     socket.on('connect', () => {
+      socket.on('theme', (t) => setTheme(t));
+      socket.on('accent', (a) => setAccent(a));
       scanStatus.textContent = 'Connected — scanning…';
       scanStatus.classList.add('scanning');
       socket.emit('start-live');
@@ -536,7 +538,6 @@
     socket.on('device-updated', (d) => upsertDevice(d));
 
     socket.on('connected-devices', (data) => {
-      console.log(data)
       const list = Array.isArray(data) ? data : (data && data.devices) || [];
       connectedMap.clear();
       list.forEach((d) => {

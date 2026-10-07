@@ -20,6 +20,7 @@ const  { JSONDB } = require('file-json-db')
 const generator = require('./modules/generator')
 const network = require('./modules/networkinfo')
 const util = require('./modules/utility')
+const { setupXenderBrowser } = require('./modules/xender-browser');
 
 // Path config
 const datapath = path.resolve(process.env.LOCALAPPDATA, 'Xender Lite')
@@ -39,6 +40,7 @@ fs.ensureFile = (filepath, content = '') =>{fs.ensureDir(path.dirname(filepath))
 const log = console.log
 const err = console.error
 const errlog = console.error
+const version = '2.0.0'
 // Module config
 const wifi = new WifiPlus({
     autoReconnect: true,
@@ -325,16 +327,20 @@ apphttp.listen(port, async (err)=>{
             });
 
             socket.on('get-recent-transfers', async () =>{
-                const data = await recent.findAsync({}).limit(40).toArray()
-                if (data && data.length !== 0) {
-                    socket.emit('recent-transfers', data)
+                try {
+                        const data = await recent.find({}).limit(40).toArray()
+                    if (data && data.length !== 0) {
+                        socket.emit('recent-transfers', data)
+                    }
+                } catch (error) {
+                    errlog('[RECENT DB] fail to find recent data', error.message)
                 }
             })
 
             socket.on('get-connected-devices', async () =>{
                try {
-                    const scanwifi = await wifi.getCurrentConnections()
-                    //log(scanwifi)
+                    const scanwifi = await wifi.getCurrentConnection()
+                    log(scanwifi)
                     socket.emit('connected-devices', [scanwifi])
                } catch (error) {
                     err('[WIFI ERR] wifi error at scanning', error.message)
@@ -342,8 +348,8 @@ apphttp.listen(port, async (err)=>{
             })
             socket.on('connect-device', async  (payload) =>{
                try {
-                    await wifi.connect(payload.ssid || payload.name, payload.password || null).then((connect) =>{
-                        socket.emit('connect-device-result', connect)
+                    await wifi.connect(payload.ssid || payload.name, payload.password || '').then((connect) =>{
+                        socket.emit('connect-device-result', {ok: true, success: true})
                     }).catch((err) =>{
                         errlog('[WIFI ERR] error connecting wifi', err.message)
                         socket.emit('device-connect-error', false)
@@ -387,6 +393,93 @@ apphttp.listen(port, async (err)=>{
                     socket.emit('scan-error', {})
                }
             })
+
+            socket.emit('version', version);
+            socket.on('app-version', () => {
+                socket.broadcast.emit('version', version);
+            });
+
+            // Web mode
+            socket.emit('web-mode', setting.hideOnWeb);
+            socket.on('get-web-mode', () => {
+                socket.emit('web-mode', setting.hideOnWeb);
+            });
+            socket.on('save-web-mode', (mode) => {
+                setting.hideOnWeb = typeof mode === 'boolean' ? mode : true;
+                saveSetting();
+                socket.broadcast.emit('web-mode', setting.hideOnWeb);
+                socket.emit('web-mode', setting.hideOnWeb);
+            });
+
+            // Auto-organise
+            socket.emit('auto-organize', setting.autoOrganise);
+            socket.on('get-auto-organize', () => {
+                socket.emit('auto-organize', setting.autoOrganise);
+            });
+            socket.on('save-auto-organize', (mode) => {
+                setting.autoOganise = mode;
+                saveSetting();
+                socket.broadcast.emit('auto-organize', setting.autoOrganise);
+            });
+
+            // Save directory
+            socket.emit('save-dir', setting.savefolder);
+            socket.on('save-save-dir', (dir) => {
+                setting.savefolder = path.resolve(dir);
+                saveSetting();
+                socket.broadcast.emit('save-dir', dir);
+            });
+
+            // Scan directories
+            socket.emit('scan-dir', setting.servepaths);
+            socket.on('get-scan-dir', () => {
+                socket.emit('scan-dir', setting.servepaths);
+            });
+            socket.on('add-scan-dir', (dir) => {
+                if (!setting.servepaths.includes(dir)) {
+                    setting.servepaths.push(dir);
+                    config.servepaths.push(dir);
+                    saveSetting();
+                    saveConfig();
+                    socket.broadcast.emit('scan-dir', setting.servepaths);
+                }
+            });
+            socket.on('remove-scan-dir', (dir) => {
+                setting.servepaths = setting.servepaths.filter((item) => item !== dir);
+                config.servepaths = config.servepaths.filter((item) => item !== dir);
+                saveSetting();
+                saveConfig();
+                socket.broadcast.emit('scan-dir', setting.servepaths);
+            });
+
+            // Theme
+            socket.emit('theme', setting.theme);
+            socket.on('get-theme', () => {
+                socket.emit('theme', setting.theme);
+            });
+            socket.on('save-theme', (theme) => {
+                setting.theme = theme === 'dark' || 'light' ? theme : 'light';
+                saveSetting();
+                socket.broadcast.emit('theme', setting.theme);
+            });
+
+            // Accent
+            socket.emit('accent', setting.accent);
+            socket.on('get-accent', () => {
+                socket.emit('accent', setting.accent);
+            });
+            socket.on('save-accent', (accent) => {
+                setting.accent = accent === 'primary' || 'color' || 'colored' || 'noen' ? accent : 'primary';
+                saveSetting();
+                socket.broadcast.emit('accent', setting.accent);
+            });
+
+            // Full settings
+            socket.on('user-setting', () => {
+                socket.emit('setting', setting);
+            });
+
+
 
         })
         //win.show()

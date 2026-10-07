@@ -7,7 +7,7 @@
   <link rel="icon" href="icon/logo.png" type="image/x-icon">
   <link rel="stylesheet" id="accent-tag" href="style/theme.css">
   <link rel="manifest" href="manifest.json">
-  <title>Settings • Xender-lite</title>
+  <title>Settings • Xender Lite</title>
   <style>
     * {
       scroll-behavior: smooth; scrollbar-width: thin;
@@ -254,6 +254,15 @@
         <div class="setting-info"><h3>Version</h3></div>
         <span class="value" id="versionValue">2.0.0</span>
       </div>
+      <div class="setting-row" id="checkForUpdate">
+        <i class="icon fa fa-sync"></i>
+        <div class="setting-info"><h3>Check for Update</h3><p id="update-text">Current version</p></div>
+        <span class="chevron">›</span>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Others</div>
       <div class="setting-row" id="logSetting" onclick="location.href='log'">
         <i class="icon fa fa-clipboard-list"></i>
         <div class="setting-info"><h3>App Logs</h3></div>
@@ -262,11 +271,6 @@
       <div class="setting-row" id="licenseSetting" onclick="location.href='license'">
         <i class="icon fa fa-book"></i>
         <div class="setting-info"><h3>Open-source Licenses</h3></div>
-        <span class="chevron">›</span>
-      </div>
-      <div class="setting-row" id="checkForUpdate">
-        <i class="icon fa fa-sync"></i>
-        <div class="setting-info"><h3>Check for Update</h3><p id="update-text">Current version</p></div>
         <span class="chevron">›</span>
       </div>
     </div>

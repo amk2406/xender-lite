@@ -363,7 +363,6 @@
         qrBox.classList.remove('has-qr');
         return;
       }
-      console.log(dataUrl)
       qrImage.src = dataUrl;
       qrImage.style.display = 'block';
       qrPlaceholder.style.display = 'none';
@@ -454,7 +453,6 @@
     // payload example: { link: '192.168.1.5:30', qr: 'data:image/png;base64,...' }
     socket.on('web-server-started', (data) => {
       setRunningUI(true);
-      console.log('webstart ', data)
       if (data) {
         if (data.link || data.url || data.host) setLink(data.link || data.url || data.host);
         if (data.qr || data.dataUrl || data.qrCode) setQr(data.qr || data.dataUrl || data.qrCode);
@@ -475,7 +473,6 @@
     // SERVER → client: QR image update
     // payload: string dataUrl OR { dataUrl | url | qr }
     socket.on('qr-code', (data) => {
-      console.log(data)
       if (typeof data === 'string') setQr(data);
       else if (data && (data.dataUrl || data.url || data.qr)) setQr(data.dataUrl || data.url || data.qr);
     });

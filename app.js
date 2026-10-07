@@ -38,7 +38,7 @@ fs.ensureFile = (filepath, content = '') =>{fs.ensureDir(path.dirname(filepath))
 // Little helpers
 const log = console.log
 const err = console.error
-
+const errlog = console.error
 // Module config
 const wifi = new WifiPlus({
     autoReconnect: true,
@@ -169,7 +169,7 @@ app.get('/license', (req, res, next) =>{
 
 app.use((err, req, res, next) =>{
     if (err) {
-        err('[APP ROUTE] An error from App route ', err)
+        errlog('[APP ROUTE] An error from App route ', err)
     } else{
 
     }
@@ -211,8 +211,19 @@ apphttp.listen(port, async (err)=>{
         wifi.on('disconnect', () =>{
             isinwifi = false
         })
-        wifi.on('networkChange', () =>{
-            //ipaddress = network.getLocalIP()
+        wifi.on('networkChange', async () =>{
+            if (isontranfer && ipaddress !== network.getLocalIP()) {
+                await win.dialog.confirm(
+                    'We detect a network change will you like to switch the View to the new Network',
+                    'Xender Lite'
+                ).then(async result =>{
+                    if (result === "true" || true) {
+                        ipaddress = network.getLocalIP()
+                        await closelanapp(appsocket)
+                        await startLanapp(ipaddress, appsocket)
+                    }
+                })
+            }
         })
         
         const getQrcode = (string = `http://${lanhttp.address().address}:${lanhttp.address().port}`) => {
@@ -232,7 +243,7 @@ apphttp.listen(port, async (err)=>{
                             if (err.code === 'EADDRINUSE') {
                                 log('[LAN APP] Error starting local app http ', err.message)
                             }
-                            err('[LAN APP] fail to start lan app')
+                            errlog('[LAN APP] fail to start lan app')
                         }
                         log('[LAN APP] lan start on port', `http://${lanhttp.address().address}:${lanhttp.address().port}`)
                         if (!isspawn) {
@@ -253,20 +264,26 @@ apphttp.listen(port, async (err)=>{
         }
         const closelanapp = async (socket) =>{
             try {
-                await lanhttp.close()
-                isontranfer = false
-                socket.broadcast.emit('web-server-stopped', true)
-                socket.emit('web-server-stopped', true)
-                socket.emit('web-server-closed', true)
+                if (lanhttp.listening) {
+                    await lanhttp.close()
+                    isontranfer = false
+                    socket.broadcast.emit('web-server-stopped', true)
+                    socket.emit('web-server-stopped', true)
+                    socket.emit('web-server-closed', true)
+                } else{
+                    socket.broadcast.emit('web-server-stopped', true)
+                    socket.emit('web-server-stopped', true)
+                    socket.emit('web-server-closed', true)
+                }
             } catch (er) {
-                err('[LAN APP] err, fail to close lan http', er.message)
+                errlog('[LAN APP] err, fail to close lan http', er.message)
             }
         }
 
         appsocket.on('connection', async (socket) =>{
 
             socket.onAny((event, ...args) =>{
-                console.log(`Event fron id: ${socket.id},
+                log(`Event fron id: ${socket.id},
                 With event name of: ${event},
                 And argument of: ${args}`)
             })
@@ -274,19 +291,18 @@ apphttp.listen(port, async (err)=>{
             if (lanhttp.listening) {
                 const qr = await getQrcode(`http://${lanhttp.address().address}:${lanhttp.address().port}`)
                 const lanlink = `http://${lanhttp.address().address}:${lanhttp.address().port}`;
-                log(qr)
                 socket.emit('web-server-started', { link: lanlink, qr: qr })
                 socket.emit('qrcode', qr)
                 socket.emit('lan-link', lanlink)
             }
+
             socket.on('start-web-server',  async () =>{
                 ipaddress = network.getLocalIP()
                 if(!lanhttp.listening) {
-                    console.log(ipaddress)
                     await startLanapp(ipaddress, socket).then(() =>{
                     }).catch(er => {
                         win.dialog.error('Fail to start LAN server, pls try again', 'Xender Lite')
-                        err('[LAN APP] failt to start lan app', er.message)
+                        errlog('[LAN APP] failt to start lan app', er.message)
                     })
                 } else {
                     const qr = await getQrcode(`http://${lanhttp.address().address}:${lanhttp.address().port}`)
@@ -301,7 +317,6 @@ apphttp.listen(port, async (err)=>{
                         win.flash(); win.focus()
                         await win.dialog.confirm('There is A current Transfer Inprogress, are you sure you want to close it.', 'Xender Lite'
                         ).then(async re => {
-                            log(re)
                             if (re === 'true' || true) {await closelanapp(socket).catch(er => log('[LAN APP] fail to close lan app', er.message)) }
                         })
                     }
@@ -330,17 +345,22 @@ apphttp.listen(port, async (err)=>{
                     await wifi.connect(payload.ssid || payload.name, payload.password || null).then((connect) =>{
                         socket.emit('connect-device-result', connect)
                     }).catch((err) =>{
-                        console.error('[WIFI ERR] error connecting wifi', err.message)
+                        errlog('[WIFI ERR] error connecting wifi', err.message)
                         socket.emit('device-connect-error', false)
                     })
-
                } catch (error) {
-                    console.error('[WIFI ERR] wifi error at connecting', error.message)
+                    errlog('[WIFI ERR] wifi error at connecting', error.message)
                }
+            })
+
+            socket.on('disconnect-device', async (device) =>{
+                await wifi.disconnect().then(discon =>{
+                }).catch(error =>{
+                    errlog('[WIFI ERR] fail to diconnect wifi', error.message)
+                })
             })
             
             wifi.on('connect', (device) =>{
-                log(device)
                 socket.emit('connected-devices', [device])
             })
             wifi.on('disconnect', async (device) =>{
@@ -352,10 +372,9 @@ apphttp.listen(port, async (err)=>{
             socket.on('scan-wifi-devices', async () =>{
                try {
                     const scanwifi = await wifi.scan()
-                    log(scanwifi)
                     socket.emit('wifi-devices', scanwifi)
                } catch (error) {
-                    err('[WIFI ERR] wifi error at scanning', error.message)
+                    errlog('[WIFI ERR] wifi error at scanning', error.message)
                     socket.emit('scan-error', {})
                }
             })
@@ -364,7 +383,7 @@ apphttp.listen(port, async (err)=>{
                     const scanwifi = await wifi.scan()
                     socket.emit('wifi-devices', scanwifi)
                } catch (error) {
-                    err('[WIFI ERR] wifi error at scanning', error.message)
+                    errlog('[WIFI ERR] wifi error at scanning', error.message)
                     socket.emit('scan-error', {})
                }
             })
@@ -372,7 +391,7 @@ apphttp.listen(port, async (err)=>{
         })
         //win.show()
     } catch (error) {
-        err('[APP ROUTE] An error Occur Stack: ', error.stack)
+        errlog('[APP ROUTE] An error Occur Stack: ', error.stack)
         
     }
 })

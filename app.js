@@ -316,10 +316,63 @@ apphttp.listen(port, async (err)=>{
                 }
             })
 
+            socket.on('get-connected-devices', async () =>{
+               try {
+                    const scanwifi = await wifi.getCurrentConnections()
+                    //log(scanwifi)
+                    socket.emit('connected-devices', [scanwifi])
+               } catch (error) {
+                    err('[WIFI ERR] wifi error at scanning', error.message)
+               }
+            })
+            socket.on('connect-device', async  (payload) =>{
+               try {
+                    await wifi.connect(payload.ssid || payload.name, payload.password || null).then((connect) =>{
+                        socket.emit('connect-device-result', connect)
+                    }).catch((err) =>{
+                        console.error('[WIFI ERR] error connecting wifi', err.message)
+                        socket.emit('device-connect-error', false)
+                    })
+
+               } catch (error) {
+                    console.error('[WIFI ERR] wifi error at connecting', error.message)
+               }
+            })
+            
+            wifi.on('connect', (device) =>{
+                log(device)
+                socket.emit('connected-devices', [device])
+            })
+            wifi.on('disconnect', async (device) =>{
+                socket.emit('connected-devices', [])
+                const scanwifi = await wifi.scan()
+                socket.emit('wifi-devices', scanwifi)
+            })
+
+            socket.on('scan-wifi-devices', async () =>{
+               try {
+                    const scanwifi = await wifi.scan()
+                    log(scanwifi)
+                    socket.emit('wifi-devices', scanwifi)
+               } catch (error) {
+                    err('[WIFI ERR] wifi error at scanning', error.message)
+                    socket.emit('scan-error', {})
+               }
+            })
+            socket.on('get-wifi-devices', async () =>{
+               try {
+                    const scanwifi = await wifi.scan()
+                    socket.emit('wifi-devices', scanwifi)
+               } catch (error) {
+                    err('[WIFI ERR] wifi error at scanning', error.message)
+                    socket.emit('scan-error', {})
+               }
+            })
 
         })
-        win.show()
+        //win.show()
     } catch (error) {
-        console.error('[APP ROUTE] An error Occur Stack: ', error.stack)
+        err('[APP ROUTE] An error Occur Stack: ', error.stack)
+        
     }
 })

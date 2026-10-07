@@ -536,6 +536,7 @@
     socket.on('device-updated', (d) => upsertDevice(d));
 
     socket.on('connected-devices', (data) => {
+      console.log(data)
       const list = Array.isArray(data) ? data : (data && data.devices) || [];
       connectedMap.clear();
       list.forEach((d) => {

@@ -48,19 +48,15 @@ const win = new WebView({
   title: 'Xender Lite',
   width: 1200,
   height: 700,
-  minWidth: 500,
+  minWidth: 800,
   windowsHide: false,
   icon: './res/icon.ico',
   devTools: false,
-  backgroundColor: '#e71111',
+  backgroundColor: '#eee8e8',
   userDataFolder: webviewdata
 });
 const db = new JSONDB(recentpath)
-const recent = db.collection({
-    name: 'recent',
-    maxPartSize: 500 * 1024,
-    autoId: true
-})
+const recent = db.collection({ name: 'recent',maxPartSize: 512000,autoId: true})
 
 // App config
 let setting = settingdata(settingpath)
@@ -137,7 +133,6 @@ function saveConfig(data = config) {
 const app = express()
 const lanapp = express()
 
-
 app.use(express.static(path.resolve('static')),express.json())
 lanapp.use(express.static(path.resolve('static')),express.json())
 
@@ -200,8 +195,7 @@ apphttp.listen(port, async (err)=>{
     }
     try {
         log('[APP HTTP] App start successfully on port ', port)
-        win._options.url = ('http://localhost:'+port)
-        win.setMinSize(550, 300);
+        win.loadURL('http://localhost:'+port)
 
         let ipaddress = network.getLocalIP()
         let isontranfer = false
@@ -248,8 +242,10 @@ apphttp.listen(port, async (err)=>{
                         if (socket) {
                             const qr = await getQrcode(`http://${lanhttp.address().address}:${lanhttp.address().port}`)
                             const lanlink = `http://${lanhttp.address().address}:${lanhttp.address().port}`
+                            socket.broadcast.emit('web-server-started', { link: lanlink, qr: qr })
                             socket.emit('web-server-started', { link: lanlink, qr: qr })
                             socket.emit('qrcode', qr)
+                            socket.broadcast.emit('qrcode', qr)
                         }
                     })
                 }
@@ -259,13 +255,15 @@ apphttp.listen(port, async (err)=>{
             try {
                 await lanhttp.close()
                 isontranfer = false
+                socket.broadcast.emit('web-server-stopped', true)
                 socket.emit('web-server-stopped', true)
+                socket.emit('web-server-closed', true)
             } catch (er) {
                 err('[LAN APP] err, fail to close lan http', er.message)
             }
         }
 
-        appsocket.on('connection', (socket) =>{
+        appsocket.on('connection', async (socket) =>{
 
             socket.onAny((event, ...args) =>{
                 console.log(`Event fron id: ${socket.id},
@@ -274,10 +272,11 @@ apphttp.listen(port, async (err)=>{
             })
 
             if (lanhttp.listening) {
-                const qr = getQrcode(`http://${lanhttp.address().address}:${lanhttp.address().port}`)
-                const lanlink = `http://${lanhttp.address().address}:${lanhttp.address().port}`
+                const qr = await getQrcode(`http://${lanhttp.address().address}:${lanhttp.address().port}`)
+                const lanlink = `http://${lanhttp.address().address}:${lanhttp.address().port}`;
+                log(qr)
                 socket.emit('web-server-started', { link: lanlink, qr: qr })
-                socket.emit('qrcode', {qr: qr})
+                socket.emit('qrcode', qr)
                 socket.emit('lan-link', lanlink)
             }
             socket.on('start-web-server',  async () =>{
@@ -285,23 +284,29 @@ apphttp.listen(port, async (err)=>{
                 if(!lanhttp.listening) {
                     console.log(ipaddress)
                     await startLanapp(ipaddress, socket).then(() =>{
-                        //socket.emit('web-server-started', true)
                     }).catch(er => {
                         win.dialog.error('Fail to start LAN server, pls try again', 'Xender Lite')
                         err('[LAN APP] failt to start lan app', er.message)
                     })
+                } else {
+                    const qr = await getQrcode(`http://${lanhttp.address().address}:${lanhttp.address().port}`)
+                    const lanlink = `http://${lanhttp.address().address}:${lanhttp.address().port}`
+                    socket.broadcast.emit('web-server-started', { link: lanlink, qr: qr })
+                    socket.emit('web-server-started', { link: lanlink, qr: qr })
                 }
             });
             socket.on('stop-web-server',  async () =>{
                 if(lanhttp.listening) {
-                    if (!isontranfer) {
+                    if (isontranfer) {
+                        win.flash(); win.focus()
                         await win.dialog.confirm('There is A current Transfer Inprogress, are you sure you want to close it.', 'Xender Lite'
                         ).then(async re => {
-                            if (re === 'true') {await closelanapp(socket).catch(er => log('[LAN APP] fail to close lan app', er.message)) }
+                            log(re)
+                            if (re === 'true' || true) {await closelanapp(socket).catch(er => log('[LAN APP] fail to close lan app', er.message)) }
                         })
                     }
                     await closelanapp().catch(er => log('[LAN APP] fail to close lan app', er.message))
-                }
+                }else{socket.broadcast.emit('web-server-stopped', true); socket.emit('web-server-stopped', true)}
             });
 
             socket.on('get-recent-transfers', async () =>{
@@ -311,7 +316,6 @@ apphttp.listen(port, async (err)=>{
                 }
             })
 
-            socket.on('')
 
         })
         win.show()

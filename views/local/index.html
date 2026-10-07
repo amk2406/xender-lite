@@ -348,9 +348,7 @@
     const copyBtn = document.getElementById('copyBtn');
     const heroTitle = document.getElementById('heroTitle');
     const heroSub = document.getElementById('heroSub');
-    socket.onAny((event, ...args) =>{
-      console.log(event, args)
-    })
+   
     function ensureHttp(url) {
       if (!url) return '';
       const s = String(url).trim();
@@ -456,8 +454,8 @@
     // payload example: { link: '192.168.1.5:30', qr: 'data:image/png;base64,...' }
     socket.on('web-server-started', (data) => {
       setRunningUI(true);
+      console.log('webstart ', data)
       if (data) {
-        console.log(data)
         if (data.link || data.url || data.host) setLink(data.link || data.url || data.host);
         if (data.qr || data.dataUrl || data.qrCode) setQr(data.qr || data.dataUrl || data.qrCode);
       }

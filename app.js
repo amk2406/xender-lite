@@ -14,6 +14,7 @@ const multer = require('multer')
 const { WebView } = require('webview-node')
 const webviewapp = require('webview-node').app
 const { WifiPlus, } = require('node-wifi-plus');
+const  { JSONDB } = require('file-json-db')
 
 // custom modules
 const generator = require('./modules/generator')
@@ -25,6 +26,7 @@ const datapath = path.resolve(process.env.LOCALAPPDATA, 'Xender Lite')
 const tempdir = path.resolve(os.tmpdir(), 'Xender Lite')
 const logpath = path.resolve(datapath, 'logs')
 const chunkpath = path.relative(tempdir, 'chunks')
+const recentpath = path.resolve(datapath, 'Recent')
 const configpath = path.resolve(datapath, 'config.json')
 const settingpath = path.resolve(datapath, 'setting.json')
 const webviewdata = path.resolve(datapath, 'Webview Data')
@@ -53,6 +55,12 @@ const win = new WebView({
   backgroundColor: '#e71111',
   userDataFolder: webviewdata
 });
+const db = new JSONDB(recentpath)
+const recent = db.collection({
+    name: 'recent',
+    maxPartSize: 500 * 1024,
+    autoId: true
+})
 
 // App config
 let setting = settingdata(settingpath)
@@ -61,7 +69,7 @@ let config = configdata(configpath)
 function settingdata(filepath = settingpath) {
    const layout = {
         theme: "light", accent: "primary",
-        hideOnWeb: false, autoOganise: true,
+        hideOnWeb: false, autoOrganise: true,
         savefolder: path.resolve(os.homedir(), 'desktop', 'Xender Lite'),
         servepaths: [
             path.resolve(os.homedir(), 'desktop'), path.resolve(os.homedir(), 'document'),
@@ -75,7 +83,7 @@ function settingdata(filepath = settingpath) {
             layout.theme = sett.theme || layout.theme
             layout.accent = sett.accent || layout.accent
             layout.hideOnWeb = typeof sett.hideOnWeb ===  'boolean' ? sett.hideOnWeb : layout.hideOnWeb
-            layout.autoOganise = typeof sett.autoOganise === 'boolean' ? sett.autoOganise : layout.autoOganise
+            layout.autoOrganise = typeof sett.autoOrganise === 'boolean' ? sett.autoOrganise : layout.autoOrganise
             layout.savefolder = typeof sett.savefolder === 'string' ? path.resolve(sett.savefolder) : layout.savefolder
             layout.servepaths = typeof sett.servepaths === 'object' ? sett.servepaths : layout.servepaths
             saveSetting(layout)
@@ -93,7 +101,7 @@ function saveSetting(data = setting) {
         const s = JSON.stringify(data, null, 2)
         fs.writeFileSync(settingpath, s)
     } catch (error) {
-        err('[SAVE ERR] fail to save setting data', err.message)
+        err('[SAVE ERR] fail to save setting data', error.message)
     }
 }
 
@@ -122,7 +130,7 @@ function saveConfig(data = config) {
         const s = JSON.stringify(data, null, 2)
         fs.writeFileSync(configpath, s)
     } catch (error) {
-        err('[SAVE ERR] fail to save config data', err.message)
+        err('[SAVE ERR] fail to save config data', error.message)
     }
 }
 
@@ -171,7 +179,6 @@ app.use((err, req, res, next) =>{
 
     }
 })
-
 
 const apphttp = http.createServer(app)
 const appsocket = new Server(apphttp, {cors: { methods: ['GET', 'POST']}})
@@ -297,9 +304,17 @@ apphttp.listen(port, async (err)=>{
                 }
             });
 
+            socket.on('get-recent-transfers', async () =>{
+                const data = await recent.findAsync({}).limit(40).toArray()
+                if (data && data.length !== 0) {
+                    socket.emit('recent-transfers', data)
+                }
+            })
+
+            socket.on('')
 
         })
-        //win.show()
+        win.show()
     } catch (error) {
         console.error('[APP ROUTE] An error Occur Stack: ', error.stack)
     }

@@ -211,9 +211,18 @@ lanapp.use((req, res, next) =>{
     }
 })
 
-lanapp.get('/upload', async (req, res, next) =>{
+lanapp.get('/upload-page', async (req, res, next) =>{
     try {
         return res.status(200).sendFile(path.resolve('views', 'lan', 'upload.html'))
+    } catch (error) {
+        next(error)
+    }
+})
+
+
+lanapp.post('/upload-file', (req, res, next)=>{
+    try {
+        
     } catch (error) {
         next(error)
     }
@@ -554,8 +563,38 @@ apphttp.listen(port, async (err)=>{
                     errlog('[APP LICENSE] error sending liense data ', error.message)
                 }
             })
+            lansocket.on('connection', (socket) =>{
+                // Theme
+                socket.emit('theme', setting.theme);
+                socket.on('get-theme', () => {socket.emit('theme', setting.theme);});
+                // Accent
+                socket.emit('accent', setting.accent);
+                socket.on('get-accent', () => {socket.emit('accent', setting.accent);});
+
+            })
+            lanapp.get('/', async (req, res, next) =>{
+                try {
+                    if(setting.hideOnWeb){
+                        return res.status(200).sendFile(path.resolve('view', 'lan', 'index.html'))
+                    } else{
+                        return res.status(300).redirect('/files')
+                    }
+                } catch (error) {
+                    next(error)
+                }
+            })
+        })
+        
+        lansocket.on('connection', (socket) =>{
+            // Theme
+            socket.emit('theme', setting.theme);
+            socket.on('get-theme', () => {socket.emit('theme', setting.theme);});
+            // Accent
+            socket.emit('accent', setting.accent);
+            socket.on('get-accent', () => {socket.emit('accent', setting.accent);});
 
         })
+
         //win.show()
     } catch (error) {
         errlog('[APP ROUTE] An error Occur Stack: ', error.stack)

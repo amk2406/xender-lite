@@ -6,7 +6,6 @@ try {
     license = require('./genlicensedata');
 }
 const log = console.log
-log(path.parse('C:\\Users\\M A COMPUTERS\\Desktop\\Xender Lite\\node_modules\\accepts\\license'))
 const getName = (name) =>{
     if (!name || typeof name !== 'string') return null;
     const result = license.find(item => {
@@ -20,7 +19,6 @@ const getPath = (name) =>{
     const result = license.filter(item => {
         return item.path.toLowerCase() === name.toLowerCase()
     })
-    log(result)
 }
 
 const getListName = () =>{

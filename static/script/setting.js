@@ -29,8 +29,8 @@
 
   function wireThemeSocket(socket) {
     if (!socket) return;
-    // socket.on('theme', setTheme);
-    // socket.on('accent', setAccent);
+    //socket.on('theme', setTheme);
+    //socket.on('accent', setAccent);
   }
 
   global.setTheme = setTheme;

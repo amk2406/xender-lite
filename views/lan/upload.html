@@ -26,7 +26,7 @@
       from { opacity: 0; transform: translateY(6px); }
       to   { opacity: 1; transform: translateY(0); }
     }
-    .app { margin: 0 auto; padding: 20px 16px 40px; max-width: 560px; }
+    .app { margin: 0 auto; padding: 20px 16px 40px; }
     header {
       display: flex; align-items: center; justify-content: space-between;
       margin-bottom: 24px;
@@ -152,6 +152,7 @@
     </div>
   </div>
 
+  <script src="/socket.io/socket.io.js"></script>
   <script src="script/setting.js"></script>
   <script src="script/toast.js"></script>
   <script>
@@ -366,10 +367,15 @@
     });
 
     // On reconnect, Resumable continues; ensure success class still applies via fileSuccess
-    socket.on('connect', () => {
+    socket.on('connect', () =>{
+      socket.emit('get-theme')
+      socket.emit('get-accent')
+      wireThemeSocket(socket)
       // Re-bind query with new socket id if needed
       if (r.opts) r.opts.query = { socketId: socket.id };
-    });
+    })
+    socket.on('theme', (t) => setTheme(t, false));
+    socket.on('accent', (a) => setAccent(a, false));
   </script>
 </body>
 </html>

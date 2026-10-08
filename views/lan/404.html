@@ -1,18 +1,17 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang='en' data-theme='dark'>
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset='UTF-8' />
+  <meta name='viewport' content='width=device-width, initial-scale=1.0' />
   <title>404 • Not Found • Xender-lite</title>
-  <link rel="stylesheet" href="/font-icon/css/all.min.css" />
-  <link rel="stylesheet" id="accent" href="/style/theme.css">
-  <link rel="icon" type="image/x-icon" href="/icon/logo.png">
+  <link rel='stylesheet' href='/font-icon/css/all.min.css' />
+  <link rel='stylesheet' id='accent' href='/style/theme.css' />
+  <link rel='icon' type='image/x-icon' href='/icon/logo.png' />
   <style>
-
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
       background: var(--bg);
       color: var(--text);
       min-height: 100vh;
@@ -21,222 +20,223 @@
       justify-content: center;
       overflow: hidden;
       position: relative;
+      letter-spacing: 0.01em;
     }
 
-    /* Floating orbs background */
     .orb {
       position: absolute;
       border-radius: 50%;
-      filter: blur(60px);
-      opacity: 0.25;
-      animation: float 12s ease-in-out infinite;
+      filter: blur(70px);
+      opacity: 0.28;
       pointer-events: none;
+      animation: drift 12s ease-in-out infinite;
     }
+
     .orb-1 {
       width: 280px; height: 280px;
       background: var(--accent);
-      top: -80px; left: -60px;
-      animation-delay: 0s;
-    }
-    .orb-2 {
-      width: 200px; height: 200px;
-      background: var(--accent);
-      bottom: -40px; right: -40px;
-      animation-delay: -4s;
-    }
-    .orb-3 {
-      width: 140px; height: 140px;
-      background: var(--red);
-      top: 40%; right: 15%;
-      animation-delay: -7s;
-      opacity: 0.15;
+      top: -90px; left: -50px;
     }
 
-    @keyframes float {
+    .orb-2 {
+      width: 220px; height: 220px;
+      background: var(--accent-secondary);
+      right: -40px; bottom: -50px;
+      animation-delay: -4s;
+    }
+
+    .orb-3 {
+      width: 150px; height: 150px;
+      background: var(--danger);
+      top: 35%; right: 16%;
+      opacity: 0.15;
+      animation-delay: -7s;
+    }
+
+    @keyframes drift {
       0%, 100% { transform: translate(0, 0) scale(1); }
-      33% { transform: translate(30px, -40px) scale(1.05); }
-      66% { transform: translate(-20px, 20px) scale(0.95); }
+      33% { transform: translate(24px, -32px) scale(1.04); }
+      66% { transform: translate(-20px, 20px) scale(0.96); }
     }
 
     .card {
       position: relative;
       z-index: 1;
-      text-align: center;
-      padding: 48px 32px;
-      max-width: 440px;
-      width: 90%;
+      width: min(440px, 90vw);
       background: var(--card);
       border: 1px solid var(--border);
-      border-radius: 24px;
-      backdrop-filter: blur(16px);
-      animation: cardIn 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-lg);
+      text-align: center;
+      padding: 48px 30px;
+      animation: cardIn 0.65s ease both;
     }
 
     @keyframes cardIn {
-      from {
-        opacity: 0;
-        transform: translateY(32px) scale(0.96);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-      }
-    }
-
-    .code {
-      font-size: clamp(5rem, 18vw, 7.5rem);
-      font-weight: 800;
-      line-height: 1;
-      letter-spacing: -0.04em;
-      background: linear-gradient(135deg, var(--accent), #818CF8);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      animation: pulseGlow 3s ease-in-out infinite;
-      margin-bottom: 8px;
-    }
-
-    @keyframes pulseGlow {
-      0%, 100% { filter: drop-shadow(0 0 12px rgba(34, 211, 238, 0.35)); }
-      50% { filter: drop-shadow(0 0 28px rgba(34, 211, 238, 0.6)); }
+      from { opacity: 0; transform: translateY(20px) scale(0.98); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
     }
 
     .icon-wrap {
-      width: 72px;
-      height: 72px;
+      width: 72px; height: 72px;
+      display: flex; align-items: center; justify-content: center;
       margin: 0 auto 20px;
-      border-radius: 20px;
-      background: rgba(34, 211, 238, 0.1);
-      border: 1px solid rgba(34, 211, 238, 0.25);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.8rem;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border);
+      background: var(--accent-soft);
       color: var(--accent);
-      animation: bounceIn 0.8s 0.2s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+      font-size: 1.8rem;
+      box-shadow: var(--shadow-sm);
+      animation: pop 0.7s cubic-bezier(0.2, 0.9, 0.2, 1.1) both;
     }
 
-    @keyframes bounceIn {
-      from { opacity: 0; transform: scale(0.3); }
+    @keyframes pop {
+      from { opacity: 0; transform: scale(0.7); }
       to { opacity: 1; transform: scale(1); }
     }
 
+    .code {
+      margin-bottom: 8px;
+      font-size: clamp(5rem, 18vw, 7.5rem);
+      font-weight: 800;
+      line-height: 0.9;
+      letter-spacing: -0.06em;
+      background: var(--gradient);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 0 24px var(--accent-glow));
+      animation: glow 3s ease-in-out infinite;
+    }
+
+    @keyframes glow {
+      0%, 100% { filter: drop-shadow(0 0 18px var(--accent-glow)); }
+      50% { filter: drop-shadow(0 0 28px var(--accent-glow)); }
+    }
+
     h1 {
-      font-size: 1.4rem;
-      font-weight: 700;
       margin-bottom: 10px;
-      animation: fadeUp 0.6s 0.25s both;
+      color: var(--text);
+      font-size: 1.45rem;
+      font-weight: 700;
+      animation: fadeUp 0.6s ease both;
     }
 
     p {
+      margin-bottom: 28px;
       color: var(--text-muted);
       font-size: 0.95rem;
       line-height: 1.6;
-      margin-bottom: 28px;
-      animation: fadeUp 0.6s 0.35s both;
+      animation: fadeUp 0.6s ease 0.1s both;
     }
 
     @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(12px); }
+      from { opacity: 0; transform: translateY(10px); }
       to { opacity: 1; transform: translateY(0); }
     }
 
     .actions {
       display: flex;
       flex-wrap: wrap;
-      gap: 10px;
       justify-content: center;
-      animation: fadeUp 0.6s 0.45s both;
+      gap: 10px;
+      animation: fadeUp 0.6s ease 0.15s both;
     }
 
     .btn {
       display: inline-flex;
       align-items: center;
+      justify-content: center;
       gap: 8px;
-      padding: 12px 20px;
-      border-radius: 12px;
-      font-size: 0.9rem;
-      font-weight: 600;
-      text-decoration: none;
-      transition: all 0.2s ease;
-      cursor: pointer;
+      padding: 12px 18px;
+      border-radius: var(--radius);
       border: 1px solid var(--border);
       background: var(--bg-secondary);
       color: var(--text);
+      font-size: 0.9rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: transform var(--transition), border-color var(--transition), color var(--transition), box-shadow var(--transition);
+      box-shadow: var(--shadow-sm);
     }
 
     .btn:hover {
-      border-color: var(--accent);
       color: var(--accent);
-      transform: translateY(-2px);
+      border-color: var(--border-hover);
+      transform: translateY(-1px);
+      box-shadow: var(--shadow);
     }
 
     .btn-primary {
-      background: rgba(34, 211, 238, 0.15);
-      border-color: var(--accent);
-      color: var(--accent);
+      background: var(--gradient);
+      border-color: transparent;
+      color: #ffffff;
     }
 
     .btn-primary:hover {
-      background: rgba(34, 211, 238, 0.28);
-      color: var(--accent-hover);
+      color: #ffffff;
+      box-shadow: var(--shadow-glow);
     }
 
     .brand {
-      margin-top: 32px;
-      font-size: 0.8rem;
+      margin-top: 28px;
+      font-size: 0.78rem;
       color: var(--text-muted);
-      animation: fadeUp 0.6s 0.55s both;
+      animation: fadeUp 0.6s ease 0.2s both;
     }
 
     .brand span {
       color: var(--accent);
-      font-weight: 600;
+      font-weight: 700;
     }
   </style>
 </head>
 <body>
-  <div class="orb orb-1"></div>
-  <div class="orb orb-2"></div>
-  <div class="orb orb-3"></div>
+  <div class='orb orb-1'></div>
+  <div class='orb orb-2'></div>
+  <div class='orb orb-3'></div>
 
-  <div class="card">
-    <div class="icon-wrap">
-      <i class="fa-solid fa-compass"></i>
+  <div class='card'>
+    <div class='icon-wrap'>
+      <i class='fa-solid fa-compass'></i>
     </div>
-    <div class="code">404</div>
+
+    <div class='code'>404</div>
     <h1>Page not found</h1>
     <p>
       This path is out of range.<br />
-      The page you’re looking for doesn’t exist or was moved.
+      The page you are looking for does not exist or was moved.
     </p>
-    <div class="actions">
-      <a class="btn btn-primary" href="/files">
-        <i class="fa-solid fa-folder-open"></i> Go to Files
+
+    <div class='actions'>
+      <a class='btn btn-primary' href='/files'>
+        <i class='fa-solid fa-folder-open'></i> Go to Files
       </a>
-      <a class="btn" href="/upload-page">
-        <i class="fa-solid fa-cloud-arrow-up"></i> Upload
+      <a class='btn' href='/upload'>
+        <i class='fa-solid fa-cloud-arrow-up'></i> Upload
       </a>
-      <a class="btn" href="javascript:history.back()">
-        <i class="fa-solid fa-arrow-left"></i> Go back
+      <a class='btn' href='javascript:history.back()'>
+        <i class='fa-solid fa-arrow-left'></i> Go back
       </a>
     </div>
-    <div class="brand">
+
+    <div class='brand'>
       <span>Xender-lite</span> · local file transfer
     </div>
   </div>
-  <script src="/socket.io/socket.io.js"></script>
-  <script src="/script/toast.js"></script>
-  <script src="/script/setting.js"></script>
+
+  <script src='/socket.io/socket.io.js'></script>
+  <script src='/script/setting.js'></script>
   <script>
     const socket = io();
-    socket.on('connect', () =>{
-      socket.emit('get-theme')
-      socket.emit('get-accent')
-      wireThemeSocket(socket)
-    })
-    socket.on('theme', (t) => setTheme(t, false));
-    socket.on('accent', (a) => setAccent(a, false));
+
+    socket.on('connect', () => {
+      socket.emit('get-theme');
+      socket.emit('get-accent');
+    });
+
+    socket.on('theme', (theme) => setTheme(theme));
+    socket.on('accent', (accent) => setAccent(accent));
   </script>
 </body>
 </html>

@@ -5,7 +5,11 @@ const packagelok = require('../package-lock.json');
 const licensemodules = []
 const [bin, packagelockjson, ...modules] = fs.readdirSync(path.resolve('node_modules'))
 let id = 1
-
+const xenderliteLicenseInfo = {
+    name: 'Xender Lite',
+    path: 'License.txt'
+}
+licensemodules.push(xenderliteLicenseInfo)
 modules.forEach(module =>{
     const licensepath = path.resolve('node_modules', module, 'license')
     const info = {
@@ -35,11 +39,7 @@ modules.forEach(module =>{
         licensemodules.push(info)
     }
 })
-const xenderliteLicenseInfo = {
-    name: 'Xender Lite',
-    path: 'License.txt'
-}
-licensemodules.push(xenderliteLicenseInfo)
+
 fs.writeFileSync(path.resolve('modules', 'license.json'), JSON.stringify(licensemodules, null, 2))
 
 module.exports = licensemodules

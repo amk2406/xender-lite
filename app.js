@@ -20,7 +20,7 @@ const  { JSONDB } = require('file-json-db')
 const generator = require('./modules/generator')
 const network = require('./modules/networkinfo')
 const util = require('./modules/utility')
-const moduleutlt = require('./modules/license')
+const license = require('./modules/license')
 const { setupXenderBrowser } = require('./modules/xender-browser');
 
 // Path config
@@ -179,10 +179,17 @@ app.get('/license', (req, res, next) =>{
         res.status(200).sendFile(path.resolve('views', 'local', 'license.html'))
     } catch (err) { next(err)}
 })
-app.get('/license', (req, res, next) =>{
+app.get('/license-data', (req, res, next) =>{
     try {
         const modulename = req.query.module
         if(typeof modulename !== 'string' || !modulename) return res.status(404).json({error: 'module not found'})
+        const data = license.getName(modulename)
+        //log(data)
+        if (data && data.path && fs.existsSync(data.path)) {
+            return res.status(200).sendFile(path.resolve(data.path))
+        } else{
+            return res.status(400).send('License content not found.')
+        }
     } catch (error) {
         next(error)
     }
@@ -195,14 +202,7 @@ app.use((err, req, res, next) =>{
     }
 })
 
-const packagelok = require('./package-lock.json');
-const [bin, packagelockjson, ...modules] = fs.readdirSync(path.resolve('node_modules'))
-modules.forEach(module =>{
-    const packagejson = path.resolve('node_modules', module, 'license')
-    if (fs.existsSync(packagejson)) {
-        log(fs.readFileSync(packagejson).toString())
-    }
-})
+
 lanapp.use((req, res, next) =>{
     try {
         
@@ -245,6 +245,13 @@ lanapp.use((err, req, res, next) =>{
     }
 })
 
+try {
+    wifi.on('error', err =>{
+        errlog('[APP WIFI] error at wifi module', err.stack)
+    })
+} catch (error) {
+    
+}
 
 const apphttp = http.createServer(app)
 const appsocket = new Server(apphttp, {cors: { methods: ['GET', 'POST']}})
@@ -534,6 +541,18 @@ apphttp.listen(port, async (err)=>{
                     setting.savefolder = path.resolve(dir);
                     saveSetting();socket.emit('save-dir', dir)
                 })
+            })
+
+            
+            socket.on('get-license-list', () =>{
+                try {
+                    console.log('revev licens list')
+                   socket.emit('license-list', {
+                    modules: license.getAll()
+                }) 
+                } catch (error) {
+                    errlog('[APP LICENSE] error sending liense data ', error.message)
+                }
             })
 
         })

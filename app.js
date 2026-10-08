@@ -1,5 +1,5 @@
 const os = require('os');
-const fs = require('fs');
+const fs = require('fs-extra');
 const http = require('http');
 const path = require('path');
 const crypto = require('crypto');
@@ -14,15 +14,15 @@ const multer = require('multer')
 const { WebView } = require('webview-node')
 const webviewapp = require('webview-node').app
 const { WifiPlus, } = require('node-wifi-plus');
-const  { JSONDB } = require('file-json-db')
+const  { JSONDB } = require('low-json-db')
 
 // custom modules
 const generator = require('./modules/generator')
 const network = require('./modules/networkinfo')
-const util = require('./modules/utility')
 const license = require('./modules/license')
+const {generateMaxWait, getFileCategory, getUniqueFilePath} = require('./modules/utility')
 const { setupXenderBrowser } = require('./modules/xender-browser');
-
+console.log(os.tmpdir())
 // Path config
 const datapath = path.resolve(process.env.LOCALAPPDATA, 'Xender Lite')
 const tempdir = path.resolve(os.tmpdir(), 'Xender Lite')
@@ -33,10 +33,10 @@ const configpath = path.resolve(datapath, 'config.json')
 const settingpath = path.resolve(datapath, 'setting.json')
 const webviewdata = path.resolve(datapath, 'Webview Data')
 
-// Additional helper
-fs.ensureDir = (dir) =>{ if (!fs.existsSync(dir)){fs.mkdirSync(dir); return dir}}
-fs.ensureFile = (filepath, content = '') =>{fs.ensureDir(path.dirname(filepath));fs.writeFileSync(filepath, content)}
-
+fs.ensureDirSync(datapath)
+fs.ensureDirSync(tempdir)
+fs.ensureDirSync(logpath)
+fs.ensureDirSync(chunkpath)
 // Little helpers
 const log = console.log
 const err = console.error
@@ -62,7 +62,8 @@ const win = new WebView({
   backgroundColor: '#eee8e8',
   userDataFolder: webviewdata
 });
-const db = new JSONDB(recentpath)
+
+const db = new JSONDB(datapath)
 const recent = db.collection({ name: 'recent',maxPartSize: 512000,autoId: true})
 
  
@@ -219,40 +220,25 @@ lanapp.get('/upload-page', async (req, res, next) =>{
     }
 })
 
-
-lanapp.post('/upload-file', (req, res, next)=>{
-    try {
-        
-    } catch (error) {
-        next(error)
-    }
-})
-
 lanapp.get('/download', async (req, res, next) =>{
     try {
-        
+        const filepath = req.query.path
+        if (!filepath || typeof filepath !== 'string') {
+            return res.status(400).send('')
+        }
+        if (fs.existsSync(path.resolve(filepath))) {
+            return res.status(200).download(path.resolve(filepath))
+        }
+        res.status(404).send('')
     } catch (error) {
         next(error)
     }
 })
 
-lanapp.use((req, res, next) =>{
-    try {
-        return res.status(404).sendFile(path.resolve('views', 'lan', '404.html'))
-    } catch (error) {
-        next(error)
-    }
-})
 
-lanapp.use((err, req, res, next) =>{
-    try {
-        errlog('[LAN APP] receive error', (err.message || err.stack || err))
-        return res.status(404).sendFile(path.resolve('views', 'lan', '404.html'))
-    } catch (error) {
-        errlog('[LAN APP] error at error middle were')
-        return res.status(500).send('')
-    }
-})
+fs.ensureDirSync(chunkpath);
+
+
 
 try {
     wifi.on('error', err =>{
@@ -572,17 +558,7 @@ apphttp.listen(port, async (err)=>{
                 socket.on('get-accent', () => {socket.emit('accent', setting.accent);});
 
             })
-            lanapp.get('/', async (req, res, next) =>{
-                try {
-                    if(setting.hideOnWeb){
-                        return res.status(200).sendFile(path.resolve('view', 'lan', 'index.html'))
-                    } else{
-                        return res.status(300).redirect('/files')
-                    }
-                } catch (error) {
-                    next(error)
-                }
-            })
+
         })
         
         lansocket.on('connection', (socket) =>{
@@ -596,6 +572,186 @@ apphttp.listen(port, async (err)=>{
         })
 
         //win.show()
+        if(!setting.hideOnWeb){
+            if (setting.servepaths.length !== 0) {
+                 const browser = setupXenderBrowser(lanapp, lansocket, {
+                    roots: setting.servepaths,
+                    routePrefix: '/files',
+                    uploadPath: '/upload-page',
+                    socketRoom: 'xender',
+                });
+            } else {
+                const browser = setupXenderBrowser(lanapp, lansocket, {
+                    rootDir: setting.savefolder || path.resolve(os.homedir(), 'Xender Lite'),
+                    routePrefix: '/files',
+                    uploadPath: '/upload-page',
+                    socketRoom: 'xender',
+                });
+            }
+        }
+
+        lanapp.get('/', async (req, res, next) =>{
+            try {
+                if(setting.hideOnWeb){
+                    return res.status(200).sendFile(path.resolve('views', 'lan', 'index.html'))
+                } else{
+                    return res.status(300).redirect('/files')
+                }
+            } catch (error) {
+                next(error)
+            }
+        })
+
+        const upload = multer({ dest: chunkpath });
+        // ========== RESUMABLE UPLOAD ==========
+        lanapp.post('/upload-file', upload.single('file'), async (req, res) => {
+            log('upload started')
+            try {
+                isontranfer = true
+                // Resumable.js fields
+                const chunkNumber = parseInt(req.body.resumableChunkNumber || req.query.resumableChunkNumber || '1');
+                const totalChunks = parseInt(req.body.resumableTotalChunks || req.query.resumableTotalChunks || '1');
+                const chunkSize = parseInt(req.body.resumableChunkSize || req.query.resumableChunkSize || '0');
+                const totalSize = parseInt(req.body.resumableTotalSize || req.query.resumableTotalSize || '0');
+                const identifier = req.body.resumableIdentifier || req.query.resumableIdentifier || '';
+                const filename = req.body.resumableFilename || req.query.resumableFilename || (req.file && req.file.originalname) || 'unknown';
+
+                if (!req.file) {
+                return res.status(400).json({ error: 'No chunk received' });
+                }
+
+                // Create a folder for this file's chunks
+                const fileChunkDir = path.join(chunkpath, identifier);
+                fs.ensureDirSync(fileChunkDir);
+
+                // Move current chunk to its place
+                const chunkPath = path.join(fileChunkDir, `chunk_${chunkNumber}`);
+                fs.renameSync(req.file.path, chunkPath);
+
+                console.log(`\r[Upload] Chunk ${chunkNumber}/ ${totalChunks} received → ${filename}`);
+
+                // Emit progress
+                const progress = Math.round((chunkNumber / totalChunks) * 100);
+                appsocket.emit('upload:progress', {
+                id: identifier,
+                name: filename,
+                progress,
+                chunk: chunkNumber,
+                totalChunks
+                });
+
+                // If not the last chunk, just acknowledge
+                if (chunkNumber < totalChunks) {
+                return res.status(200).json({ message: 'Chunk received' });
+                }
+
+                // ===== LAST CHUNK → assemble file =====
+                log(`[Upload] All chunks received. Assembling: ${filename}`);
+
+                // Decide final directory
+                let targetDir = setting.savefolder;
+                if (setting.autoOrganise) {
+                const category = getFileCategory(filename);
+                targetDir = path.join(setting.savefolder, category);
+                fs.ensureDirSync(targetDir);
+                log(`[Upload] Auto-organise → ${category}/`);
+                }
+
+                // Unique final name
+                const { fullPath, finalName } = getUniqueFilePath(targetDir, filename);
+
+                // Merge all chunks
+                const writeStream = fs.createWriteStream(fullPath);
+
+                for (let i = 1; i <= totalChunks; i++) {
+                const chunkFile = path.join(fileChunkDir, `chunk_${i}`);
+                if (!fs.existsSync(chunkFile)) {
+                    errlog(`Missing chunk ${i}`)
+                }
+                const data = fs.readFileSync(chunkFile);
+                writeStream.write(data);
+                }
+
+                writeStream.end();
+
+                // Wait until writing is finished
+                await new Promise((resolve, reject) => {
+                writeStream.on('finish', resolve);
+                writeStream.on('error', reject);
+                });
+
+                // Clean up chunks
+                fs.unlinkSync(fileChunkDir);
+
+                log(`[Upload] Success: ${finalName}`);
+                log(`[Upload] Saved to: ${fullPath}`);
+
+                // Emit success
+                const payload = {
+                id: identifier,
+                originalName: filename,
+                finalName,
+                path: fullPath,
+                size: totalSize
+                };
+
+                appsocket.emit('upload:success', payload);
+                appsocket.broadcast.emit('upload:success', payload); // also notify local UI
+                isontranfer = false
+                res.status(200).json({
+                    success: true,
+                    message: 'File uploaded successfully',
+                    file: payload
+                });
+
+            } catch (err) {
+                isontranfer = false
+                console.error('[Upload] Error:', err.message);
+
+                appsocket.emit('upload:error', {
+                    name: req.body.resumableFilename || 'unknown',
+                    error: err.message
+                });
+
+                res.status(500).json({ success: false, error: err.message });
+            }
+        });
+
+        // ========== TEST CHUNK (needed for resume) ==========
+        lanapp.get('/upload-file', (req, res) => {
+            console.log('upload hit')
+            const identifier = req.query.resumableIdentifier;
+            const chunkNumber = req.query.resumableChunkNumber;
+
+            const chunkfile = path.resolve(chunkpath, identifier, `chunk_${chunkNumber}`);
+
+            if (fs.existsSync(chunkfile)) {
+                // Chunk already exists → tell Resumable.js to skip it
+                return res.status(200).send('OK');
+            } else {
+                // Chunk missing → Resumable.js will re-upload it
+                return res.status(204).send('Not found');
+            }
+        });
+
+        lanapp.use((req, res, next) =>{
+            try {
+                return res.status(404).sendFile(path.resolve('views', 'lan', '404.html'))
+            } catch (error) {
+                next(error)
+            }
+        })
+
+        lanapp.use((err, req, res, next) =>{
+            try {
+                errlog('[LAN APP] receive error', (err.message || err.stack || err))
+                return res.status(404).sendFile(path.resolve('views', 'lan', '500.html'))
+            } catch (error) {
+                errlog('[LAN APP] error at error middle were')
+                return res.status(500).send('')
+            }
+        })
+
     } catch (error) {
         errlog('[APP ROUTE] An error Occur Stack: ', error.stack)
         

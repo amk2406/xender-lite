@@ -335,13 +335,11 @@
       }
     });
 
-    /* ─── COMMENTED: theme / accent via server ───
     socket.on('theme', (t) => setTheme(t));
     socket.on('accent', (a) => setAccent(a));
     socket.on('file-changed', (data) => {
       if (data && data.path && /\.(html|css|js)$/i.test(data.path)) location.reload();
     });
-    ──────────────────────────────────────────── */
   </script>
 </body>
 </html>

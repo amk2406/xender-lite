@@ -86,7 +86,7 @@ const multer = require('multer');
 const upload = multer({ dest: CHUNK_DIR });
 
 // ========== RESUMABLE UPLOAD ==========
-appLan.post('/upload', upload.single('file'), async (req, res) => {
+appLan.post('/upload-file', upload.single('file'), async (req, res) => {
   try {
     // Resumable.js fields
     const chunkNumber = parseInt(req.body.resumableChunkNumber || req.query.resumableChunkNumber || '1');
@@ -197,7 +197,7 @@ appLan.post('/upload', upload.single('file'), async (req, res) => {
 });
 
 // ========== TEST CHUNK (needed for resume) ==========
-appLan.get('/upload', (req, res) => {
+appLan.get('/upload-file', (req, res) => {
   const identifier = req.query.resumableIdentifier;
   const chunkNumber = req.query.resumableChunkNumber;
 

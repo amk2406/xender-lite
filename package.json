@@ -42,6 +42,7 @@
     "chokidar": "^5.0.0",
     "express": "^5.2.1",
     "file-json-db": "^1.0.2",
+    "fs-extra": "^11.4.1",
     "genthumb": "^1.0.4",
     "low-json-db": "^1.0.2",
     "multer": "^2.2.0",

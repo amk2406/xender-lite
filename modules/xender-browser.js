@@ -335,11 +335,11 @@ function getBrowserHTML({ routePrefix, uploadPath, socketRoom }) {
   <title>Files • Xender-lite</title>
   <link rel="stylesheet" href="/font-icon/css/all.min.css" />
   <script src="/socket.io/socket.io.js"></script>
-  <link rel="stylesheet" id="accent"/>
-  <link rel="icon"/>
+  <link rel="stylesheet" id="accent" href="/style/theme.css" />
+  <link rel="icon" href="/icon/logo.png" />
   <script src="/script/setting.js"></script>
   <style>
-    *{
+    * {
       scroll-behavior: smooth;
       scrollbar-width: thin;
       scrollbar-color: var(--accent) var(--bg-tertiary);
@@ -356,9 +356,10 @@ function getBrowserHTML({ routePrefix, uploadPath, socketRoom }) {
     }
     .navbar {
       position: sticky; top: 0; z-index: 100;
-      background: var(--bg-tertiary);
+      background: var(--bg-secondary);
       backdrop-filter: blur(12px);
       border-bottom: 1px solid var(--border);
+      box-shadow: var(--shadow-sm);
       padding: 0 16px; height: 56px;
       display: flex; align-items: center; gap: 12px;
     }
@@ -369,16 +370,19 @@ function getBrowserHTML({ routePrefix, uploadPath, socketRoom }) {
     .nav-brand i { font-size: 1.2rem; }
     .nav-links { display: flex; gap: 4px; flex: 1; }
     .nav-link {
-      padding: 8px 14px; border-radius: 10px; color: var(--text-muted);
+      padding: 8px 14px; border-radius: var(--radius); color: var(--text-muted);
       text-decoration: none; font-size: 0.9rem; font-weight: 500;
-      transition: all var(--transition);
+      transition: color var(--transition), background var(--transition);
     }
-    .nav-link:hover { color: var(--text); background: rgba(34,211,238,0.08); }
-    .nav-link.active { color: var(--accent); background: rgba(34,211,238,0.12); }
+    .nav-link:hover { color: var(--accent); background: var(--div-hover); }
+    .nav-link.active { color: var(--accent); background: var(--accent-soft); }
     .status-pill {
-      font-size: 0.75rem; padding: 4px 10px; border-radius: 999px;
-      background: rgba(34,211,238,0.12); color: var(--accent); white-space: nowrap;
+      font-size: 0.75rem; padding: 4px 10px; border-radius: var(--radius-full);
+      background: var(--status, var(--accent-soft)); color: var(--accent);
+      white-space: nowrap; transition: color var(--transition), background var(--transition);
     }
+    .status-pill.is-connected { color: var(--success); }
+    .status-pill.is-disconnected { color: var(--error); }
     .app { max-width: 95%; margin: 0 auto; padding: 20px 16px 48px; }
     .breadcrumb {
       display: flex; flex-wrap: wrap; align-items: center; gap: 4px;
@@ -386,9 +390,9 @@ function getBrowserHTML({ routePrefix, uploadPath, socketRoom }) {
     }
     .breadcrumb a, .breadcrumb span {
       color: var(--text-muted); text-decoration: none; padding: 4px 8px;
-      border-radius: 8px; transition: all var(--transition);
+      border-radius: var(--radius-sm); transition: color var(--transition), background var(--transition);
     }
-    .breadcrumb a:hover { color: var(--accent); background: rgba(34,211,238,0.08); }
+    .breadcrumb a:hover { color: var(--accent); background: var(--div-hover); }
     .breadcrumb .current { color: var(--text); font-weight: 600; }
     .breadcrumb .sep { color: var(--border); padding: 0 2px; }
     .toolbar {
@@ -398,31 +402,34 @@ function getBrowserHTML({ routePrefix, uploadPath, socketRoom }) {
     .toolbar h2 { font-size: 1.15rem; font-weight: 700; }
     .btn {
       display: inline-flex; align-items: center; gap: 6px;
-      padding: 8px 14px; border-radius: 10px; border: 1px solid var(--border);
+      padding: 8px 14px; border-radius: var(--radius); border: 1px solid var(--border);
       background: var(--card); color: var(--text); font-size: 0.85rem;
       font-weight: 500; cursor: pointer; text-decoration: none;
-      transition: all var(--transition);
+      transition: color var(--transition), background var(--transition), border-color var(--transition), box-shadow var(--transition), transform var(--transition);
+      box-shadow: var(--shadow-sm);
     }
-    .btn:hover { border-color: var(--accent); color: var(--accent); }
+    .btn:hover { border-color: var(--border-hover); color: var(--accent); box-shadow: var(--shadow); }
     .btn-primary {
-      background: rgba(34,211,238,0.15); border-color: var(--accent); color: var(--accent);
+      background: var(--gradient); border-color: transparent; color: #fff;
     }
-    .btn-primary:hover { background: rgba(34,211,238,0.25); }
+    .btn-primary:hover { background: var(--gradient-hover); color: #fff; box-shadow: var(--shadow-glow); }
     .file-list { display: flex; flex-direction: column; gap: 6px; }
     .file-item {
       display: flex; align-items: center; gap: 12px;
       padding: 12px 14px; background: var(--card);
-      border: 1px solid var(--border); border-radius: 12px;
-      cursor: pointer; transition: all var(--transition);
+      border: 1px solid var(--border); border-radius: var(--radius);
+      cursor: pointer; transition: background var(--transition), border-color var(--transition), box-shadow var(--transition), transform var(--transition);
       text-decoration: none; color: inherit;
+      box-shadow: var(--shadow-sm);
     }
     .file-item:hover {
-      border-color: var(--accent); background: rgba(34,211,238,0.04);
+      border-color: var(--border-hover); background: var(--card-hover);
+      box-shadow: var(--shadow);
       transform: translateY(-1px);
     }
     .file-item .icon {
-      width: 42px; height: 42px; border-radius: 10px;
-      background: rgba(34,211,238,0.1);
+      width: 42px; height: 42px; border-radius: var(--radius);
+      background: var(--accent-soft);
       display: flex; align-items: center; justify-content: center;
       font-size: 1.15rem; flex-shrink: 0;
     }
@@ -434,9 +441,19 @@ function getBrowserHTML({ routePrefix, uploadPath, socketRoom }) {
     .file-item .meta { font-size: 0.75rem; color: var(--text-muted); margin-top: 2px; }
     .file-item .arrow { color: var(--text-muted); font-size: 0.95rem; opacity: 0.55; }
     .empty { text-align: center; padding: 48px 20px; color: var(--text-muted); font-size: 0.95rem; }
-    .empty .big { font-size: 2.5rem; margin-bottom: 12px; }
+    .empty .big { color: var(--accent); font-size: 2.5rem; margin-bottom: 12px; }
     .loading { text-align: center; padding: 40px; color: var(--text-muted); }
     .parent-row { border-style: dashed; opacity: 0.9; }
+    :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+    @media (max-width: 560px) {
+      .navbar { gap: 8px; padding: 0 10px; }
+      .nav-brand { font-size: 1rem; margin-right: 0; }
+      .nav-link { padding: 8px; font-size: 0.82rem; }
+      .status-pill { font-size: 0.68rem; padding: 4px 7px; }
+      .app { max-width: 100%; padding: 16px 12px 36px; }
+      .toolbar { align-items: flex-start; }
+      .toolbar > div { flex-wrap: wrap; justify-content: flex-end; }
+    }
   </style>
 </head>
 <body>
@@ -480,8 +497,10 @@ function getBrowserHTML({ routePrefix, uploadPath, socketRoom }) {
     }
     socket.on('connect', () => {
       connectionStatus.textContent = 'Connected';
-      connectionStatus.style.color = '#22C55E';
-      wireThemeSocket(socket);
+      connectionStatus.classList.remove('is-disconnected');
+      connectionStatus.classList.add('is-connected');
+      socket.emit('get-theme');
+      socket.emit('get-accent');
       socket.on('download-file', async (file) =>{
         if (typeof file === 'object' && file.length !== 0) {
           download('/download?path=' + file.path)
@@ -490,8 +509,11 @@ function getBrowserHTML({ routePrefix, uploadPath, socketRoom }) {
     });
     socket.on('disconnect', () => {
       connectionStatus.textContent = 'Disconnected';
-      connectionStatus.style.color = '#EF4444';
+      connectionStatus.classList.remove('is-connected');
+      connectionStatus.classList.add('is-disconnected');
     });
+    socket.on('theme', (theme) => setTheme(theme));
+    socket.on('accent', (accent) => setAccent(accent));
     socket.on('browser:changed', () => loadDir(currentPath));
 
     function formatDate(iso) {
@@ -630,11 +652,11 @@ function getPreviewHTML({ routePrefix, uploadPath, socketRoom, filePath }) {
   <title>Preview • Xender-lite</title>
   <link rel="stylesheet" href="/font-icon/css/all.min.css" />
   <script src="/socket.io/socket.io.js"></script>
-  <link rel="stylesheet" id="accent"/>
-  <link rel="icon"/>
+  <link rel="stylesheet" id="accent" href="/style/theme.css" />
+  <link rel="icon" href="/icon/logo.png" />
   <script src="/script/setting.js"></script>
   <style>
-    *{
+    * {
       scroll-behavior: smooth;
       scrollbar-width: thin;
       scrollbar-color: var(--accent) var(--bg-tertiary);
@@ -648,8 +670,9 @@ function getPreviewHTML({ routePrefix, uploadPath, socketRoom, filePath }) {
     }
     .navbar {
       position: sticky; top: 0; z-index: 100;
-      background: var(--bg-tertiary); backdrop-filter: blur(12px);
+      background: var(--bg-secondary); backdrop-filter: blur(12px);
       border-bottom: 1px solid var(--border);
+      box-shadow: var(--shadow-sm);
       padding: 0 16px; height: 56px;
       display: flex; align-items: center; gap: 12px;
     }
@@ -659,60 +682,68 @@ function getPreviewHTML({ routePrefix, uploadPath, socketRoom, filePath }) {
     }
     .nav-links { display: flex; gap: 4px; flex: 1; }
     .nav-link {
-      padding: 8px 14px; border-radius: 10px; color: var(--text-muted);
+      padding: 8px 14px; border-radius: var(--radius); color: var(--text-muted);
       text-decoration: none; font-size: 0.9rem; font-weight: 500;
-      transition: all var(--transition);
+      transition: color var(--transition), background var(--transition);
     }
-    .nav-link:hover { color: var(--text); background: rgba(34,211,238,0.08); }
-    .nav-link.active { color: var(--accent); background: rgba(34,211,238,0.12); }
+    .nav-link:hover { color: var(--accent); background: var(--div-hover); }
+    .nav-link.active { color: var(--accent); background: var(--accent-soft); }
     .status-pill {
-      font-size: 0.75rem; padding: 4px 10px; border-radius: 999px;
-      background: rgba(34,211,238,0.12); color: var(--accent);
+      font-size: 0.75rem; padding: 4px 10px; border-radius: var(--radius-full);
+      background: var(--status, var(--accent-soft)); color: var(--accent);
+      transition: color var(--transition), background var(--transition);
     }
+    .status-pill.is-connected { color: var(--success); }
+    .status-pill.is-disconnected { color: var(--error); }
     .app { max-width: 95%; margin: 0 auto; padding: 20px 16px 48px; }
     .back-row { margin-bottom: 16px; display: flex; align-items: center;  }
     .btn {
       display: flex; align-items: center; gap: 6px; justify-content: center;
-      padding: 8px 14px; border-radius: 10px; border: 1px solid var(--border);
+      padding: 8px 14px; border-radius: var(--radius); border: 1px solid var(--border);
       background: var(--card); color: var(--text); font-size: 0.85rem;
       font-weight: 500; cursor: pointer; text-decoration: none;
-      transition: all var(--transition);
+      transition: color var(--transition), background var(--transition), border-color var(--transition), box-shadow var(--transition), transform var(--transition);
+      box-shadow: var(--shadow-sm);
     }
-    .btn:hover { border-color: var(--accent); color: var(--accent); }
+    .btn:hover { border-color: var(--border-hover); color: var(--accent); box-shadow: var(--shadow); }
     .btn-primary {
-      background: rgba(34,211,238,0.15); border-color: var(--accent); color: var(--accent);
+      background: var(--gradient); border-color: transparent; color: #fff;
     }
-    .btn-primary:hover { background: rgba(34,211,238,0.25); }
+    .btn-primary:hover { background: var(--gradient-hover); color: #fff; box-shadow: var(--shadow-glow); }
     .btn-lg { padding: 12px 20px; font-size: 0.95rem; }
 
     .preview-card {
       background: var(--card); border: 1px solid var(--border);
-      border-radius: 16px; overflow: hidden; margin-bottom: 20px;
+      border-radius: var(--radius-lg); overflow: hidden; margin-bottom: 20px;
+      box-shadow: var(--shadow);
     }
     .preview-area {
       background: var(--bg-tertiary); min-height: 220px;
       display: flex; align-items: center; justify-content: center;
       padding: 24px; position: relative;
+      border-bottom: 1px solid var(--border);
     }
     .preview-area img {
-      max-width: 100%; max-height: 70vh; border-radius: 8px;
+      max-width: 100%; max-height: 70vh; border-radius: var(--radius-sm);
       object-fit: contain;
     }
     .preview-area video, .preview-area audio {
-      max-width: 100%; width: 100%; border-radius: 8px;
+      max-width: 100%; width: 100%; border-radius: var(--radius-sm);
     }
     .preview-area iframe {
-      width: 100%; height: 70vh; border: none; border-radius: 8px; background: #111;
+      width: 100%; height: 70vh; border: 1px solid var(--border); border-radius: var(--radius);
+      background: var(--card); color: var(--text);
     }
     .preview-area pre {
       width: 100%; max-height: 60vh; overflow: auto;
-      background: #0c0c0c; padding: 16px; border-radius: 8px;
-      font-size: 0.82rem; color: #e2e8f0; white-space: pre-wrap; word-break: break-word;
+      background: var(--card); border: 1px solid var(--border); padding: 16px;
+      border-radius: var(--radius); box-shadow: var(--shadow-sm);
+      font-size: 0.82rem; color: var(--text); white-space: pre-wrap; word-break: break-word;
     }
     .preview-placeholder {
       text-align: center; color: var(--text-muted); padding: 40px 20px;
     }
-    .preview-placeholder i { font-size: 3rem; margin-bottom: 12px; display: block; opacity: 0.6; }
+    .preview-placeholder i { font-size: 3rem; margin-bottom: 12px; display: block; opacity: 0.75; }
 
     .info-section { padding: 20px; }
     .file-title {
@@ -724,7 +755,8 @@ function getPreviewHTML({ routePrefix, uploadPath, socketRoom, filePath }) {
       gap: 12px; margin: 18px 0;
     }
     .meta-item {
-      background: var(--bg-tertiary); border-radius: 10px; padding: 12px 14px;
+      background: var(--bg-tertiary); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 12px 14px;
     }
     .meta-item .label {
       font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.04em;
@@ -734,6 +766,17 @@ function getPreviewHTML({ routePrefix, uploadPath, socketRoom, filePath }) {
 
     .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px; }
     .loading { text-align: center; padding: 60px; color: var(--text-muted); }
+    :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+    @media (max-width: 560px) {
+      .navbar { gap: 8px; padding: 0 10px; }
+      .nav-brand { font-size: 1rem; }
+      .nav-link { padding: 8px; font-size: 0.82rem; }
+      .status-pill { font-size: 0.68rem; padding: 4px 7px; }
+      .app { max-width: 100%; padding: 16px 12px 36px; }
+      .preview-area { padding: 14px; }
+      .preview-area iframe { height: 60vh; }
+      .info-section { padding: 16px; }
+    }
   </style>
 </head>
 <body>
@@ -771,8 +814,10 @@ function getPreviewHTML({ routePrefix, uploadPath, socketRoom, filePath }) {
     }
     socket.on('connect', () => {
       connectionStatus.textContent = 'Connected';
-      connectionStatus.style.color = '#22C55E';
-      wireThemeSocket(socket);
+      connectionStatus.classList.remove('is-disconnected');
+      connectionStatus.classList.add('is-connected');
+      socket.emit('get-theme');
+      socket.emit('get-accent');
       socket.on('download-file', async (file) =>{
         if (typeof file === 'object' && file.length !== 0) {
           download('/download?path=' + file.path)
@@ -781,8 +826,11 @@ function getPreviewHTML({ routePrefix, uploadPath, socketRoom, filePath }) {
     });
     socket.on('disconnect', () => {
       connectionStatus.textContent = 'Disconnected';
-      connectionStatus.style.color = '#EF4444';
+      connectionStatus.classList.remove('is-connected');
+      connectionStatus.classList.add('is-disconnected');
     });
+    socket.on('theme', (theme) => setTheme(theme));
+    socket.on('accent', (accent) => setAccent(accent));
 
     function escapeHtml(str) {
       return String(str)

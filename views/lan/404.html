@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>404 • Not Found • Xender-lite</title>
   <link rel="stylesheet" href="/font-icon/css/all.min.css" />
-  <link rel="stylesheet" href="/style/theme-dark.css" />
+  <link rel="stylesheet" id="accent" href="/style/theme.css">
   <link rel="icon" type="image/x-icon" href="/icon/logo.png">
   <style>
 
@@ -40,7 +40,7 @@
     }
     .orb-2 {
       width: 200px; height: 200px;
-      background: #6366F1;
+      background: var(--accent);
       bottom: -40px; right: -40px;
       animation-delay: -4s;
     }
@@ -65,7 +65,7 @@
       padding: 48px 32px;
       max-width: 440px;
       width: 90%;
-      background: rgba(10, 10, 10, 0.85);
+      background: var(--card);
       border: 1px solid var(--border);
       border-radius: 24px;
       backdrop-filter: blur(16px);
@@ -230,8 +230,13 @@
   <script src="/script/setting.js"></script>
   <script>
     const socket = io();
-    socket.on('theme', (t) => setThemeLocal(t, false));
-    socket.on('accent', (a) => setAccentLocal(a, false));
+    socket.on('connect', () =>{
+      socket.emit('get-theme')
+      socket.emit('get-accent')
+      wireThemeSocket(socket)
+    })
+    socket.on('theme', (t) => setTheme(t, false));
+    socket.on('accent', (a) => setAccent(a, false));
   </script>
 </body>
 </html>

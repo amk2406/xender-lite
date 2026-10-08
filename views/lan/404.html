@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>404 • Not Found • Xender-lite</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <style>
+    :root {
+      --bg: #000000;
+      --bg-secondary: #0a0a0a;
+      --text: #f1f5f9;
+      --text-muted: #64748b;
+      --accent: #22D3EE;
+      --accent-hover: #67E8F9;
+      --border: #1e293b;
+      --red: #EF4444;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Floating orbs background */
+    .orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(60px);
+      opacity: 0.25;
+      animation: float 12s ease-in-out infinite;
+      pointer-events: none;
+    }
+    .orb-1 {
+      width: 280px; height: 280px;
+      background: var(--accent);
+      top: -80px; left: -60px;
+      animation-delay: 0s;
+    }
+    .orb-2 {
+      width: 200px; height: 200px;
+      background: #6366F1;
+      bottom: -40px; right: -40px;
+      animation-delay: -4s;
+    }
+    .orb-3 {
+      width: 140px; height: 140px;
+      background: var(--red);
+      top: 40%; right: 15%;
+      animation-delay: -7s;
+      opacity: 0.15;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      33% { transform: translate(30px, -40px) scale(1.05); }
+      66% { transform: translate(-20px, 20px) scale(0.95); }
+    }
+
+    .card {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      padding: 48px 32px;
+      max-width: 440px;
+      width: 90%;
+      background: rgba(10, 10, 10, 0.85);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      backdrop-filter: blur(16px);
+      animation: cardIn 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+
+    @keyframes cardIn {
+      from {
+        opacity: 0;
+        transform: translateY(32px) scale(0.96);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .code {
+      font-size: clamp(5rem, 18vw, 7.5rem);
+      font-weight: 800;
+      line-height: 1;
+      letter-spacing: -0.04em;
+      background: linear-gradient(135deg, var(--accent), #818CF8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: pulseGlow 3s ease-in-out infinite;
+      margin-bottom: 8px;
+    }
+
+    @keyframes pulseGlow {
+      0%, 100% { filter: drop-shadow(0 0 12px rgba(34, 211, 238, 0.35)); }
+      50% { filter: drop-shadow(0 0 28px rgba(34, 211, 238, 0.6)); }
+    }
+
+    .icon-wrap {
+      width: 72px;
+      height: 72px;
+      margin: 0 auto 20px;
+      border-radius: 20px;
+      background: rgba(34, 211, 238, 0.1);
+      border: 1px solid rgba(34, 211, 238, 0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.8rem;
+      color: var(--accent);
+      animation: bounceIn 0.8s 0.2s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+    }
+
+    @keyframes bounceIn {
+      from { opacity: 0; transform: scale(0.3); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    h1 {
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+      animation: fadeUp 0.6s 0.25s both;
+    }
+
+    p {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      line-height: 1.6;
+      margin-bottom: 28px;
+      animation: fadeUp 0.6s 0.35s both;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+      animation: fadeUp 0.6s 0.45s both;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 20px;
+      border-radius: 12px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.2s ease;
+      cursor: pointer;
+      border: 1px solid var(--border);
+      background: var(--bg-secondary);
+      color: var(--text);
+    }
+
+    .btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      transform: translateY(-2px);
+    }
+
+    .btn-primary {
+      background: rgba(34, 211, 238, 0.15);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .btn-primary:hover {
+      background: rgba(34, 211, 238, 0.28);
+      color: var(--accent-hover);
+    }
+
+    .brand {
+      margin-top: 32px;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      animation: fadeUp 0.6s 0.55s both;
+    }
+
+    .brand span {
+      color: var(--accent);
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+
+  <div class="card">
+    <div class="icon-wrap">
+      <i class="fa-solid fa-compass"></i>
+    </div>
+    <div class="code">404</div>
+    <h1>Page not found</h1>
+    <p>
+      This path is out of range.<br />
+      The page you’re looking for doesn’t exist or was moved.
+    </p>
+    <div class="actions">
+      <a class="btn btn-primary" href="/files">
+        <i class="fa-solid fa-folder-open"></i> Go to Files
+      </a>
+      <a class="btn" href="/upload-page">
+        <i class="fa-solid fa-cloud-arrow-up"></i> Upload
+      </a>
+      <a class="btn" href="javascript:history.back()">
+        <i class="fa-solid fa-arrow-left"></i> Go back
+      </a>
+    </div>
+    <div class="brand">
+      <span>Xender-lite</span> · local file transfer
+    </div>
+  </div>
+</body>
+</html>

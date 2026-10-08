@@ -125,7 +125,8 @@
     let activeModule = null;
     // { name, group? }[]
     let modules = [];
-
+    socket.on('theme', (t) => setTheme(t));
+    socket.on('accent', (a) => setAccent(a));
     function renderSidebar() {
       sidebar.querySelectorAll('.sidebar-item, .sidebar-group').forEach((n) => n.remove());
       if (modules.length === 0) {

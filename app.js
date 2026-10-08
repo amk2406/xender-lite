@@ -20,6 +20,7 @@ const  { JSONDB } = require('file-json-db')
 const generator = require('./modules/generator')
 const network = require('./modules/networkinfo')
 const util = require('./modules/utility')
+const moduleutlt = require('./modules/license')
 const { setupXenderBrowser } = require('./modules/xender-browser');
 
 // Path config
@@ -41,6 +42,11 @@ const log = console.log
 const err = console.error
 const errlog = console.error
 const version = '2.0.0'
+
+// App setting and config
+let setting = settingdata(settingpath)
+let config = configdata(configpath)
+
 // Module config
 const wifi = new WifiPlus({
     autoReconnect: true,
@@ -52,7 +58,6 @@ const win = new WebView({
   height: 700,
   minWidth: 800,
   windowsHide: false,
-  icon: './res/icon.ico',
   devTools: false,
   backgroundColor: '#eee8e8',
   userDataFolder: webviewdata
@@ -60,9 +65,6 @@ const win = new WebView({
 const db = new JSONDB(recentpath)
 const recent = db.collection({ name: 'recent',maxPartSize: 512000,autoId: true})
 
-// App config
-let setting = settingdata(settingpath)
-let config = configdata(configpath)
  
 function settingdata(filepath = settingpath) {
    const layout = {
@@ -132,6 +134,15 @@ function saveConfig(data = config) {
     }
 }
 
+const ACCENTS = {
+    primary: { icon: path.resolve('res/icon.ico') }, colored: {icon: path.resolve('res/icon-color.ico') },
+    neon: { icon: path.resolve('res/icon-dark.ico') },
+};
+
+function getIcon(accent = 'primary') {
+    const found = ACCENTS[accent] || ACCENTS.primary;
+    return found.icon
+}
 const app = express()
 const lanapp = express()
 
@@ -168,7 +179,14 @@ app.get('/license', (req, res, next) =>{
         res.status(200).sendFile(path.resolve('views', 'local', 'license.html'))
     } catch (err) { next(err)}
 })
-
+app.get('/license', (req, res, next) =>{
+    try {
+        const modulename = req.query.module
+        if(typeof modulename !== 'string' || !modulename) return res.status(404).json({error: 'module not found'})
+    } catch (error) {
+        next(error)
+    }
+})
 app.use((err, req, res, next) =>{
     if (err) {
         errlog('[APP ROUTE] An error from App route ', err)
@@ -177,12 +195,63 @@ app.use((err, req, res, next) =>{
     }
 })
 
+const packagelok = require('./package-lock.json');
+const [bin, packagelockjson, ...modules] = fs.readdirSync(path.resolve('node_modules'))
+modules.forEach(module =>{
+    const packagejson = path.resolve('node_modules', module, 'license')
+    if (fs.existsSync(packagejson)) {
+        log(fs.readFileSync(packagejson).toString())
+    }
+})
+lanapp.use((req, res, next) =>{
+    try {
+        
+    } catch (error) {
+        next(error)
+    }
+})
+
+lanapp.get('/upload', async (req, res, next) =>{
+    try {
+        return res.status(200).sendFile(path.resolve('views', 'lan', 'upload.html'))
+    } catch (error) {
+        next(error)
+    }
+})
+
+lanapp.get('/download', async (req, res, next) =>{
+    try {
+        
+    } catch (error) {
+        next(error)
+    }
+})
+
+lanapp.use((req, res, next) =>{
+    try {
+        return res.status(404).sendFile(path.resolve('views', 'lan', '404.html'))
+    } catch (error) {
+        
+    }
+})
+
+lanapp.use((err, req, res, next) =>{
+    try {
+        errlog('[LAN APP] receive error', (err.message || err.stack || err))
+        return res.status(404).sendFile(path.resolve('views', 'lan', '404.html'))
+    } catch (error) {
+        errlog('[LAN APP] error at error middle were')
+        return res.status(500).send('')
+    }
+})
+
+
 const apphttp = http.createServer(app)
 const appsocket = new Server(apphttp, {cors: { methods: ['GET', 'POST']}})
 
+
 const lanhttp = http.createServer(lanapp)
 const lansocket = new Server(lanhttp, {cors: { methods: ['GET', 'POST']}})
-
 
 const port = config.ports.default
 apphttp.listen(port, async (err)=>{
@@ -198,7 +267,7 @@ apphttp.listen(port, async (err)=>{
     try {
         log('[APP HTTP] App start successfully on port ', port)
         win.loadURL('http://localhost:'+port)
-
+        win.setIcon(getIcon(setting.accent))
         let ipaddress = network.getLocalIP()
         let isontranfer = false
         let isinwifi = false
@@ -413,73 +482,59 @@ apphttp.listen(port, async (err)=>{
 
             // Auto-organise
             socket.emit('auto-organize', setting.autoOrganise);
-            socket.on('get-auto-organize', () => {
-                socket.emit('auto-organize', setting.autoOrganise);
-            });
+            socket.on('get-auto-organize', () => {socket.emit('auto-organize', setting.autoOrganise);});
             socket.on('save-auto-organize', (mode) => {
-                setting.autoOganise = mode;
-                saveSetting();
+                setting.autoOrganise = mode;saveSetting();
                 socket.broadcast.emit('auto-organize', setting.autoOrganise);
             });
 
             // Save directory
             socket.emit('save-dir', setting.savefolder);
             socket.on('save-save-dir', (dir) => {
-                setting.savefolder = path.resolve(dir);
-                saveSetting();
+                setting.savefolder = path.resolve(dir);saveSetting();
                 socket.broadcast.emit('save-dir', dir);
             });
 
             // Scan directories
             socket.emit('scan-dir', setting.servepaths);
-            socket.on('get-scan-dir', () => {
-                socket.emit('scan-dir', setting.servepaths);
-            });
+            socket.on('get-scan-dir', () => {socket.emit('scan-dir', setting.servepaths);});
             socket.on('add-scan-dir', (dir) => {
                 if (!setting.servepaths.includes(dir)) {
-                    setting.servepaths.push(dir);
-                    config.servepaths.push(dir);
-                    saveSetting();
-                    saveConfig();
+                    setting.servepaths.push(dir); config.servepaths.push(dir);
+                    saveSetting(); saveConfig();
                     socket.broadcast.emit('scan-dir', setting.servepaths);
                 }
             });
             socket.on('remove-scan-dir', (dir) => {
                 setting.servepaths = setting.servepaths.filter((item) => item !== dir);
-                config.servepaths = config.servepaths.filter((item) => item !== dir);
-                saveSetting();
-                saveConfig();
-                socket.broadcast.emit('scan-dir', setting.servepaths);
+                saveSetting(); socket.broadcast.emit('scan-dir', setting.servepaths);
             });
 
             // Theme
             socket.emit('theme', setting.theme);
-            socket.on('get-theme', () => {
-                socket.emit('theme', setting.theme);
-            });
+            socket.on('get-theme', () => {socket.emit('theme', setting.theme);});
             socket.on('save-theme', (theme) => {
                 setting.theme = theme === 'dark' || 'light' ? theme : 'light';
-                saveSetting();
-                socket.broadcast.emit('theme', setting.theme);
+                saveSetting(); socket.broadcast.emit('theme', setting.theme);
             });
 
             // Accent
             socket.emit('accent', setting.accent);
-            socket.on('get-accent', () => {
-                socket.emit('accent', setting.accent);
-            });
+            socket.on('get-accent', () => {socket.emit('accent', setting.accent);});
             socket.on('save-accent', (accent) => {
                 setting.accent = accent === 'primary' || 'color' || 'colored' || 'noen' ? accent : 'primary';
-                saveSetting();
-                socket.broadcast.emit('accent', setting.accent);
+                saveSetting(); win.setIcon(getIcon(setting.accent));socket.broadcast.emit('accent', setting.accent);
             });
 
             // Full settings
-            socket.on('user-setting', () => {
-                socket.emit('setting', setting);
-            });
+            socket.on('user-setting', () => {socket.emit('setting', setting);});
 
-
+            socket.on('select-saving-dir', async () =>{
+                await win.dialog.selectFolder({}).then(async (dir) =>{
+                    setting.savefolder = path.resolve(dir);
+                    saveSetting();socket.emit('save-dir', dir)
+                })
+            })
 
         })
         //win.show()

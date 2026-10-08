@@ -35,7 +35,11 @@ modules.forEach(module =>{
         licensemodules.push(info)
     }
 })
-
+const xenderliteLicenseInfo = {
+    name: 'Xender Lite',
+    path: 'License.txt'
+}
+licensemodules.push(xenderliteLicenseInfo)
 fs.writeFileSync(path.resolve('modules', 'license.json'), JSON.stringify(licensemodules, null, 2))
 
 module.exports = licensemodules

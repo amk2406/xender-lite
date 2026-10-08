@@ -205,7 +205,7 @@ app.use((err, req, res, next) =>{
 
 lanapp.use((req, res, next) =>{
     try {
-        
+        next()
     } catch (error) {
         next(error)
     }
@@ -231,7 +231,7 @@ lanapp.use((req, res, next) =>{
     try {
         return res.status(404).sendFile(path.resolve('views', 'lan', '404.html'))
     } catch (error) {
-        
+        next(error)
     }
 })
 

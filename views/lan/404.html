@@ -4,18 +4,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>404 • Not Found • Xender-lite</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <link rel="stylesheet" href="/font-icon/css/all.min.css" />
+  <link rel="stylesheet" href="/style/theme-dark.css" />
+  <link rel="icon" type="image/x-icon" href="/icon/logo.png">
   <style>
-    :root {
-      --bg: #000000;
-      --bg-secondary: #0a0a0a;
-      --text: #f1f5f9;
-      --text-muted: #64748b;
-      --accent: #22D3EE;
-      --accent-hover: #67E8F9;
-      --border: #1e293b;
-      --red: #EF4444;
-    }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -233,5 +225,13 @@
       <span>Xender-lite</span> · local file transfer
     </div>
   </div>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/script/toast.js"></script>
+  <script src="/script/setting.js"></script>
+  <script>
+    const socket = io();
+    socket.on('theme', (t) => setThemeLocal(t, false));
+    socket.on('accent', (a) => setAccentLocal(a, false));
+  </script>
 </body>
 </html>

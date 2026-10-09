@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="stylesheet" id="accent" href="style/theme.css">
   <link rel="icon" href="icon/logo.png" type="image/x-icon">
+  <link rel="stylesheet" href="style/highlight.css">
   <title>Logs • Xender Lite</title>
   <style>
     * {
@@ -152,7 +153,7 @@
       // EVENT → server: request log content
       socket.emit('get-log', { name });
       // Also try HTTP fallback
-      fetch('/log?name=' + encodeURIComponent(name))
+      fetch('/log-data?name=' + encodeURIComponent(name))
         .then(async (res) => {
           if (res.status === 404) {
             const idx = logFiles.indexOf(name);

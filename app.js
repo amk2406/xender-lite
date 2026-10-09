@@ -9,7 +9,7 @@ const qrcode = require('qrcode');
 const chalk = require('chalk');
 const express = require('express');
 const { Socket, Server } = require('socket.io')
-const logger = require('node-logger');
+const {Logger} = require('node-logger');
 const multer = require('multer')
 
 const { WifiPlus, } = require('node-wifi-plus');
@@ -19,12 +19,13 @@ const  { JSONDB } = require('low-json-db')
 const generator = require('./modules/generator')
 const network = require('./modules/networkinfo')
 const license = require('./modules/license')
+const loghandler = require('./modules/log')
 const {generateMaxWait, getFileCategory, getUniqueFilePath} = require('./modules/utility')
 const { setupXenderBrowser } = require('./modules/xender-browser');
 
 // Fix for pkg + webview-node
 // Tell webview-node where the real host is
-process.env.WEBVIEW2_HOST = path.resolve('bin', 'webview2-host.exe');
+process.env.WEBVIEW2_HOST = path.resolve('res', 'bin', 'webview2-host.exe');
 
 const { WebView } = require('webview-node')
 
@@ -66,16 +67,21 @@ const win = new WebView({
   backgroundColor: setting.theme === 'light' ? '#eee8e8' : setting.theme === 'dark' ? '#070707' : '#f0e8e8',
   userDataFolder: webviewdata
 });
-logger({
-    path: logpath,
-    captureConsole: true,
-    captureErrors: true,
-    eol: true,
-    includeTimestamp: true,
-    level: 'debug'
+const loger = new Logger({
+  path: logpath,                 // where to store log files
+  showConsole: true,              // also print to terminal
+  includeTimestamp: true,         // prepend ISO date
+  fileFormat: 'log-%date%.log',   // e.g. log-2026-08-29.log
+  renewTime: '1d',                // new file every day (or '10m', '1h', '1M'...)
+  maxFileSize: 20 * 1024,
+  maxFiles: 30,                   // keep last 30 files
+  format: 'text',                 // 'text' | 'json'
+  colors: true,
+  captureConsole: true,           // hijack console.*
+  captureErrors: true             // catch uncaught errors
 })
 
-const db = new JSONDB(datapath)
+const db = new JSONDB(datapath) 
 const recent = db.collection({ name: 'recent', lazy: true, autoWrite: true,autoId: true})
 
  
@@ -90,6 +96,7 @@ function settingdata(filepath = settingpath) {
             path.resolve(os.homedir(), 'pictures'), path.resolve(os.homedir(), 'videos'),
         ]
     }
+    fs.ensureFileSync(settingpath)
     const data = function (){
         try {
             const sett = JSON.parse(fs.readFileSync(filepath))
@@ -203,6 +210,21 @@ app.get('/license-data', (req, res, next) =>{
         } else{
             return res.status(400).send('License content not found.')
         }
+    } catch (error) {
+        next(error)
+    }
+})
+app.get('/log-data', (req, res, next) =>{
+    try {
+        const modulename = req.query.name
+        log(modulename)
+        if(typeof modulename !== 'string' || !modulename) return res.status(404).json({error: 'log not found not found'})
+        const content = loghandler.getLogFileContent(modulename)
+    if (!content) {
+        return res.status(404).send('no log found, seems like this logdoes not exist')
+    } else{
+        return res.status(200).send(content)
+    }
     } catch (error) {
         next(error)
     }
@@ -573,7 +595,8 @@ apphttp.listen(port, async (err)=>{
                 }
             })
 
-
+            socket.emit('log-list', loghandler.getLogFileList())
+            socket.on('get-log-list', () =>{socket.emit('log-list', loghandler.getLogFileList())})
 
 
             lansocket.on('connection', (socket) =>{
@@ -811,7 +834,7 @@ apphttp.listen(port, async (err)=>{
     }
 })
 process.on('exit', (code)=>{ win.close()})
-const procode = ['unhandledRejection', 'uncaughtException']
+const procode = ['unhandledRejection', 'uncaughtException', 'rejectionHandled']
 procode.forEach(code => {
     process.on(code, (err) =>{
         console.log(err)

@@ -66,6 +66,14 @@ const win = new WebView({
   backgroundColor: setting.theme === 'light' ? '#eee8e8' : setting.theme === 'dark' ? '#070707' : '#f0e8e8',
   userDataFolder: webviewdata
 });
+logger({
+    path: logpath,
+    captureConsole,
+    captureErrors,
+    eol: true,
+    includeTimestamp: true,
+    level: 'debug'
+})
 
 const db = new JSONDB(datapath)
 const recent = db.collection({ name: 'recent', lazy: true, autoWrite: true,autoId: true})
@@ -595,7 +603,7 @@ apphttp.listen(port, async (err)=>{
                 ).then(res =>{
                     if (res === 'true' || res === true) {
                         closelanapp()
-                        process.exit()
+                        process.exit(1)
                     }
                 })
             } else{
@@ -631,7 +639,9 @@ apphttp.listen(port, async (err)=>{
                 next(error)
             }
         })
-
+        win.on('closed', () =>{
+            process.exit(1)
+        })
         const upload = multer({ dest: chunkpath });
         // ========== RESUMABLE UPLOAD ==========
         lanapp.post('/upload-file', upload.single('file'), async (req, res) => {

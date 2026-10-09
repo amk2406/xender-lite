@@ -22,17 +22,16 @@ const network = require('./modules/networkinfo')
 const license = require('./modules/license')
 const {generateMaxWait, getFileCategory, getUniqueFilePath} = require('./modules/utility')
 const { setupXenderBrowser } = require('./modules/xender-browser');
-console.log(os.tmpdir())
+
 // Path config
 const datapath = path.resolve(process.env.LOCALAPPDATA, 'Xender Lite')
 const tempdir = path.resolve(os.tmpdir(), 'Xender Lite')
 const logpath = path.resolve(datapath, 'logs')
-const chunkpath = path.relative(tempdir, 'chunks')
+const chunkpath = path.resolve(tempdir, 'chunks')
 const recentpath = path.resolve(datapath, 'Recent')
 const configpath = path.resolve(datapath, 'config.json')
 const settingpath = path.resolve(datapath, 'setting.json')
 const webviewdata = path.resolve(datapath, 'Webview Data')
-
 fs.ensureDirSync(datapath)
 fs.ensureDirSync(tempdir)
 fs.ensureDirSync(logpath)
@@ -59,12 +58,12 @@ const win = new WebView({
   minWidth: 800,
   windowsHide: false,
   devTools: false,
-  backgroundColor: '#eee8e8',
+  backgroundColor: setting.theme === 'light' ? '#eee8e8' : setting.theme === 'dark' ? '#070707' : '#f0e8e8',
   userDataFolder: webviewdata
 });
 
 const db = new JSONDB(datapath)
-const recent = db.collection({ name: 'recent',maxPartSize: 512000,autoId: true})
+const recent = db.collection({ name: 'recent', lazy: true, autoWrite: true,autoId: true})
 
  
 function settingdata(filepath = settingpath) {
@@ -244,9 +243,7 @@ try {
     wifi.on('error', err =>{
         errlog('[APP WIFI] error at wifi module', err.stack)
     })
-} catch (error) {
-    
-}
+} catch (error) {}
 
 const apphttp = http.createServer(app)
 const appsocket = new Server(apphttp, {cors: { methods: ['GET', 'POST']}})
@@ -332,6 +329,12 @@ apphttp.listen(port, async (err)=>{
                             socket.broadcast.emit('qrcode', qr)
                         }
                     })
+                } else {
+                    try {
+                        win.dialog.warning('You are not connected to a WIFI network', 'Xender Lite')
+                    } catch (error) {
+                        errlog('[APP HTTP], fail to notify about wifi', error.message)
+                    }
                 }
             }
         }
@@ -437,9 +440,7 @@ apphttp.listen(port, async (err)=>{
                 })
             })
             
-            wifi.on('connect', (device) =>{
-                socket.emit('connected-devices', [device])
-            })
+            wifi.on('connect', (device) =>{socket.emit('connected-devices', [device])})
             wifi.on('disconnect', async (device) =>{
                 socket.emit('connected-devices', [])
                 const scanwifi = await wifi.scan()
@@ -466,15 +467,11 @@ apphttp.listen(port, async (err)=>{
             })
 
             socket.emit('version', version);
-            socket.on('app-version', () => {
-                socket.broadcast.emit('version', version);
-            });
+            socket.on('app-version', () => {socket.broadcast.emit('version', version);});
 
             // Web mode
             socket.emit('web-mode', setting.hideOnWeb);
-            socket.on('get-web-mode', () => {
-                socket.emit('web-mode', setting.hideOnWeb);
-            });
+            socket.on('get-web-mode', () => {socket.emit('web-mode', setting.hideOnWeb);});
             socket.on('save-web-mode', (mode) => {
                 setting.hideOnWeb = typeof mode === 'boolean' ? mode : true;
                 saveSetting();
@@ -538,6 +535,19 @@ apphttp.listen(port, async (err)=>{
                 })
             })
 
+            socket.on('select-file', () =>{
+                try {
+                    win.dialog.selectFile().then(file =>{
+                        log(file)
+                    }).catch(err =>{
+                        log('[WIN ERR] fail to select file', err.message)
+                        socket.emit('select-file-err', false)
+                    })
+                } catch (error) {
+                    log('[WIN ERR] fail to select file', error.message)
+                    socket.emit('select-file-err', false)
+                }
+            })
             
             socket.on('get-license-list', () =>{
                 try {
@@ -571,7 +581,22 @@ apphttp.listen(port, async (err)=>{
 
         })
 
-        //win.show()
+        win.show()
+        win.on('close', async (event) =>{
+            if (isontranfer) {
+                await win.dialog.confirm(
+                    'There is a current Ongoing transfer are you show you want to close',
+                    'Xender Lite'
+                ).then(res =>{
+                    if (res === 'true' || res === true) {
+                        closelanapp()
+                        process.exit()
+                    }
+                })
+            } else{
+                win.close()
+            }
+        })
         if(!setting.hideOnWeb){
             if (setting.servepaths.length !== 0) {
                  const browser = setupXenderBrowser(lanapp, lansocket, {
@@ -605,7 +630,7 @@ apphttp.listen(port, async (err)=>{
         const upload = multer({ dest: chunkpath });
         // ========== RESUMABLE UPLOAD ==========
         lanapp.post('/upload-file', upload.single('file'), async (req, res) => {
-            log('upload started')
+            
             try {
                 isontranfer = true
                 // Resumable.js fields
@@ -671,7 +696,16 @@ apphttp.listen(port, async (err)=>{
                 const data = fs.readFileSync(chunkFile);
                 writeStream.write(data);
                 }
-
+                const data = {
+                    date: new Date().toLocaleString(),
+                    name: finalName,
+                    path: fullPath
+                }
+                try {
+                    recent.insert(data)
+                } catch (error) {
+                    errlog('[DB ERR] fail to save trnsfer', error.message)
+                }
                 writeStream.end();
 
                 // Wait until writing is finished
@@ -719,7 +753,6 @@ apphttp.listen(port, async (err)=>{
 
         // ========== TEST CHUNK (needed for resume) ==========
         lanapp.get('/upload-file', (req, res) => {
-            console.log('upload hit')
             const identifier = req.query.resumableIdentifier;
             const chunkNumber = req.query.resumableChunkNumber;
 
@@ -754,6 +787,14 @@ apphttp.listen(port, async (err)=>{
 
     } catch (error) {
         errlog('[APP ROUTE] An error Occur Stack: ', error.stack)
-        
     }
+})
+process.on('exit', (code)=>{
+    win.close()
+})
+process.on('uncaughtException', (err) =>{
+    console.log(err)
+})
+process.on('unhandledRejection', (err) =>{
+    console.log(err)
 })

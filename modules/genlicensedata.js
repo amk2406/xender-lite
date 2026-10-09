@@ -6,9 +6,11 @@ const licensemodules = []
 const [bin, packagelockjson, ...modules] = fs.readdirSync(path.resolve('node_modules'))
 let id = 1
 const xenderliteLicenseInfo = {
+    id: id,
     name: 'Xender Lite',
     path: 'License.txt'
 }
+id++
 licensemodules.push(xenderliteLicenseInfo)
 modules.forEach(module =>{
     const licensepath = path.resolve('node_modules', module, 'license')

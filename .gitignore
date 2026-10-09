@@ -1,5 +1,9 @@
+# basic ignore
 node_modules/
 .env
 *.log
+
+# essencials
 script/socket
 .git
+modules/license.json

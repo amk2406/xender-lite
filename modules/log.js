@@ -18,7 +18,6 @@ const getLogFileList = () =>{
 const getLogFileContent = (filename) =>{
     if (!filename || typeof filename !== 'string') return null
     const filepath = path.resolve(logpath, filename)
-    log(filepath)
     if (fs.existsSync(filepath)) {
         const filecontent = fs.readFileSync(filepath).toString()
         return filecontent

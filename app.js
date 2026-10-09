@@ -610,7 +610,7 @@ apphttp.listen(port, async (err)=>{
 
         })
 
-        //win.show()
+        win.show()
         win.on('close', async (event) =>{
             if (isontranfer) {
                 await win.dialog.confirm(

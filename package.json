@@ -3,6 +3,7 @@
   "version": "2.0.0",
   "description": "Lightweight local and LAN file-sharing application for Windows",
   "main": "app.js",
+  "bin": "app.js",
   "scripts": {
     "start": "node app.js",
     "dev": "node --watch app.js",
@@ -16,6 +17,13 @@
     "nodejs",
     "windows"
   ],
+  "pkg": {
+    "assets": [
+      "node_modules/webview-node/bin/**/*"
+    ],
+    "targets": ["node18.5.0-win-x64"],
+    "outputPath": "dist"
+  },
   "type": "commonjs",
   "author": "Abdulhamid Muhammad Kabir",
   "license": "MIT",

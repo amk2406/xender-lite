@@ -7,7 +7,8 @@
   "scripts": {
     "start": "node app.js",
     "dev": "node --watch app.js",
-    "test": "node --watch app.js"
+    "test": "node --watch app.js",
+    "build": "pkg ."
   },
   "keywords": [
     "xender",

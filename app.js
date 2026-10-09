@@ -11,8 +11,7 @@ const express = require('express');
 const { Socket, Server } = require('socket.io')
 const logger = require('node-logger');
 const multer = require('multer')
-const { WebView } = require('webview-node')
-const webviewapp = require('webview-node').app
+
 const { WifiPlus, } = require('node-wifi-plus');
 const  { JSONDB } = require('low-json-db')
 
@@ -22,6 +21,12 @@ const network = require('./modules/networkinfo')
 const license = require('./modules/license')
 const {generateMaxWait, getFileCategory, getUniqueFilePath} = require('./modules/utility')
 const { setupXenderBrowser } = require('./modules/xender-browser');
+
+// Fix for pkg + webview-node
+// Tell webview-node where the real host is
+process.env.WEBVIEW2_HOST = path.resolve('bin', 'webview2-host.exe');
+
+const { WebView } = require('webview-node')
 
 // Path config
 const datapath = path.resolve(process.env.LOCALAPPDATA, 'Xender Lite')

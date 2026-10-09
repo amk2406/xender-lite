@@ -68,8 +68,8 @@ const win = new WebView({
 });
 logger({
     path: logpath,
-    captureConsole,
-    captureErrors,
+    captureConsole: true,
+    captureErrors: true,
     eol: true,
     includeTimestamp: true,
     level: 'debug'
@@ -572,6 +572,10 @@ apphttp.listen(port, async (err)=>{
                     errlog('[APP LICENSE] error sending liense data ', error.message)
                 }
             })
+
+
+
+
             lansocket.on('connection', (socket) =>{
                 // Theme
                 socket.emit('theme', setting.theme);
@@ -594,7 +598,7 @@ apphttp.listen(port, async (err)=>{
 
         })
 
-        win.show()
+        //win.show()
         win.on('close', async (event) =>{
             if (isontranfer) {
                 await win.dialog.confirm(
@@ -603,11 +607,12 @@ apphttp.listen(port, async (err)=>{
                 ).then(res =>{
                     if (res === 'true' || res === true) {
                         closelanapp()
-                        process.exit(1)
+                        process.exit(0)
                     }
                 })
             } else{
                 win.close()
+                process.exit(0)
             }
         })
         if(!setting.hideOnWeb){
@@ -640,8 +645,9 @@ apphttp.listen(port, async (err)=>{
             }
         })
         win.on('closed', () =>{
-            process.exit(1)
+            process.exit(0)
         })
+
         const upload = multer({ dest: chunkpath });
         // ========== RESUMABLE UPLOAD ==========
         lanapp.post('/upload-file', upload.single('file'), async (req, res) => {
@@ -804,12 +810,10 @@ apphttp.listen(port, async (err)=>{
         errlog('[APP ROUTE] An error Occur Stack: ', error.stack)
     }
 })
-process.on('exit', (code)=>{
-    win.close()
-})
-process.on('uncaughtException', (err) =>{
-    console.log(err)
-})
-process.on('unhandledRejection', (err) =>{
-    console.log(err)
-})
+process.on('exit', (code)=>{ win.close()})
+const procode = ['unhandledRejection', 'uncaughtException']
+procode.forEach(code => {
+    process.on(code, (err) =>{
+        console.log(err)
+    })
+});

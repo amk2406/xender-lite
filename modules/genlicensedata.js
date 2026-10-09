@@ -5,13 +5,41 @@ const packagelok = require('../package-lock.json');
 const licensemodules = []
 const [bin, packagelockjson, ...modules] = fs.readdirSync(path.resolve('node_modules'))
 let id = 1
-const xenderliteLicenseInfo = {
-    id: id,
-    name: 'Xender Lite',
-    path: 'License.txt'
-}
+const xenderliteLicenseInfo = [
+    {
+        id: id++,
+        name: 'Xender Lite',
+        group: 'Xender Lite',
+        path: 'License.txt'
+    },
+    {
+        id: id++,
+        name: 'nodejs',
+        group: 'Xender Lite',
+        path: 'license/nodejs.txt'
+    },
+    {
+        id: id++,
+        name: 'nuget public',
+        group: 'Nuget Package',
+        path: 'license/nuget-public.txt'
+    },
+    {
+        id: id++,
+        name: 'nuget package',
+        group: 'Nuget Package',
+        path: 'license/nutget-package-mit.txt'
+    },
+    {
+        id: id++,
+        name: 'font awesome',
+        group: 'Font Awesome',
+        path: 'license/font-awesome.txt'
+    }
+]
+
 id++
-licensemodules.push(xenderliteLicenseInfo)
+licensemodules.push(...xenderliteLicenseInfo)
 modules.forEach(module =>{
     const licensepath = path.resolve('node_modules', module, 'license')
     const info = {

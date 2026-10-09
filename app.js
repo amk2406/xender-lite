@@ -204,7 +204,6 @@ app.get('/license-data', (req, res, next) =>{
         const modulename = req.query.module
         if(typeof modulename !== 'string' || !modulename) return res.status(404).json({error: 'module not found'})
         const data = license.getName(modulename)
-        //log(data)
         if (data && data.path && fs.existsSync(data.path)) {
             return res.status(200).sendFile(path.resolve(data.path))
         } else{
@@ -217,7 +216,6 @@ app.get('/license-data', (req, res, next) =>{
 app.get('/log-data', (req, res, next) =>{
     try {
         const modulename = req.query.name
-        log(modulename)
         if(typeof modulename !== 'string' || !modulename) return res.status(404).json({error: 'log not found not found'})
         const content = loghandler.getLogFileContent(modulename)
     if (!content) {
@@ -291,15 +289,15 @@ const port = config.ports.default
 apphttp.listen(port, async (err)=>{
     if (err) {
         if (err.code === 'EADDRINUSE') {
-            log('[APP HTTP] Error starting local app http ', err.message)
+            errlog('[APP HTTP] Error starting local app http ', err.message)
             setTimeout(() => {
                 process.exit(1)
             }, 650);
         }
-        log('[APP HTTP] Error starting local app http ', err.message)
+        errlog('[APP HTTP] Error starting local app http ', err.message)
     }
     try {
-        log('[APP HTTP] App start successfully on port ', port)
+        errlog('[APP HTTP] App start successfully on port ', port)
         win.loadURL('http://localhost:'+port)
         win.setIcon(getIcon(setting.accent))
         let ipaddress = network.getLocalIP()
@@ -346,11 +344,11 @@ apphttp.listen(port, async (err)=>{
                     lanhttp.listen(config.ports.lanport, ip, async (err) =>{
                         if (err) {
                             if (err.code === 'EADDRINUSE') {
-                                log('[LAN APP] Error starting local app http ', err.message)
+                                errlog('[LAN APP] Error starting local app http ', err.message)
                             }
                             errlog('[LAN APP] fail to start lan app')
                         }
-                        log('[LAN APP] lan start on port', `http://${lanhttp.address().address}:${lanhttp.address().port}`)
+                        errlog('[LAN APP] lan start on port', `http://${lanhttp.address().address}:${lanhttp.address().port}`)
                         if (!isspawn) {
                             isspawn = true
                             child_process.exec(`start http://${lanhttp.address().address}:${lanhttp.address().port}`)
@@ -393,12 +391,6 @@ apphttp.listen(port, async (err)=>{
 
         appsocket.on('connection', async (socket) =>{
 
-            socket.onAny((event, ...args) =>{
-                log(`Event fron id: ${socket.id},
-                With event name of: ${event},
-                And argument of: ${args}`)
-            })
-
             if (lanhttp.listening) {
                 const qr = await getQrcode(`http://${lanhttp.address().address}:${lanhttp.address().port}`)
                 const lanlink = `http://${lanhttp.address().address}:${lanhttp.address().port}`;
@@ -431,7 +423,7 @@ apphttp.listen(port, async (err)=>{
                             if (re === 'true' || true) {await closelanapp(socket).catch(er => log('[LAN APP] fail to close lan app', er.message)) }
                         })
                     }
-                    await closelanapp().catch(er => log('[LAN APP] fail to close lan app', er.message))
+                    await closelanapp().catch(er => errlog('[LAN APP] fail to close lan app', er.message))
                 }else{socket.broadcast.emit('web-server-stopped', true); socket.emit('web-server-stopped', true)}
             });
 
@@ -449,7 +441,6 @@ apphttp.listen(port, async (err)=>{
             socket.on('get-connected-devices', async () =>{
                try {
                     const scanwifi = await wifi.getCurrentConnection()
-                    log(scanwifi)
                     socket.emit('connected-devices', [scanwifi])
                } catch (error) {
                     err('[WIFI ERR] wifi error at scanning', error.message)
@@ -573,20 +564,18 @@ apphttp.listen(port, async (err)=>{
             socket.on('select-file', () =>{
                 try {
                     win.dialog.selectFile().then(file =>{
-                        log(file)
                     }).catch(err =>{
-                        log('[WIN ERR] fail to select file', err.message)
+                        errlog('[WIN ERR] fail to select file', err.message)
                         socket.emit('select-file-err', false)
                     })
                 } catch (error) {
-                    log('[WIN ERR] fail to select file', error.message)
+                    errlog('[WIN ERR] fail to select file', error.message)
                     socket.emit('select-file-err', false)
                 }
             })
             
             socket.on('get-license-list', () =>{
                 try {
-                    console.log('revev licens list')
                    socket.emit('license-list', {
                     modules: license.getAll()
                 }) 
@@ -697,7 +686,7 @@ apphttp.listen(port, async (err)=>{
                 const chunkPath = path.join(fileChunkDir, `chunk_${chunkNumber}`);
                 fs.renameSync(req.file.path, chunkPath);
 
-                console.log(`\r[Upload] Chunk ${chunkNumber}/ ${totalChunks} received → ${filename}`);
+                log(`\r[Upload] Chunk ${chunkNumber}/ ${totalChunks} received → ${filename}`);
 
                 // Emit progress
                 const progress = Math.round((chunkNumber / totalChunks) * 100);
@@ -784,7 +773,7 @@ apphttp.listen(port, async (err)=>{
 
             } catch (err) {
                 isontranfer = false
-                console.error('[Upload] Error:', err.message);
+                errlog('[Upload] Error:', err.message);
 
                 appsocket.emit('upload:error', {
                     name: req.body.resumableFilename || 'unknown',
@@ -835,8 +824,4 @@ apphttp.listen(port, async (err)=>{
 })
 process.on('exit', (code)=>{ win.close()})
 const procode = ['unhandledRejection', 'uncaughtException', 'rejectionHandled']
-procode.forEach(code => {
-    process.on(code, (err) =>{
-        console.log(err)
-    })
-});
+procode.forEach(code => {process.on(code, (err) =>{console.log(err)})});

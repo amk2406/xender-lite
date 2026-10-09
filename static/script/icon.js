@@ -1,1 +1,0 @@
-const theme = document.documentElement.getAttribute("data-theme") || CONFIG.defaultTheme;

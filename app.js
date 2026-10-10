@@ -62,7 +62,7 @@ const win = new WebView({
   width: 1200,
   height: 700,
   minWidth: 800,
-  windowsHide: false,
+  windowsHide: true,
   devTools: false,
   backgroundColor: setting.theme === 'light' ? '#eee8e8' : setting.theme === 'dark' ? '#070707' : '#f0e8e8',
   userDataFolder: webviewdata

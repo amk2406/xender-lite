@@ -21,6 +21,7 @@ const license = require('./modules/license')
 const loghandler = require('./modules/log')
 const {generateMaxWait, getFileCategory, getUniqueFilePath} = require('./modules/utility')
 const { setupXenderBrowser } = require('./modules/xender-browser');
+const dialo = require('./modules/windows-dialog');
 
 // Fix for pkg + webview-node
 // Tell webview-node where the real host is
@@ -361,6 +362,7 @@ apphttp.listen(port, async (err)=>{
             }, 650);
         }
         errlog('[APP HTTP] Error starting local app http ', err.message)
+        dialo.error(`Fail to start Xender Lite, ERROR: ${err.code || '0x001'} `, 'Xender Lite')
     }
     try {
         log('[APP HTTP] App start successfully on port ', port)
@@ -430,7 +432,7 @@ apphttp.listen(port, async (err)=>{
                     })
                 } else {
                     try {
-                        win.dialog.warning('You are not connected to a WIFI network', 'Xender Lite')
+                        win.dialog.warning('You are not connected to a WIFI network, Connect and try again', 'Xender Lite')
                     } catch (error) {
                         errlog('[APP HTTP], fail to notify about wifi', error.message)
                     }

@@ -6,12 +6,11 @@ const crypto = require('crypto');
 const child_process = require('child_process');
 
 const qrcode = require('qrcode');
-const chalk = require('chalk');
 const express = require('express');
-const { Socket, Server } = require('socket.io')
+const cookie = require('cookie');
+const { Server } = require('socket.io')
 const {Logger} = require('node-logger');
 const multer = require('multer')
-
 const { WifiPlus, } = require('node-wifi-plus');
 const  { JSONDB } = require('low-json-db')
 
@@ -25,7 +24,7 @@ const { setupXenderBrowser } = require('./modules/xender-browser');
 
 // Fix for pkg + webview-node
 // Tell webview-node where the real host is
-process.env.WEBVIEW2_HOST = path.resolve('res', 'bin', 'webview2-host.exe');
+process.env.WEBVIEW_HOST = path.resolve('bin', 'webview2-host.exe');
 
 const { WebView } = require('webview-node')
 
@@ -43,30 +42,7 @@ fs.ensureDirSync(tempdir)
 fs.ensureDirSync(logpath)
 fs.ensureDirSync(chunkpath)
 // Little helpers
-const log = console.log
-const err = console.error
-const errlog = console.error
-const version = '2.0.0'
 
-// App setting and config
-let setting = settingdata(settingpath)
-let config = configdata(configpath)
-
-// Module config
-const wifi = new WifiPlus({
-    autoReconnect: true,
-    watchInterval: 1300,
-})
-const win = new WebView({
-  title: 'Xender Lite',
-  width: 1200,
-  height: 700,
-  minWidth: 800,
-  windowsHide: true,
-  devTools: false,
-  backgroundColor: setting.theme === 'light' ? '#eee8e8' : setting.theme === 'dark' ? '#070707' : '#f0e8e8',
-  userDataFolder: webviewdata
-});
 const loger = new Logger({
   path: logpath,                 // where to store log files
   showConsole: true,              // also print to terminal
@@ -80,6 +56,39 @@ const loger = new Logger({
   captureConsole: true,           // hijack console.*
   captureErrors: true             // catch uncaught errors
 })
+
+const log = console.log
+const err = console.error
+const errlog = console.error
+const version = '2.0.0'
+
+// App setting and config
+let setting = settingdata(settingpath)
+let config = configdata(configpath)
+
+// ========== Simple Web Auth ==========
+const approvedTokens = new Map(); // token → { created: Date, ip: string }
+
+function generateToken() { return crypto.randomBytes(16).toString('hex');}
+
+function isTokenValid(token) {return token && approvedTokens.has(token);}
+
+// Module config
+const wifi = new WifiPlus({
+    autoReconnect: true,
+    watchInterval: 1300,
+})
+const win = new WebView({
+  title: 'Xender Lite',
+  width: 1200,
+  height: 700,
+  minWidth: 800,
+  windowsHide: false,
+  devTools: false,
+  backgroundColor: setting.theme === 'light' ? '#eee8e8' : setting.theme === 'dark' ? '#070707' : '#f0e8e8',
+  userDataFolder: webviewdata
+});
+
 
 const db = new JSONDB(datapath) 
 const recent = db.collection({ name: 'recent', lazy: true, autoWrite: true,autoId: true})
@@ -236,13 +245,70 @@ app.use((err, req, res, next) =>{
 })
 
 
-lanapp.use((req, res, next) =>{
-    try {
-        next()
-    } catch (error) {
-        next(error)
+// Auth middleware for LAN (Web Mode)
+lanapp.use(async (req, res, next) => {
+  // Allow static files if you want (optional)
+  if (req.path.startsWith('/static') || req.path.endsWith('.css') || req.path.endsWith('.js') || req.path.endsWith('.ico')) {
+    return next();
+  }
+  log(req.cookies)
+  req.cookies = cookie.parse(req.headers.cookie || '');
+  log(req.cookies)
+  const token = req.cookies?.xender_auth;
+
+  // Already approved
+  if (isTokenValid(token)) {return next();}
+
+  // Ask the desktop user
+  try {
+    const allowed = await win.dialog.confirm(
+      `Someone is trying to access Xender Lite Web Mode.\n\nIP: ${req.ip}\nPath: ${req.path}\n\nAllow this device?`,
+      'Xender Lite - Access Request'
+    );
+
+    if (allowed === true || allowed === 'true') {
+      // Generate token and save it
+      const newToken = generateToken();
+      approvedTokens.set(newToken, {
+        created: new Date(),
+        ip: req.ip
+      });
+
+      // Set cookie (valid for 7 days)
+      res.cookie('xender_auth', newToken, {
+        maxAge: 3 * 24 * 60 * 60 * 1000, // 7 days
+        httpOnly: true,
+        sameSite: 'lax'
+      });
+
+      return next();
+    } else {
+      // Rejected
+      return res.status(403).send(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <title>Access Denied</title>
+          <style>
+            body { font-family: Arial; background: #1a1a1a; color: #fff; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+            .box { text-align: center; padding: 40px; background: #2d2d2d; border-radius: 12px; }
+            h1 { color: #ff5555; }
+          </style>
+        </head>
+        <body>
+          <div class="box">
+            <h1>Access Denied</h1>
+            <p>The owner of this Xender Lite device rejected your request.</p>
+          </div>
+        </body>
+        </html>
+      `);
     }
-})
+  } catch (err) {
+    errlog('[LAN APP] fail in validating request, Auth dialog error:', err.message);
+   next(err)
+  }
+});
 
 lanapp.get('/upload-page', async (req, res, next) =>{
     try {
@@ -297,7 +363,7 @@ apphttp.listen(port, async (err)=>{
         errlog('[APP HTTP] Error starting local app http ', err.message)
     }
     try {
-        errlog('[APP HTTP] App start successfully on port ', port)
+        log('[APP HTTP] App start successfully on port ', port)
         win.loadURL('http://localhost:'+port)
         win.setIcon(getIcon(setting.accent))
         let ipaddress = network.getLocalIP()
@@ -348,7 +414,7 @@ apphttp.listen(port, async (err)=>{
                             }
                             errlog('[LAN APP] fail to start lan app')
                         }
-                        errlog('[LAN APP] lan start on port', `http://${lanhttp.address().address}:${lanhttp.address().port}`)
+                        log('[LAN APP] lan start on port', `http://${lanhttp.address().address}:${lanhttp.address().port}`)
                         if (!isspawn) {
                             isspawn = true
                             child_process.exec(`start http://${lanhttp.address().address}:${lanhttp.address().port}`)
@@ -587,6 +653,15 @@ apphttp.listen(port, async (err)=>{
             socket.emit('log-list', loghandler.getLogFileList())
             socket.on('get-log-list', () =>{socket.emit('log-list', loghandler.getLogFileList())})
 
+            socket.on('clear-cache', () =>{
+                try {
+                    loghandler.deletAllLogs()
+                    fs.remove(chunkpath)
+                    fs.emptyDirSync(chunkpath)
+                } catch (error) {
+                    errlog('[CACHE ERR] fail to clear cache', error.message)
+                }
+            })
 
             lansocket.on('connection', (socket) =>{
                 // Theme
@@ -610,7 +685,7 @@ apphttp.listen(port, async (err)=>{
 
         })
 
-        win.show()
+        win.show() 
         win.on('close', async (event) =>{
             if (isontranfer) {
                 await win.dialog.confirm(
@@ -659,7 +734,7 @@ apphttp.listen(port, async (err)=>{
         win.on('closed', () =>{
             process.exit(0)
         })
-
+        fs.ensureDirSync(chunkpath)
         const upload = multer({ dest: chunkpath });
         // ========== RESUMABLE UPLOAD ==========
         lanapp.post('/upload-file', upload.single('file'), async (req, res) => {
@@ -783,7 +858,9 @@ apphttp.listen(port, async (err)=>{
                 res.status(500).json({ success: false, error: err.message });
             }
         });
+        win.on('c', () =>{
 
+        })
         // ========== TEST CHUNK (needed for resume) ==========
         lanapp.get('/upload-file', (req, res) => {
             const identifier = req.query.resumableIdentifier;

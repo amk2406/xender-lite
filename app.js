@@ -50,8 +50,8 @@ const loger = new Logger({
   includeTimestamp: true,         // prepend ISO date
   fileFormat: 'log-%date%.log',   // e.g. log-2026-08-29.log
   renewTime: '1d',                // new file every day (or '10m', '1h', '1M'...)
-  maxFileSize: 20 * 1024,
-  maxFiles: 30,                   // keep last 30 files
+  maxFileSize: 200 * 1024,
+  maxFiles: 50,                   // keep last 30 files
   format: 'text',                 // 'text' | 'json'
   colors: true,
   captureConsole: true,           // hijack console.*
@@ -75,10 +75,14 @@ function generateToken() { return crypto.randomBytes(16).toString('hex');}
 function isTokenValid(token) {return token && approvedTokens.has(token);}
 
 // Module config
-const wifi = new WifiPlus({
-    autoReconnect: true,
-    watchInterval: 1300,
-})
+let wifi
+try {
+    wifi = new WifiPlus({
+        autoReconnect: true,
+        watchInterval: 1450,
+    })
+} catch (error) { errlog('[WIFI ERR] an error occur, ERR:', error.message)}
+
 const win = new WebView({
   title: 'Xender Lite',
   width: 1200,
@@ -89,7 +93,6 @@ const win = new WebView({
   backgroundColor: setting.theme === 'light' ? '#eee8e8' : setting.theme === 'dark' ? '#070707' : '#f0e8e8',
   userDataFolder: webviewdata
 });
-
 
 const db = new JSONDB(datapath) 
 const recent = db.collection({ name: 'recent', lazy: true, autoWrite: true,autoId: true})
@@ -252,9 +255,7 @@ lanapp.use(async (req, res, next) => {
   if (req.path.startsWith('/static') || req.path.endsWith('.css') || req.path.endsWith('.js') || req.path.endsWith('.ico')) {
     return next();
   }
-  log(req.cookies)
   req.cookies = cookie.parse(req.headers.cookie || '');
-  log(req.cookies)
   const token = req.cookies?.xender_auth;
 
   // Already approved
@@ -262,8 +263,9 @@ lanapp.use(async (req, res, next) => {
 
   // Ask the desktop user
   try {
+    win.flash(); win.focus();
     const allowed = await win.dialog.confirm(
-      `Someone is trying to access Xender Lite Web Mode.\n\nIP: ${req.ip}\nPath: ${req.path}\n\nAllow this device?`,
+      `Someone is trying to access Xender Lite Web Mode with. IP: ${req.ip}, Path: ${req.path}, Allow this device?`,
       'Xender Lite - Access Request'
     );
 
@@ -698,6 +700,9 @@ apphttp.listen(port, async (err)=>{
                         process.exit(0)
                     }
                 })
+                setTimeout(() => {
+                    event.preventDefault()
+                }, 1100);
             } else{
                 win.close()
                 process.exit(0)
@@ -750,9 +755,7 @@ apphttp.listen(port, async (err)=>{
                 const identifier = req.body.resumableIdentifier || req.query.resumableIdentifier || '';
                 const filename = req.body.resumableFilename || req.query.resumableFilename || (req.file && req.file.originalname) || 'unknown';
 
-                if (!req.file) {
-                return res.status(400).json({ error: 'No chunk received' });
-                }
+                if (!req.file) {return res.status(400).json({ error: 'No chunk received' });}
 
                 // Create a folder for this file's chunks
                 const fileChunkDir = path.join(chunkpath, identifier);
@@ -762,16 +765,12 @@ apphttp.listen(port, async (err)=>{
                 const chunkPath = path.join(fileChunkDir, `chunk_${chunkNumber}`);
                 fs.renameSync(req.file.path, chunkPath);
 
-                log(`\r[Upload] Chunk ${chunkNumber}/ ${totalChunks} received → ${filename}`);
-
                 // Emit progress
                 const progress = Math.round((chunkNumber / totalChunks) * 100);
                 appsocket.emit('upload:progress', {
-                id: identifier,
-                name: filename,
-                progress,
-                chunk: chunkNumber,
-                totalChunks
+                    id: identifier,
+                    name: filename, progress,
+                    chunk: chunkNumber, totalChunks
                 });
 
                 // If not the last chunk, just acknowledge
@@ -802,18 +801,13 @@ apphttp.listen(port, async (err)=>{
                 if (!fs.existsSync(chunkFile)) {
                     errlog(`Missing chunk ${i}`)
                 }
-                const data = fs.readFileSync(chunkFile);
-                writeStream.write(data);
-                }
-                const data = {
-                    date: new Date().toLocaleString(),
-                    name: finalName,
-                    path: fullPath
-                }
+                let data
                 try {
-                    recent.insert(data)
+                    data = fs.readFileSync(chunkFile);
                 } catch (error) {
-                    errlog('[DB ERR] fail to save trnsfer', error.message)
+                    errlog('[UPLOAD ERR] err at reading chunk err:', error.message)
+                }
+                writeStream.write(data);
                 }
                 writeStream.end();
 
@@ -824,10 +818,13 @@ apphttp.listen(port, async (err)=>{
                 });
 
                 // Clean up chunks
-                fs.unlinkSync(fileChunkDir);
+                try {
+                    fs.removeSync(fileChunkDir);
+                } catch (error) {
+                    errlog('[UPLOAD ERR] fail to remove uload chunk dir, ERR:', error.message)
+                }
 
-                log(`[Upload] Success: ${finalName}`);
-                log(`[Upload] Saved to: ${fullPath}`);
+                log(`[UPLOAD ROUTE] Success: ${finalName}, save to ${fullPath}`);
 
                 // Emit success
                 const payload = {
@@ -837,9 +834,14 @@ apphttp.listen(port, async (err)=>{
                 path: fullPath,
                 size: totalSize
                 };
-
+                try {
+                    recent.insert({data: new Date().toISOString(), name: finalName, ...payload})
+                    recent.saveData()
+                } catch (error) {
+                    errlog('[DB ERR] fail to save trnsfer', error.message)
+                }
                 appsocket.emit('upload:success', payload);
-                appsocket.broadcast.emit('upload:success', payload); // also notify local UI
+                lansocket.emit('upload:success', payload); // also notify local UI
                 isontranfer = false
                 res.status(200).json({
                     success: true,
@@ -849,7 +851,7 @@ apphttp.listen(port, async (err)=>{
 
             } catch (err) {
                 isontranfer = false
-                errlog('[Upload] Error:', err.message);
+                errlog('[UPLOAD ERR] revice error, Error:', err.stack);
 
                 appsocket.emit('upload:error', {
                     name: req.body.resumableFilename || 'unknown',
@@ -859,9 +861,6 @@ apphttp.listen(port, async (err)=>{
                 res.status(500).json({ success: false, error: err.message });
             }
         });
-        win.on('c', () =>{
-
-        })
         // ========== TEST CHUNK (needed for resume) ==========
         lanapp.get('/upload-file', (req, res) => {
             const identifier = req.query.resumableIdentifier;

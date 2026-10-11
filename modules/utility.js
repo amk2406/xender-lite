@@ -1,3 +1,9 @@
+const path = require('path');
+const fs = require('fs');
+const os = require('os');
+const crypto = require('crypto');
+const child_process = require('child_process');
+
 function getFileCategory(filename) {
     const ext = path.extname(filename).toLowerCase().slice(1);
     const map = {

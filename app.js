@@ -365,7 +365,7 @@ apphttp.listen(port, async (err)=>{
         dialo.error(`Fail to start Xender Lite, ERROR: ${err.code || '0x001'} `, 'Xender Lite')
     }
     try {
-        log('[APP HTTP] App start successfully on port ', port)
+        log('[APP HTTP] App start successfully.')
         win.loadURL('http://localhost:'+port)
         win.setIcon(getIcon(setting.accent))
         let ipaddress = network.getLocalIP()
@@ -658,7 +658,6 @@ apphttp.listen(port, async (err)=>{
             socket.on('clear-cache', () =>{
                 try {
                     loghandler.deletAllLogs()
-                    fs.remove(chunkpath)
                     fs.emptyDirSync(chunkpath)
                 } catch (error) {
                     errlog('[CACHE ERR] fail to clear cache', error.message)

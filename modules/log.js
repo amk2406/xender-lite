@@ -25,8 +25,41 @@ const getLogFileContent = (filename) =>{
         return null
     }
 }
+
+const deleteLogFile = (filename) =>{
+    if (!filename || typeof filename !== 'string') return false
+    const filepath = path.resolve(logpath, filename)
+    if (fs.existsSync(filepath)) {
+        try {
+            const filecontent = fs.removeSync(filepath)
+            return true
+        } catch (error) {
+            console.log('[LOG ERR] fail to delet log file', error.message)
+            return false
+        }
+    } else{
+        return false
+    }
+}
+
+const deletAllLogs = () =>{
+    const filepath = path.resolve(logpath)
+    if (fs.existsSync(filepath)) {
+        try {
+            const filecontent = fs.removeSync(filepath)
+            return true
+        } catch (error) {
+            console.log('[LOG ERR] fail to delet log file', error.message)
+            return false
+        }
+    } else{
+        return false
+    }
+}
 module.exports = {
     getLogFileList,
     getLogFiles,
-    getLogFileContent
+    getLogFileContent,
+    deleteLogFile,
+    deletAllLogs
 }

@@ -2,1028 +2,907 @@
   {
     "id": 1,
     "name": "Xender Lite",
+    "group": "Xender Lite",
     "path": "License.txt"
   },
   {
     "id": 2,
-    "group": "nodejs",
-    "name": "accepts",
-    "path": "node_modules/accepts/license",
-    "type": "MIT"
+    "name": "nodejs",
+    "group": "Xender Lite",
+    "path": "license/nodejs.txt"
   },
   {
     "id": 3,
-    "group": "nodejs",
-    "name": "ansi-regex",
-    "path": "node_modules/ansi-regex/license",
-    "type": "MIT"
+    "name": "nuget public",
+    "group": "Nuget Package",
+    "path": "license/nuget-public.txt"
   },
   {
     "id": 4,
-    "group": "nodejs",
-    "name": "ansi-styles",
-    "path": "node_modules/ansi-styles/license",
-    "type": "MIT"
+    "name": "nuget package",
+    "group": "Nuget Package",
+    "path": "license/nutget-package-mit.txt"
   },
   {
     "id": 5,
-    "group": "nodejs",
-    "name": "anymatch",
-    "path": "node_modules/anymatch/license",
-    "type": "ISC"
+    "name": "font awesome",
+    "group": "Font Awesome",
+    "path": "license/font-awesome.txt"
   },
   {
     "id": 6,
     "group": "nodejs",
-    "name": "append-field",
-    "path": "node_modules/append-field/license",
-    "type": "MIT"
+    "name": "accepts",
+    "path": "license/accepts.txt"
   },
   {
     "id": 7,
     "group": "nodejs",
-    "name": "array-back",
-    "path": "node_modules/array-back/license",
-    "type": "MIT"
+    "name": "ansi-regex",
+    "path": "license/ansi-regex.txt"
   },
   {
     "id": 8,
     "group": "nodejs",
-    "name": "batch",
-    "path": "node_modules/batch/license",
-    "type": "MIT"
+    "name": "ansi-styles",
+    "path": "license/ansi-styles.txt"
   },
   {
     "id": 9,
     "group": "nodejs",
-    "name": "binary-extensions",
-    "path": "node_modules/binary-extensions/license",
-    "type": "MIT"
+    "name": "anymatch",
+    "path": "license/anymatch.txt"
   },
   {
     "id": 10,
     "group": "nodejs",
-    "name": "body-parser",
-    "path": "node_modules/body-parser/license",
-    "type": "MIT"
+    "name": "append-field",
+    "path": "license/append-field.txt"
   },
   {
     "id": 11,
     "group": "nodejs",
-    "name": "braces",
-    "path": "node_modules/braces/license",
-    "type": "MIT"
+    "name": "array-back",
+    "path": "license/array-back.txt"
   },
   {
     "id": 12,
     "group": "nodejs",
-    "name": "busboy",
-    "path": "node_modules/busboy/license",
-    "type": "MIT"
+    "name": "batch",
+    "path": "license/batch.txt"
   },
   {
     "id": 13,
     "group": "nodejs",
-    "name": "bytes",
-    "path": "node_modules/bytes/license",
-    "type": "MIT"
+    "name": "binary-extensions",
+    "path": "license/binary-extensions.txt"
   },
   {
     "id": 14,
     "group": "nodejs",
-    "name": "cache",
-    "path": "node_modules/cache/license",
-    "type": "ISC"
+    "name": "body-parser",
+    "path": "license/body-parser.txt"
   },
   {
     "id": 15,
     "group": "nodejs",
-    "name": "call-bind-apply-helpers",
-    "path": "node_modules/call-bind-apply-helpers/license",
-    "type": "MIT"
+    "name": "braces",
+    "path": "license/braces.txt"
   },
   {
     "id": 16,
     "group": "nodejs",
-    "name": "call-bound",
-    "path": "node_modules/call-bound/license",
-    "type": "MIT"
+    "name": "busboy",
+    "path": "license/busboy.txt"
   },
   {
     "id": 17,
     "group": "nodejs",
-    "name": "camelcase",
-    "path": "node_modules/camelcase/license",
-    "type": "MIT"
+    "name": "bytes",
+    "path": "license/bytes.txt"
   },
   {
     "id": 18,
     "group": "nodejs",
-    "name": "chalk",
-    "path": "node_modules/chalk/license",
-    "type": "MIT"
+    "name": "cache",
+    "path": "license/cache.txt"
   },
   {
     "id": 19,
     "group": "nodejs",
-    "name": "chokidar",
-    "path": "node_modules/chokidar/license",
-    "type": "MIT"
+    "name": "call-bind-apply-helpers",
+    "path": "license/call-bind-apply-helpers.txt"
   },
   {
     "id": 20,
     "group": "nodejs",
-    "name": "cliui",
-    "path": "node_modules/cliui/license",
-    "type": "ISC"
+    "name": "call-bound",
+    "path": "license/call-bound.txt"
   },
   {
     "id": 21,
     "group": "nodejs",
-    "name": "color-convert",
-    "path": "node_modules/color-convert/license",
-    "type": "MIT"
+    "name": "camelcase",
+    "path": "license/camelcase.txt"
   },
   {
     "id": 22,
     "group": "nodejs",
-    "name": "color-name",
-    "path": "node_modules/color-name/license",
-    "type": "MIT"
+    "name": "chalk",
+    "path": "license/chalk.txt"
   },
   {
     "id": 23,
     "group": "nodejs",
-    "name": "command-line-args",
-    "path": "node_modules/command-line-args/license",
-    "type": "MIT"
+    "name": "chokidar",
+    "path": "license/chokidar.txt"
   },
   {
     "id": 24,
     "group": "nodejs",
-    "name": "command-line-usage",
-    "path": "node_modules/command-line-usage/license",
-    "type": "MIT"
+    "name": "cliui",
+    "path": "license/cliui.txt"
   },
   {
     "id": 25,
     "group": "nodejs",
-    "name": "content-disposition",
-    "path": "node_modules/content-disposition/license",
-    "type": "MIT"
+    "name": "color-convert",
+    "path": "license/color-convert.txt"
   },
   {
     "id": 26,
     "group": "nodejs",
-    "name": "content-type",
-    "path": "node_modules/content-type/license",
-    "type": "MIT"
+    "name": "color-name",
+    "path": "license/color-name.txt"
   },
   {
     "id": 27,
     "group": "nodejs",
-    "name": "cookie",
-    "path": "node_modules/cookie/license",
-    "type": "MIT"
+    "name": "command-line-args",
+    "path": "license/command-line-args.txt"
   },
   {
     "id": 28,
     "group": "nodejs",
-    "name": "cookie-signature",
-    "path": "node_modules/cookie-signature/license",
-    "type": "MIT"
+    "name": "command-line-usage",
+    "path": "license/command-line-usage.txt"
   },
   {
     "id": 29,
     "group": "nodejs",
-    "name": "cors",
-    "path": "node_modules/cors/license",
-    "type": "MIT"
+    "name": "content-disposition",
+    "path": "license/content-disposition.txt"
   },
   {
     "id": 30,
     "group": "nodejs",
-    "name": "debug",
-    "path": "node_modules/debug/license",
-    "type": "MIT"
+    "name": "content-type",
+    "path": "license/content-type.txt"
   },
   {
     "id": 31,
     "group": "nodejs",
-    "name": "decamelize",
-    "path": "node_modules/decamelize/license",
-    "type": "MIT"
+    "name": "cookie",
+    "path": "license/cookie.txt"
   },
   {
     "id": 32,
     "group": "nodejs",
-    "name": "deep-extend",
-    "path": "node_modules/deep-extend/license",
-    "type": "MIT"
+    "name": "cookie-signature",
+    "path": "license/cookie-signature.txt"
   },
   {
     "id": 33,
     "group": "nodejs",
-    "name": "depd",
-    "path": "node_modules/depd/license",
-    "type": "MIT"
+    "name": "cors",
+    "path": "license/cors.txt"
   },
   {
     "id": 34,
     "group": "nodejs",
-    "name": "dijkstrajs",
-    "path": "node_modules/dijkstrajs/license",
-    "type": "MIT"
+    "name": "debug",
+    "path": "license/debug.txt"
   },
   {
     "id": 35,
     "group": "nodejs",
-    "name": "dunder-proto",
-    "path": "node_modules/dunder-proto/license",
-    "type": "MIT"
+    "name": "decamelize",
+    "path": "license/decamelize.txt"
   },
   {
     "id": 36,
     "group": "nodejs",
-    "name": "ee-first",
-    "path": "node_modules/ee-first/license",
-    "type": "MIT"
+    "name": "deep-extend",
+    "path": "license/deep-extend.txt"
   },
   {
     "id": 37,
     "group": "nodejs",
-    "name": "encodeurl",
-    "path": "node_modules/encodeurl/license",
-    "type": "MIT"
+    "name": "depd",
+    "path": "license/depd.txt"
   },
   {
     "id": 38,
     "group": "nodejs",
-    "name": "engine.io",
-    "path": "node_modules/engine.io/license",
-    "type": "MIT"
+    "name": "dijkstrajs",
+    "path": "license/dijkstrajs.txt"
   },
   {
     "id": 39,
     "group": "nodejs",
-    "name": "engine.io-parser",
-    "path": "node_modules/engine.io-parser/license",
-    "type": "MIT"
+    "name": "dunder-proto",
+    "path": "license/dunder-proto.txt"
   },
   {
     "id": 40,
     "group": "nodejs",
-    "name": "es-define-property",
-    "path": "node_modules/es-define-property/license",
-    "type": "MIT"
+    "name": "ee-first",
+    "path": "license/ee-first.txt"
   },
   {
     "id": 41,
     "group": "nodejs",
-    "name": "es-errors",
-    "path": "node_modules/es-errors/license",
-    "type": "MIT"
+    "name": "encodeurl",
+    "path": "license/encodeurl.txt"
   },
   {
     "id": 42,
     "group": "nodejs",
-    "name": "es-object-atoms",
-    "path": "node_modules/es-object-atoms/license",
-    "type": "MIT"
+    "name": "engine.io",
+    "path": "license/engine.io.txt"
   },
   {
     "id": 43,
     "group": "nodejs",
-    "name": "escape-html",
-    "path": "node_modules/escape-html/license",
-    "type": "MIT"
+    "name": "engine.io-parser",
+    "path": "license/engine.io-parser.txt"
   },
   {
     "id": 44,
     "group": "nodejs",
-    "name": "escape-string-regexp",
-    "path": "node_modules/escape-string-regexp/license",
-    "type": "MIT"
+    "name": "es-define-property",
+    "path": "license/es-define-property.txt"
   },
   {
     "id": 45,
     "group": "nodejs",
-    "name": "etag",
-    "path": "node_modules/etag/license",
-    "type": "MIT"
+    "name": "es-errors",
+    "path": "license/es-errors.txt"
   },
   {
     "id": 46,
     "group": "nodejs",
-    "name": "express",
-    "path": "node_modules/express/license",
-    "type": "MIT"
+    "name": "es-object-atoms",
+    "path": "license/es-object-atoms.txt"
   },
   {
     "id": 47,
     "group": "nodejs",
-    "name": "file-json-db",
-    "path": "node_modules/file-json-db/license",
-    "type": "MIT"
+    "name": "escape-html",
+    "path": "license/escape-html.txt"
   },
   {
     "id": 48,
     "group": "nodejs",
-    "name": "fill-range",
-    "path": "node_modules/fill-range/license",
-    "type": "MIT"
+    "name": "escape-string-regexp",
+    "path": "license/escape-string-regexp.txt"
   },
   {
     "id": 49,
     "group": "nodejs",
-    "name": "finalhandler",
-    "path": "node_modules/finalhandler/license",
-    "type": "MIT"
+    "name": "etag",
+    "path": "license/etag.txt"
   },
   {
     "id": 50,
     "group": "nodejs",
-    "name": "find-replace",
-    "path": "node_modules/find-replace/license",
-    "type": "MIT"
+    "name": "express",
+    "path": "license/express.txt"
   },
   {
     "id": 51,
     "group": "nodejs",
-    "name": "find-up",
-    "path": "node_modules/find-up/license",
-    "type": "MIT"
+    "name": "file-json-db",
+    "path": "license/file-json-db.txt"
   },
   {
     "id": 52,
     "group": "nodejs",
-    "name": "forwarded",
-    "path": "node_modules/forwarded/license",
-    "type": "MIT"
+    "name": "fill-range",
+    "path": "license/fill-range.txt"
   },
   {
     "id": 53,
     "group": "nodejs",
-    "name": "fresh",
-    "path": "node_modules/fresh/license",
-    "type": "MIT"
+    "name": "finalhandler",
+    "path": "license/finalhandler.txt"
   },
   {
     "id": 54,
     "group": "nodejs",
-    "name": "fs-extra",
-    "path": "node_modules/fs-extra/license",
-    "type": "MIT"
+    "name": "find-replace",
+    "path": "license/find-replace.txt"
   },
   {
     "id": 55,
     "group": "nodejs",
-    "name": "function-bind",
-    "path": "node_modules/function-bind/license",
-    "type": "MIT"
+    "name": "find-up",
+    "path": "license/find-up.txt"
   },
   {
     "id": 56,
     "group": "nodejs",
-    "name": "genthumb",
-    "path": "node_modules/genthumb/license",
-    "type": "MIT"
+    "name": "forwarded",
+    "path": "license/forwarded.txt"
   },
   {
     "id": 57,
     "group": "nodejs",
-    "name": "get-caller-file",
-    "path": "node_modules/get-caller-file/license",
-    "type": "ISC"
+    "name": "fresh",
+    "path": "license/fresh.txt"
   },
   {
     "id": 58,
     "group": "nodejs",
-    "name": "get-intrinsic",
-    "path": "node_modules/get-intrinsic/license",
-    "type": "MIT"
+    "name": "fs-extra",
+    "path": "license/fs-extra.txt"
   },
   {
     "id": 59,
     "group": "nodejs",
-    "name": "get-proto",
-    "path": "node_modules/get-proto/license",
-    "type": "MIT"
+    "name": "function-bind",
+    "path": "license/function-bind.txt"
   },
   {
     "id": 60,
     "group": "nodejs",
-    "name": "glob-parent",
-    "path": "node_modules/glob-parent/license",
-    "type": "ISC"
+    "name": "genthumb",
+    "path": "license/genthumb.txt"
   },
   {
     "id": 61,
     "group": "nodejs",
-    "name": "gopd",
-    "path": "node_modules/gopd/license",
-    "type": "MIT"
+    "name": "get-caller-file",
+    "path": "license/get-caller-file.txt"
   },
   {
     "id": 62,
     "group": "nodejs",
-    "name": "graceful-fs",
-    "path": "node_modules/graceful-fs/license",
-    "type": "ISC"
+    "name": "get-intrinsic",
+    "path": "license/get-intrinsic.txt"
   },
   {
     "id": 63,
     "group": "nodejs",
-    "name": "has-flag",
-    "path": "node_modules/has-flag/license",
-    "type": "MIT"
+    "name": "get-proto",
+    "path": "license/get-proto.txt"
   },
   {
     "id": 64,
     "group": "nodejs",
-    "name": "has-symbols",
-    "path": "node_modules/has-symbols/license",
-    "type": "MIT"
+    "name": "glob-parent",
+    "path": "license/glob-parent.txt"
   },
   {
     "id": 65,
     "group": "nodejs",
-    "name": "hasown",
-    "path": "node_modules/hasown/license",
-    "type": "MIT"
+    "name": "gopd",
+    "path": "license/gopd.txt"
   },
   {
     "id": 66,
     "group": "nodejs",
-    "name": "http-errors",
-    "path": "node_modules/http-errors/license",
-    "type": "MIT"
+    "name": "graceful-fs",
+    "path": "license/graceful-fs.txt"
   },
   {
     "id": 67,
     "group": "nodejs",
-    "name": "iconv-lite",
-    "path": "node_modules/iconv-lite/license",
-    "type": "MIT"
+    "name": "has-flag",
+    "path": "license/has-flag.txt"
   },
   {
     "id": 68,
     "group": "nodejs",
-    "name": "inherits",
-    "path": "node_modules/inherits/license",
-    "type": "ISC"
+    "name": "has-symbols",
+    "path": "license/has-symbols.txt"
   },
   {
     "id": 69,
     "group": "nodejs",
-    "name": "ipaddr.js",
-    "path": "node_modules/ipaddr.js/license",
-    "type": "MIT"
+    "name": "hasown",
+    "path": "license/hasown.txt"
   },
   {
     "id": 70,
     "group": "nodejs",
-    "name": "is-binary-path",
-    "path": "node_modules/is-binary-path/license",
-    "type": "MIT"
+    "name": "http-errors",
+    "path": "license/http-errors.txt"
   },
   {
     "id": 71,
     "group": "nodejs",
-    "name": "is-extglob",
-    "path": "node_modules/is-extglob/license",
-    "type": "MIT"
+    "name": "iconv-lite",
+    "path": "license/iconv-lite.txt"
   },
   {
     "id": 72,
     "group": "nodejs",
-    "name": "is-fullwidth-code-point",
-    "path": "node_modules/is-fullwidth-code-point/license",
-    "type": "MIT"
+    "name": "inherits",
+    "path": "license/inherits.txt"
   },
   {
     "id": 73,
     "group": "nodejs",
-    "name": "is-glob",
-    "path": "node_modules/is-glob/license",
-    "type": "MIT"
+    "name": "ipaddr.js",
+    "path": "license/ipaddr.js.txt"
   },
   {
     "id": 74,
     "group": "nodejs",
-    "name": "is-number",
-    "path": "node_modules/is-number/license",
-    "type": "MIT"
+    "name": "is-binary-path",
+    "path": "license/is-binary-path.txt"
   },
   {
     "id": 75,
     "group": "nodejs",
-    "name": "is-promise",
-    "path": "node_modules/is-promise/license",
-    "type": "MIT"
+    "name": "is-extglob",
+    "path": "license/is-extglob.txt"
   },
   {
     "id": 76,
     "group": "nodejs",
-    "name": "jsonfile",
-    "path": "node_modules/jsonfile/license",
-    "type": "MIT"
+    "name": "is-fullwidth-code-point",
+    "path": "license/is-fullwidth-code-point.txt"
   },
   {
     "id": 77,
     "group": "nodejs",
-    "name": "locate-path",
-    "path": "node_modules/locate-path/license",
-    "type": "MIT"
+    "name": "is-glob",
+    "path": "license/is-glob.txt"
   },
   {
     "id": 78,
     "group": "nodejs",
-    "name": "lodash.camelcase",
-    "path": "node_modules/lodash.camelcase/license",
-    "type": "MIT"
+    "name": "is-number",
+    "path": "license/is-number.txt"
   },
   {
     "id": 79,
     "group": "nodejs",
-    "name": "low-json-db",
-    "path": "node_modules/low-json-db/license",
-    "type": "MIT"
+    "name": "is-promise",
+    "path": "license/is-promise.txt"
   },
   {
     "id": 80,
     "group": "nodejs",
-    "name": "math-intrinsics",
-    "path": "node_modules/math-intrinsics/license",
-    "type": "MIT"
+    "name": "jsonfile",
+    "path": "license/jsonfile.txt"
   },
   {
     "id": 81,
     "group": "nodejs",
-    "name": "media-typer",
-    "path": "node_modules/media-typer/license",
-    "type": "MIT"
+    "name": "locate-path",
+    "path": "license/locate-path.txt"
   },
   {
     "id": 82,
     "group": "nodejs",
-    "name": "merge-descriptors",
-    "path": "node_modules/merge-descriptors/license",
-    "type": "MIT"
+    "name": "lodash.camelcase",
+    "path": "license/lodash.camelcase.txt"
   },
   {
     "id": 83,
     "group": "nodejs",
-    "name": "mime-db",
-    "path": "node_modules/mime-db/license",
-    "type": "MIT"
+    "name": "low-json-db",
+    "path": "license/low-json-db.txt"
   },
   {
     "id": 84,
     "group": "nodejs",
-    "name": "mime-types",
-    "path": "node_modules/mime-types/license",
-    "type": "MIT"
+    "name": "math-intrinsics",
+    "path": "license/math-intrinsics.txt"
   },
   {
     "id": 85,
     "group": "nodejs",
-    "name": "ms",
-    "path": "node_modules/ms/license",
-    "type": "MIT"
+    "name": "media-typer",
+    "path": "license/media-typer.txt"
   },
   {
     "id": 86,
     "group": "nodejs",
-    "name": "multer",
-    "path": "node_modules/multer/license",
-    "type": "MIT"
+    "name": "merge-descriptors",
+    "path": "license/merge-descriptors.txt"
   },
   {
     "id": 87,
     "group": "nodejs",
-    "name": "negotiator",
-    "path": "node_modules/negotiator/license",
-    "type": "MIT"
+    "name": "mime-db",
+    "path": "license/mime-db.txt"
   },
   {
     "id": 88,
     "group": "nodejs",
-    "name": "node-logger",
-    "path": "node_modules/node-logger/license",
-    "type": "MIT"
+    "name": "mime-types",
+    "path": "license/mime-types.txt"
   },
   {
     "id": 89,
     "group": "nodejs",
-    "name": "node-wifi",
-    "path": "node_modules/node-wifi/license",
-    "type": "MIT"
+    "name": "ms",
+    "path": "license/ms.txt"
   },
   {
     "id": 90,
     "group": "nodejs",
-    "name": "normalize-path",
-    "path": "node_modules/normalize-path/license",
-    "type": "MIT"
+    "name": "multer",
+    "path": "license/multer.txt"
   },
   {
     "id": 91,
     "group": "nodejs",
-    "name": "object-assign",
-    "path": "node_modules/object-assign/license",
-    "type": "MIT"
+    "name": "negotiator",
+    "path": "license/negotiator.txt"
   },
   {
     "id": 92,
     "group": "nodejs",
-    "name": "object-inspect",
-    "path": "node_modules/object-inspect/license",
-    "type": "MIT"
+    "name": "node-logger",
+    "path": "license/node-logger.txt"
   },
   {
     "id": 93,
     "group": "nodejs",
-    "name": "on-finished",
-    "path": "node_modules/on-finished/license",
-    "type": "MIT"
+    "name": "node-wifi",
+    "path": "license/node-wifi.txt"
   },
   {
     "id": 94,
     "group": "nodejs",
-    "name": "once",
-    "path": "node_modules/once/license",
-    "type": "ISC"
+    "name": "normalize-path",
+    "path": "license/normalize-path.txt"
   },
   {
     "id": 95,
     "group": "nodejs",
-    "name": "p-limit",
-    "path": "node_modules/p-limit/license",
-    "type": "MIT"
+    "name": "object-assign",
+    "path": "license/object-assign.txt"
   },
   {
     "id": 96,
     "group": "nodejs",
-    "name": "p-locate",
-    "path": "node_modules/p-locate/license",
-    "type": "MIT"
+    "name": "object-inspect",
+    "path": "license/object-inspect.txt"
   },
   {
     "id": 97,
     "group": "nodejs",
-    "name": "p-try",
-    "path": "node_modules/p-try/license",
-    "type": "MIT"
+    "name": "on-finished",
+    "path": "license/on-finished.txt"
   },
   {
     "id": 98,
     "group": "nodejs",
-    "name": "parseurl",
-    "path": "node_modules/parseurl/license",
-    "type": "MIT"
+    "name": "once",
+    "path": "license/once.txt"
   },
   {
     "id": 99,
     "group": "nodejs",
-    "name": "path-exists",
-    "path": "node_modules/path-exists/license",
-    "type": "MIT"
+    "name": "p-limit",
+    "path": "license/p-limit.txt"
   },
   {
     "id": 100,
     "group": "nodejs",
-    "name": "path-to-regexp",
-    "path": "node_modules/path-to-regexp/license",
-    "type": "MIT"
+    "name": "p-locate",
+    "path": "license/p-locate.txt"
   },
   {
     "id": 101,
     "group": "nodejs",
-    "name": "picomatch",
-    "path": "node_modules/picomatch/license",
-    "type": "MIT"
+    "name": "p-try",
+    "path": "license/p-try.txt"
   },
   {
     "id": 102,
     "group": "nodejs",
-    "name": "pngjs",
-    "path": "node_modules/pngjs/license",
-    "type": "MIT"
+    "name": "parseurl",
+    "path": "license/parseurl.txt"
   },
   {
     "id": 103,
     "group": "nodejs",
-    "name": "proxy-addr",
-    "path": "node_modules/proxy-addr/license",
-    "type": "MIT"
+    "name": "path-exists",
+    "path": "license/path-exists.txt"
   },
   {
     "id": 104,
     "group": "nodejs",
-    "name": "qrcode",
-    "path": "node_modules/qrcode/license",
-    "type": "MIT"
+    "name": "path-to-regexp",
+    "path": "license/path-to-regexp.txt"
   },
   {
     "id": 105,
     "group": "nodejs",
-    "name": "qs",
-    "path": "node_modules/qs/license",
-    "type": "BSD-3-Clause"
+    "name": "picomatch",
+    "path": "license/picomatch.txt"
   },
   {
     "id": 106,
     "group": "nodejs",
-    "name": "range-parser",
-    "path": "node_modules/range-parser/license",
-    "type": "MIT"
+    "name": "pngjs",
+    "path": "license/pngjs.txt"
   },
   {
     "id": 107,
     "group": "nodejs",
-    "name": "raw-body",
-    "path": "node_modules/raw-body/license",
-    "type": "MIT"
+    "name": "proxy-addr",
+    "path": "license/proxy-addr.txt"
   },
   {
     "id": 108,
     "group": "nodejs",
-    "name": "readdirp",
-    "path": "node_modules/readdirp/license",
-    "type": "MIT"
+    "name": "qrcode",
+    "path": "license/qrcode.txt"
   },
   {
     "id": 109,
     "group": "nodejs",
-    "name": "reduce-flatten",
-    "path": "node_modules/reduce-flatten/license",
-    "type": "MIT"
+    "name": "qs",
+    "path": "license/qs.txt"
   },
   {
     "id": 110,
     "group": "nodejs",
-    "name": "require-directory",
-    "path": "node_modules/require-directory/license",
-    "type": "MIT"
+    "name": "range-parser",
+    "path": "license/range-parser.txt"
   },
   {
     "id": 111,
     "group": "nodejs",
-    "name": "require-main-filename",
-    "path": "node_modules/require-main-filename/license",
-    "type": "ISC"
+    "name": "raw-body",
+    "path": "license/raw-body.txt"
   },
   {
     "id": 112,
     "group": "nodejs",
-    "name": "router",
-    "path": "node_modules/router/license",
-    "type": "MIT"
+    "name": "readdirp",
+    "path": "license/readdirp.txt"
   },
   {
     "id": 113,
     "group": "nodejs",
-    "name": "safer-buffer",
-    "path": "node_modules/safer-buffer/license",
-    "type": "MIT"
+    "name": "reduce-flatten",
+    "path": "license/reduce-flatten.txt"
   },
   {
     "id": 114,
     "group": "nodejs",
-    "name": "send",
-    "path": "node_modules/send/license",
-    "type": "MIT"
+    "name": "require-directory",
+    "path": "license/require-directory.txt"
   },
   {
     "id": 115,
     "group": "nodejs",
-    "name": "serve-index",
-    "path": "node_modules/serve-index/license",
-    "type": "MIT"
+    "name": "require-main-filename",
+    "path": "license/require-main-filename.txt"
   },
   {
     "id": 116,
     "group": "nodejs",
-    "name": "serve-static",
-    "path": "node_modules/serve-static/license",
-    "type": "MIT"
+    "name": "router",
+    "path": "license/router.txt"
   },
   {
     "id": 117,
     "group": "nodejs",
-    "name": "set-blocking",
-    "path": "node_modules/set-blocking/license",
-    "type": "ISC"
+    "name": "safer-buffer",
+    "path": "license/safer-buffer.txt"
   },
   {
     "id": 118,
     "group": "nodejs",
-    "name": "setprototypeof",
-    "path": "node_modules/setprototypeof/license",
-    "type": "ISC"
+    "name": "send",
+    "path": "license/send.txt"
   },
   {
     "id": 119,
     "group": "nodejs",
-    "name": "side-channel",
-    "path": "node_modules/side-channel/license",
-    "type": "MIT"
+    "name": "serve-index",
+    "path": "license/serve-index.txt"
   },
   {
     "id": 120,
     "group": "nodejs",
-    "name": "side-channel-list",
-    "path": "node_modules/side-channel-list/license",
-    "type": "MIT"
+    "name": "serve-static",
+    "path": "license/serve-static.txt"
   },
   {
     "id": 121,
     "group": "nodejs",
-    "name": "side-channel-map",
-    "path": "node_modules/side-channel-map/license",
-    "type": "MIT"
+    "name": "set-blocking",
+    "path": "license/set-blocking.txt"
   },
   {
     "id": 122,
     "group": "nodejs",
-    "name": "side-channel-weakmap",
-    "path": "node_modules/side-channel-weakmap/license",
-    "type": "MIT"
+    "name": "setprototypeof",
+    "path": "license/setprototypeof.txt"
   },
   {
     "id": 123,
     "group": "nodejs",
-    "name": "socket.io",
-    "path": "node_modules/socket.io/license",
-    "type": "MIT"
+    "name": "side-channel",
+    "path": "license/side-channel.txt"
   },
   {
     "id": 124,
     "group": "nodejs",
-    "name": "socket.io-adapter",
-    "path": "node_modules/socket.io-adapter/license",
-    "type": "MIT"
+    "name": "side-channel-list",
+    "path": "license/side-channel-list.txt"
   },
   {
     "id": 125,
     "group": "nodejs",
-    "name": "socket.io-parser",
-    "path": "node_modules/socket.io-parser/license",
-    "type": "MIT"
+    "name": "side-channel-map",
+    "path": "license/side-channel-map.txt"
   },
   {
     "id": 126,
     "group": "nodejs",
-    "name": "statuses",
-    "path": "node_modules/statuses/license",
-    "type": "MIT"
+    "name": "side-channel-weakmap",
+    "path": "license/side-channel-weakmap.txt"
   },
   {
     "id": 127,
     "group": "nodejs",
-    "name": "streamsearch",
-    "path": "node_modules/streamsearch/license",
-    "type": "MIT"
+    "name": "socket.io",
+    "path": "license/socket.io.txt"
   },
   {
     "id": 128,
     "group": "nodejs",
-    "name": "string-width",
-    "path": "node_modules/string-width/license",
-    "type": "MIT"
+    "name": "socket.io-adapter",
+    "path": "license/socket.io-adapter.txt"
   },
   {
     "id": 129,
     "group": "nodejs",
-    "name": "strip-ansi",
-    "path": "node_modules/strip-ansi/license",
-    "type": "MIT"
+    "name": "socket.io-parser",
+    "path": "license/socket.io-parser.txt"
   },
   {
     "id": 130,
     "group": "nodejs",
-    "name": "supports-color",
-    "path": "node_modules/supports-color/license",
-    "type": "MIT"
+    "name": "statuses",
+    "path": "license/statuses.txt"
   },
   {
     "id": 131,
     "group": "nodejs",
-    "name": "table-layout",
-    "path": "node_modules/table-layout/license",
-    "type": "MIT"
+    "name": "streamsearch",
+    "path": "license/streamsearch.txt"
   },
   {
     "id": 132,
     "group": "nodejs",
-    "name": "to-regex-range",
-    "path": "node_modules/to-regex-range/license",
-    "type": "MIT"
+    "name": "string-width",
+    "path": "license/string-width.txt"
   },
   {
     "id": 133,
     "group": "nodejs",
-    "name": "toidentifier",
-    "path": "node_modules/toidentifier/license",
-    "type": "MIT"
+    "name": "strip-ansi",
+    "path": "license/strip-ansi.txt"
   },
   {
     "id": 134,
     "group": "nodejs",
-    "name": "type-is",
-    "path": "node_modules/type-is/license",
-    "type": "MIT"
+    "name": "supports-color",
+    "path": "license/supports-color.txt"
   },
   {
     "id": 135,
     "group": "nodejs",
-    "name": "typical",
-    "path": "node_modules/typical/license",
-    "type": "MIT"
+    "name": "table-layout",
+    "path": "license/table-layout.txt"
   },
   {
     "id": 136,
     "group": "nodejs",
-    "name": "undici-types",
-    "path": "node_modules/undici-types/license",
-    "type": "MIT"
+    "name": "to-regex-range",
+    "path": "license/to-regex-range.txt"
   },
   {
     "id": 137,
     "group": "nodejs",
-    "name": "universalify",
-    "path": "node_modules/universalify/license",
-    "type": "MIT"
+    "name": "toidentifier",
+    "path": "license/toidentifier.txt"
   },
   {
     "id": 138,
     "group": "nodejs",
-    "name": "unpipe",
-    "path": "node_modules/unpipe/license",
-    "type": "MIT"
+    "name": "type-is",
+    "path": "license/type-is.txt"
   },
   {
     "id": 139,
     "group": "nodejs",
-    "name": "vary",
-    "path": "node_modules/vary/license",
-    "type": "MIT"
+    "name": "typical",
+    "path": "license/typical.txt"
   },
   {
     "id": 140,
     "group": "nodejs",
-    "name": "which-module",
-    "path": "node_modules/which-module/license",
-    "type": "ISC"
+    "name": "undici-types",
+    "path": "license/undici-types.txt"
   },
   {
     "id": 141,
     "group": "nodejs",
-    "name": "wordwrapjs",
-    "path": "node_modules/wordwrapjs/license",
-    "type": "MIT"
+    "name": "universalify",
+    "path": "license/universalify.txt"
   },
   {
     "id": 142,
     "group": "nodejs",
-    "name": "wrap-ansi",
-    "path": "node_modules/wrap-ansi/license",
-    "type": "MIT"
+    "name": "unpipe",
+    "path": "license/unpipe.txt"
   },
   {
     "id": 143,
     "group": "nodejs",
-    "name": "wrappy",
-    "path": "node_modules/wrappy/license",
-    "type": "ISC"
+    "name": "vary",
+    "path": "license/vary.txt"
   },
   {
     "id": 144,
     "group": "nodejs",
-    "name": "ws",
-    "path": "node_modules/ws/license",
-    "type": "MIT"
+    "name": "which-module",
+    "path": "license/which-module.txt"
   },
   {
     "id": 145,
     "group": "nodejs",
-    "name": "y18n",
-    "path": "node_modules/y18n/license",
-    "type": "ISC"
+    "name": "wordwrapjs",
+    "path": "license/wordwrapjs.txt"
   },
   {
     "id": 146,
     "group": "nodejs",
-    "name": "yargs",
-    "path": "node_modules/yargs/license",
-    "type": "MIT"
+    "name": "wrap-ansi",
+    "path": "license/wrap-ansi.txt"
   },
   {
     "id": 147,
     "group": "nodejs",
+    "name": "wrappy",
+    "path": "license/wrappy.txt"
+  },
+  {
+    "id": 148,
+    "group": "nodejs",
+    "name": "ws",
+    "path": "license/ws.txt"
+  },
+  {
+    "id": 149,
+    "group": "nodejs",
+    "name": "y18n",
+    "path": "license/y18n.txt"
+  },
+  {
+    "id": 150,
+    "group": "nodejs",
+    "name": "yargs",
+    "path": "license/yargs.txt"
+  },
+  {
+    "id": 151,
+    "group": "nodejs",
     "name": "yargs-parser",
-    "path": "node_modules/yargs-parser/license",
-    "type": "ISC"
+    "path": "license/yargs-parser.txt"
   }
 ]

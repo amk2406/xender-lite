@@ -4,11 +4,12 @@
   "description": "Lightweight local and LAN file-sharing application for Windows",
   "main": "app.js",
   "bin": "app.js",
+  "icon": "res/icon.ico",
   "scripts": {
     "start": "node app.js",
     "dev": "node --watch app.js",
     "test": "node --watch app.js",
-    "build": "pkg . --options no-console"
+    "build": "node build.js"
   },
   "keywords": [
     "xender",
@@ -22,8 +23,9 @@
     "assets": [
       "node_modules/webview-node/bin/**/*"
     ],
-    "targets": ["node22-win-x64"],
-    "outputPath": "dist",
+    "icon": "res/icon.ico",
+    "targets": ["node18.5.0-win-x64"],
+    "outputPath": "dist/Xender Lite'",
     "options": {
       "noConsole": true
     }

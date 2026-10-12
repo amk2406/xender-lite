@@ -57,7 +57,7 @@ const loger = new Logger({
   captureConsole: true,           // hijack console.*
   captureErrors: true             // catch uncaught errors
 })
-
+license.getAll()
 const log = console.log
 const err = console.error
 const errlog = console.error
@@ -669,7 +669,7 @@ apphttp.listen(port, async (err)=>{
             socket.on('clear-cache', () =>{
                 try {
                     loghandler.deletAllLogs()
-                    db.
+                    recent.deleteOne({})
                     fs.emptyDirSync(chunkpath)
                 } catch (error) {
                     errlog('[CACHE ERR] fail to clear cache', error.message)
@@ -698,7 +698,7 @@ apphttp.listen(port, async (err)=>{
 
         })
 
-        win.show() 
+        //win.show() 
         win.on('close', async (event) =>{
             if (isontranfer) {
                 await win.dialog.confirm(

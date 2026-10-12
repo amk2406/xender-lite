@@ -113,6 +113,12 @@
       </button>
     </header>
 
+    <div class="card" id="select-file">
+      <div class="empty-state">
+        <p>Click to Select A file</p>
+      </div>
+    </div>
+
     <div class="section-title">Recent transfers</div>
     <div class="card" id="fileList">
       <div class="empty-state" id="emptyState">
@@ -147,6 +153,7 @@
   <script>
     const fileListEl = document.getElementById('fileList');
     const emptyState = document.getElementById('emptyState');
+    const selectfile = document.getElementById('select-file');
     const socket = io();
     const transfers = new Map();
 
@@ -258,7 +265,7 @@
       if (window.Toast) Toast.warning('Disconnected from server');
     });
 
-    fileListEl.addEventListener('click', (e) =>{
+    selectfile.addEventListener('click', (e) =>{
       socket.emit('select-file')
     })
     socket.on('select-file-err', (file) =>{

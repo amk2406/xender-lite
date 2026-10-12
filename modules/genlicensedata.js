@@ -70,6 +70,6 @@ modules.forEach(module =>{
     }
 })
 
-fs.writeFileSync(path.resolve('modules', 'license.json'), JSON.stringify(licensemodules, null, 2))
+fs.writeFileSync(path.resolve('license', 'license.json'), JSON.stringify(licensemodules, null, 2))
 
 module.exports = licensemodules

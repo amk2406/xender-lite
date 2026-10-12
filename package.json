@@ -27,7 +27,10 @@
     "targets": [
       "node18.5.0-win-x64"
     ],
-    "outputPath": "dist/Xender Lite"
+    "outputPath": "dist/Xender Lite",
+    "win": {
+      "window": true
+    }
   },
   "type": "commonjs",
   "author": "Abdulhamid Muhammad Kabir",

@@ -3,7 +3,7 @@ const fs = require('fs')
 const log = console.log
 const packagelok = require('../package-lock.json');
 const licensemodules = []
-const [bin, packagelockjson, ...modules] = fs.readdirSync(path.resolve('node_modules'))
+const modules = fs.readdirSync(path.resolve('license'))
 let id = 1
 const xenderliteLicenseInfo = [
     {
@@ -37,39 +37,24 @@ const xenderliteLicenseInfo = [
         path: 'license/font-awesome.txt'
     }
 ]
-
-id++
 licensemodules.push(...xenderliteLicenseInfo)
 modules.forEach(module =>{
-    const licensepath = path.resolve('node_modules', module, 'license')
+    if(module === 'license.json') return;
+    const result = xenderliteLicenseInfo.find(li =>{
+        const path = 'license/'+module
+        return path === li.path
+    })
+    if (result) {
+        return
+    }
     const info = {
-        id: id,
-        group: 'nodejs'
+        id: id++,
+        group: 'nodejs',
+        name: path.parse(path.resolve(module)).name,
+        path: 'lincense/'+module
     }
-    if (fs.existsSync(licensepath)) {
-        id++
-        info.name = module; info.path = 'node_modules/'+ module+'/'+ path.parse(licensepath).name;
-        if(fs.existsSync(path.resolve('node_modules', module, 'package.json'))){
-            info.type = require(path.resolve('node_modules', module, 'package.json')).license || 'MIT'
-        }
-        licensemodules.push(info)
-    } else if (fs.existsSync(licensepath+'.txt')) {
-        id++
-        info.name = module; info.path = 'node_modules/'+ module+'/'+ path.parse(licensepath+'.txt').name;
-        if(fs.existsSync(path.resolve('node_modules', module, 'package.json'))){
-            info.type = require(path.resolve('node_modules', module, 'package.json')).license || 'MIT'
-        }
-        licensemodules.push(info)
-    } else if (fs.existsSync(licensepath+'.md')) {
-        id++
-        info.name = module; info.path = 'node_modules/'+ module+'/'+ path.parse(licensepath+'.md').name;;
-        if(fs.existsSync(path.resolve('node_modules', module, 'package.json'))){
-            info.type = require(path.resolve('node_modules', module, 'package.json')).license || 'MIT'
-        }
-        licensemodules.push(info)
-    }
+    licensemodules.push(info)
 })
-
 fs.writeFileSync(path.resolve('license', 'license.json'), JSON.stringify(licensemodules, null, 2))
 
 module.exports = licensemodules

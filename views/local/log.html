@@ -3,6 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="preload" href="script/setting.js" as="script">
+  <link rel="preload" href="script/socket/socket.io.min.js" as="script">
   <link rel="stylesheet" id="accent" href="style/theme.css">
   <link rel="icon" href="icon/logo.png" type="image/x-icon">
   <link rel="stylesheet" href="style/highlight.css">
@@ -200,10 +202,8 @@
       showLog(text);
     });
 
-    /* ─── COMMENTED ───
     socket.on('theme', (t) => setTheme(t));
     socket.on('accent', (a) => setAccent(a));
-    ─────────────────── */
   </script>
 </body>
 </html>

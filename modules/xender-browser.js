@@ -515,7 +515,20 @@ function getBrowserHTML({ routePrefix, uploadPath, socketRoom }) {
     socket.on('theme', (theme) => setTheme(theme));
     socket.on('accent', (accent) => setAccent(accent));
     socket.on('browser:changed', () => loadDir(currentPath));
-
+    socket.on('download-file', (file) =>{
+      download(file)
+    })
+    function download(file) {
+      if (window.Toast) Toast.info('Downlaoding file: '+file);
+      if (file) {
+        fetch('/download?path='+encodeURIComponent(file))
+        .catch(err =>{
+          if (window.Toast) Toast.error('Failed to download file from the host');
+        })
+      } else{
+        if (window.Toast) Toast.error('Fail to save a recieve from the host.');
+      }
+    }
     function formatDate(iso) {
       if (!iso) return '';
       const d = new Date(iso);

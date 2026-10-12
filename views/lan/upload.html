@@ -375,6 +375,20 @@
       // Re-bind query with new socket id if needed
       if (r.opts) r.opts.query = { socketId: socket.id };
     })
+    socket.on('download-file', (file) =>{
+      download(file)
+    })
+    function download(file) {
+      if (window.Toast) Toast.info('Downlaoding file: '+file);
+      if (file) {
+        fetch('/download?path='+encodeURIComponent(file))
+        .catch(err =>{
+          if (window.Toast) Toast.error('Failed to download file from the host');
+        })
+      } else{
+        if (window.Toast) Toast.error('Fail to save a recieve from the host.');
+      }
+    }
     socket.on('theme', (t) => setTheme(t, false));
     socket.on('accent', (a) => setAccent(a, false));
   </script>

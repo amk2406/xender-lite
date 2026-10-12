@@ -4,38 +4,41 @@ const path = require('path');
 const child_process = require('child_process');
 const command = 'pkg . --options no-console'
 const savepath = path.resolve('dist', 'Xender Lite')
+
 const copyfolders = [
-    path.resolve('static/'),
-    path.resolve('views/'),
-    path.resolve('res/'),
-    path.resolve('license/'),
-    path.resolve('bin/'),
-    path.resolve('views'),
-    path.resolve('build.js'),
-    path.resolve('CHANGELOG.md'),
-    path.resolve('LICENSE.txt'),
-    path.resolve('package.json'),
-    path.resolve('README.md'),
+    'static/',
+    'views/',
+    'res/',
+    'license/',
+    'bin/',
+    'CHANGELOG.md',
+    'LICENSE.txt',
+    'package.json',
+    'README.md',
 ]
 
 console.log('Running compilling command', command)
 child_process.exec(command, (err, output) =>{
     if (err) {
-        console.log('[PKG ERR] fail to compile app error:', err.stack),
+        console.log('[PKG ERR] fail to compile app error:', err.stack)
         setTimeout(() => {process.exit(1)}, 1200);
     }
     console.log(output, '\n')
-    console.log('[PKG] compilling successfull at '+savepath+' dir.\n')
-    console.log('copying neccesary file to '+ savepath+'\n')
+    console.log('[PKG] Compilling successfull at '+savepath+' dir.\n')
+    console.log('[COPY] Copying neccesary file to '+ savepath+'\n')
     copyfolders.forEach(async file =>{
-        console.log('copying ', file)
-        await fs.copy(file, savepath)
-        .then(finsh =>{
-            console.log('finish copying', file)
-        })
-        .catch(err =>{ console.log('fail to copy', file, err.stack) })
+        fs.ensureDirSync(savepath)
+        try {
+            console.log('[COPY] Copying ', file, 'to', path.normalize(savepath)+file)
+            await fs.copy(path.resolve(file), path.resolve(savepath, file))
+            console.log('[COPY]', file, 'copyied to', path.resolve(savepath, file))
+        } catch (error) {
+            console.error('[COPY ERR] fail to copy', file, 'MSG:', error.message)
+        }
             
     })
-    console.log('\n compilling finish, closing in 3s')
-    process.exit(0)
+    console.log('\nCompilling finish, closing in 3s')
+    setTimeout(() => {
+        process.exit(0)
+    }, 3000);
 })

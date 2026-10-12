@@ -1,7 +1,8 @@
 const path = require('path');
+const licenspath = path.resolve('license', 'license.json')
 let license 
 try {
-    license = require('./license.json');
+    license = require(licenspath);
 } catch (error) {
     license = require('./genlicensedata');
 }

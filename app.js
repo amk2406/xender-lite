@@ -93,7 +93,7 @@ const win = new WebView({
   backgroundColor: setting.theme === 'light' ? '#eee8e8' : setting.theme === 'dark' ? '#070707' : '#f0e8e8',
   userDataFolder: webviewdata
 });
-
+ 
 const db = new JSONDB(datapath) 
 const recent = db.collection({ name: 'recent', lazy: true, autoWrite: true,autoId: true})
 
@@ -633,7 +633,16 @@ apphttp.listen(port, async (err)=>{
 
             socket.on('select-file', () =>{
                 try {
-                    win.dialog.selectFile().then(file =>{
+                    win.dialog.selectFile({multiple: true}).then(file =>{
+                        log('selected files', file)
+                        if (!isinwifi) return win.dialog.info('You are not connected, Connect and start the web app to continue', 'Xender Lite');
+                        if (typeof file === 'string') {
+                            lansocket.emit('download-file', file)
+                        } else if (typeof file === 'object') {
+                            file.forEach(f =>{
+                                lansocket.emit('download-file', file)
+                            })
+                        }
                     }).catch(err =>{
                         errlog('[WIN ERR] fail to select file', err.message)
                         socket.emit('select-file-err', false)
@@ -642,7 +651,7 @@ apphttp.listen(port, async (err)=>{
                     errlog('[WIN ERR] fail to select file', error.message)
                     socket.emit('select-file-err', false)
                 }
-            })
+            }) 
             
             socket.on('get-license-list', () =>{
                 try {
@@ -660,6 +669,7 @@ apphttp.listen(port, async (err)=>{
             socket.on('clear-cache', () =>{
                 try {
                     loghandler.deletAllLogs()
+                    db.
                     fs.emptyDirSync(chunkpath)
                 } catch (error) {
                     errlog('[CACHE ERR] fail to clear cache', error.message)
@@ -697,6 +707,7 @@ apphttp.listen(port, async (err)=>{
                 ).then(res =>{
                     if (res === 'true' || res === true) {
                         closelanapp()
+                        isontranfer = false
                         process.exit(0)
                     }
                 })

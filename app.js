@@ -698,7 +698,7 @@ apphttp.listen(port, async (err)=>{
 
         })
 
-        //win.show() 
+        win.show() 
         win.on('close', async (event) =>{
             if (isontranfer) {
                 await win.dialog.confirm(
@@ -749,7 +749,7 @@ apphttp.listen(port, async (err)=>{
             }
         })
         win.on('closed', () =>{
-            process.exit(0)
+            //process.exit(0)
         })
         fs.ensureDirSync(chunkpath)
         const upload = multer({ dest: chunkpath });

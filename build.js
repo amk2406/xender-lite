@@ -2,7 +2,7 @@ console.log('Importing Modules')
 const fs = require('fs-extra');
 const path = require('path');
 const child_process = require('child_process');
-const command = 'pkg . --options no-console'
+const command = 'pkg . --options win'
 const savepath = path.resolve('dist', 'Xender Lite')
 
 const copyfolders = [
@@ -20,8 +20,9 @@ const copyfolders = [
 console.log('Running compilling command', command)
 child_process.exec(command, (err, output) =>{
     if (err) {
-        console.log('[PKG ERR] fail to compile app error:', err.stack)
+        console.log('[PKG ERR] fail to compile app error:', err)
         setTimeout(() => {process.exit(1)}, 1200);
+        return
     }
     console.log(output, '\n')
     console.log('[PKG] Compilling successfull at '+savepath+' dir.\n')

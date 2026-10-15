@@ -2,7 +2,7 @@ console.log('Importing Modules')
 const fs = require('fs-extra');
 const path = require('path');
 const child_process = require('child_process');
-const command = 'pkg . --options win'
+const command = 'pkg . --fallback-to-source'
 const savepath = path.resolve('dist', 'Xender Lite')
 
 const copyfolders = [

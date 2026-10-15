@@ -352,10 +352,10 @@ apphttp.listen(port, async (err)=>{
         if (err.code === 'EADDRINUSE') {
             setTimeout(() => {
                 process.exit(1)
-            }, 650);
+            }, 250);
         }
         errlog('[APP HTTP] Error starting local app http ', err.message)
-        dialo.error(`Fail to start Xender Lite, ERROR: ${err.code || '0x001'} `, 'Xender Lite')
+        dialo.error(`Fail to start Xender Lite, ERROR: ${err.code || '00Rx0017D2'} `, 'Xender Lite')
     }
     try {
         log('[APP HTTP] App start successfully.')

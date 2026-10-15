@@ -19,7 +19,7 @@ const generator = require('./modules/generator')
 const network = require('./modules/networkinfo')
 const license = require('./modules/license')
 const loghandler = require('./modules/log')
-const {generateMaxWait, getFileCategory, getUniqueFilePath} = require('./modules/utility')
+const { getFileCategory, getUniqueFilePath} = require('./modules/utility')
 const { setupXenderBrowser } = require('./modules/xender-browser');
 const dialo = require('./modules/windows-dialog');
 
@@ -38,12 +38,10 @@ const recentpath = path.resolve(datapath, 'Recent')
 const configpath = path.resolve(datapath, 'config.json')
 const settingpath = path.resolve(datapath, 'setting.json')
 const webviewdata = path.resolve(datapath, 'Webview Data')
-fs.ensureDirSync(datapath)
-fs.ensureDirSync(tempdir)
-fs.ensureDirSync(logpath)
-fs.ensureDirSync(chunkpath)
-// Little helpers
+fs.ensureDirSync(datapath); fs.ensureDirSync(tempdir);
+fs.ensureDirSync(logpath); fs.ensureDirSync(chunkpath);
 
+// Little helpers
 const loger = new Logger({
   path: logpath,                 // where to store log files
   showConsole: true,              // also print to terminal
@@ -58,10 +56,8 @@ const loger = new Logger({
   captureErrors: true             // catch uncaught errors
 })
 license.getAll()
-const log = console.log
-const err = console.error
-const errlog = console.error
-const version = '2.0.0'
+const log = console.log; const err = console.error;
+const errlog = console.error; const version = '2.0.0';
 
 // App setting and config
 let setting = settingdata(settingpath)
@@ -71,7 +67,6 @@ let config = configdata(configpath)
 const approvedTokens = new Map(); // token → { created: Date, ip: string }
 
 function generateToken() { return crypto.randomBytes(16).toString('hex');}
-
 function isTokenValid(token) {return token && approvedTokens.has(token);}
 
 // Module config
@@ -88,7 +83,7 @@ const win = new WebView({
   width: 1200,
   height: 700,
   minWidth: 800,
-  windowsHide: false,
+  windowsHide: true,
   devTools: false,
   backgroundColor: setting.theme === 'light' ? '#eee8e8' : setting.theme === 'dark' ? '#070707' : '#f0e8e8',
   userDataFolder: webviewdata
@@ -248,7 +243,6 @@ app.use((err, req, res, next) =>{
     }
 })
 
-
 // Auth middleware for LAN (Web Mode)
 lanapp.use(async (req, res, next) => {
   // Allow static files if you want (optional)
@@ -358,7 +352,6 @@ const port = config.ports.default
 apphttp.listen(port, async (err)=>{
     if (err) {
         if (err.code === 'EADDRINUSE') {
-            errlog('[APP HTTP] Error starting local app http ', err.message)
             setTimeout(() => {
                 process.exit(1)
             }, 650);
@@ -749,7 +742,7 @@ apphttp.listen(port, async (err)=>{
             }
         })
         win.on('closed', () =>{
-            //process.exit(0)
+            process.exit(0)
         })
         fs.ensureDirSync(chunkpath)
         const upload = multer({ dest: chunkpath });
@@ -910,6 +903,6 @@ apphttp.listen(port, async (err)=>{
         errlog('[APP ROUTE] An error Occur Stack: ', error.stack)
     }
 })
-process.on('exit', (code)=>{ win.close()})
-const procode = ['unhandledRejection', 'uncaughtException', 'rejectionHandled']
+process.on('exit', (code)=>{ win.close()});
+const procode = ['unhandledRejection', 'uncaughtException', 'rejectionHandled'];
 procode.forEach(code => {process.on(code, (err) =>{console.log(err)})});

@@ -55,7 +55,7 @@ const loger = new Logger({
   captureConsole: true,           // hijack console.*
   captureErrors: true             // catch uncaught errors
 })
-license.getAll()
+
 const log = console.log; const err = console.error;
 const errlog = console.error; const version = '2.0.0';
 
@@ -332,8 +332,6 @@ lanapp.get('/download', async (req, res, next) =>{
 
 
 fs.ensureDirSync(chunkpath);
-
-
 
 try {
     wifi.on('error', err =>{

@@ -44,16 +44,8 @@ fs.ensureDirSync(logpath); fs.ensureDirSync(chunkpath);
 // Little helpers
 const loger = new Logger({
   path: logpath,                 // where to store log files
-  showConsole: true,              // also print to terminal
-  includeTimestamp: true,         // prepend ISO date
-  fileFormat: 'log-%date%.log',   // e.g. log-2026-08-29.log
-  renewTime: '1d',                // new file every day (or '10m', '1h', '1M'...)
+  showConsole: false,
   maxFileSize: 200 * 1024,
-  maxFiles: 50,                   // keep last 30 files
-  format: 'text',                 // 'text' | 'json'
-  colors: true,
-  captureConsole: true,           // hijack console.*
-  captureErrors: true             // catch uncaught errors
 })
 
 const log = console.log; const err = console.error;
@@ -352,7 +344,7 @@ apphttp.listen(port, async (err)=>{
         if (err.code === 'EADDRINUSE') {
             setTimeout(() => {
                 process.exit(1)
-            }, 250);
+            }, 80);
         }
         errlog('[APP HTTP] Error starting local app http ', err.message)
         dialo.error(`Fail to start Xender Lite, ERROR: ${err.code || '00Rx0017D2'} `, 'Xender Lite')
@@ -660,13 +652,21 @@ apphttp.listen(port, async (err)=>{
             socket.on('clear-cache', () =>{
                 try {
                     loghandler.deletAllLogs()
-                    recent.deleteOne({})
+                    db.dropCollection('recent')
                     fs.emptyDirSync(chunkpath)
                 } catch (error) {
                     errlog('[CACHE ERR] fail to clear cache', error.message)
                 }
             })
-
+            socket.on('remove-transfer', async file =>{
+                if (file && (file.path || file.name)) {
+                    try {
+                        await recent.deleteOneAsync({ path: (file.path || file.name )})
+                    } catch (error) {
+                        errlog('[DB ERR] fail to delete data', error.message)
+                    }
+                }
+            })
             lansocket.on('connection', (socket) =>{
                 // Theme
                 socket.emit('theme', setting.theme);
@@ -903,4 +903,4 @@ apphttp.listen(port, async (err)=>{
 })
 process.on('exit', (code)=>{ win.close()});
 const procode = ['unhandledRejection', 'uncaughtException', 'rejectionHandled'];
-procode.forEach(code => {process.on(code, (err) =>{console.log(err)})});
+procode.forEach(code => {process.on(code, (err) =>{})});
